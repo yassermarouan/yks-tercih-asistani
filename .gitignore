@@ -1,0 +1,12 @@
+.env*
+__pycache__/
+*.pyc
+*.pyo
+models/*.joblib
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vscode/
+.idea/
+*.log

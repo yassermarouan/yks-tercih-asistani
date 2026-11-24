@@ -1,0 +1,3 @@
+2025 Yükseköğretim Kurumları Sınavı (YKS) için Abdullah Gül Üniversitesi Mimarlık (İngilizce) programının tahmin edilen taban sıralaması 174,972.35 olarak belirlenmiştir. Bu tahmin, önceki yılın (2024) taban sıralaması olan 178,370 ile karşılaştırıldığında, daha rekabetçi bir seviyeye işaret etmektedir. 
+
+Modelin analizine göre, önceki yılın taban sıralaması, tahmin edilen sıralamayı en çok etkileyen faktör olmuştur. Bu faktör, tahmin edilen sıralamayı daha iyi bir seviyeye çekerek -98,653.51 gibi önemli bir negatif etki sağlamıştır. Kontenjan ise daha az etkili bir faktör olarak -2,649.25 katkı payı ile sıralamayı olumlu yönde etkilemiştir. Ancak, bu modelin bir tahmin aracı olduğunu unutmamak önemlidir; kesin yerleşme garantisi sunmamaktadır.

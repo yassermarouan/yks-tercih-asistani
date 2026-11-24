@@ -1,0 +1,27 @@
+{
+  "program_details": {
+    "program_code": "106510014",
+    "university_name": "ABDULLAH GÜL ÜNİVERSİTESİ (KAYSERİ) (Devlet Üniversitesi)",
+    "program_name": "Mimarlık (İngilizce)"
+  },
+  "input_values": {
+    "previous_closing_rank": 178370.0,
+    "published_quota": 50.0
+  },
+  "predictions_and_benchmarks": {
+    "predicted_closing_rank": 174972.34666666668,
+    "actual_closing_rank": 156190.0,
+    "previous_year_benchmark": 178370.0,
+    "model_absolute_error": 18782.34666666668,
+    "baseline_absolute_error": 22180.0
+  },
+  "shap_explanation": {
+    "reference_value": 276275.1080392157,
+    "signed_contributions": {
+      "previous_closing_rank": -98653.51068402255,
+      "published_quota": -2649.250688516328
+    },
+    "reproduced_prediction": 174972.3466666768,
+    "sum_check_passed": true
+  }
+}
