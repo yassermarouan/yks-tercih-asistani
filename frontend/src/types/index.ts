@@ -304,6 +304,12 @@ export interface ChatReferencedProgram {
   score_type: string;
   latest_rank: number | null;
   predicted_rank: number | null;
+  interval_lower?: number | null;
+  interval_upper?: number | null;
+  margin_pct?: number | null;
+  dominant_factor?: string;
+  dominant_factor_label?: string;
+  xai_explanation?: string;
   category: "reach" | "target" | "safe";
   category_label: string;
 }

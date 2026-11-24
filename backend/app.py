@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
     explanation_service = ExplanationService()
     advisor_service = AdvisorService(data_loader)
     analytics_service = AnalyticsService(data_loader)
-    chat_service = ChatService(data_loader, model_service, advisor_service, analytics_service)
+    chat_service = ChatService(data_loader, model_service, advisor_service, analytics_service, explanation_service)
     print("[App Startup] All backend services initialized.")
     yield
     print("[App Shutdown] Cleaning up services...")

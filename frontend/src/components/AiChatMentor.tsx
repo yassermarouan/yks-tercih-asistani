@@ -21,6 +21,9 @@ import {
   ShieldCheck,
   HelpCircle,
   MapPin,
+  Cpu,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 interface Props {
@@ -52,11 +55,11 @@ export const AiChatMentor: React.FC<Props> = ({
       {
         id: "welcome-1",
         role: "assistant",
-        content: `Merhaba! Ben **YKS Tercih Asistanı AI Danışmanın**. 🎓
+        content: `Merhaba! Ben **Açıklanabilir Yapay Zeka (Explainable AI - XAI) Destekli YKS Tercih Danışmanın**. 🎓
 
-YKS tercih maratonunda yalnız değilsin. **13.581 lisans programı**, **LightGBM 2026 sıralama tahminlerimiz** ve **YÖK Atlas resmi verileriyle** buradayım.
+Kara kutu tahminler yerine; **LightGBM regresyonu, TreeSHAP karar ağırlıkları (kontenjan baskısı, yerleşik taban eğilimi, talep ivmesi)** ve **%80 güvenli tercih koridoru** ile her tahminin arkasındaki bilimsel gerekçeleri açıklıyorum.
 
-Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24'lük tercih listesi stratejini sorabilirsin!`,
+Bana YKS başarı sıranı, aklındaki bölümleri ya da tercih stratejini sorabilirsin!`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         suggestions: DEFAULT_SUGGESTIONS.slice(0, 3),
       },
@@ -65,6 +68,7 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24'lük ter
 
   const [inputMessage, setInputMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [expandedXaiCode, setExpandedXaiCode] = useState<string | null>(null);
   const [studentRank, setStudentRank] = useState<number | null>(
     studentProfile?.rank ? Number(studentProfile.rank) : null
   );
@@ -279,16 +283,17 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24'lük ter
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-base font-black text-white tracking-tight">
-                Akıllı YKS Tercih Danışmanı
+                Açıklanabilir YKS Tercih Danışmanı (XAI)
               </h2>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                AI Mentor
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                <Cpu className="w-3 h-3" />
+                <span>Explainable AI</span>
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 flex items-center gap-1.5 mt-0.5">
-              <span>YÖK Atlas & LightGBM 2026 Destekli</span>
+              <span>LightGBM & TreeSHAP Şeffaf Karar Modeli</span>
               <span>•</span>
-              <span className="text-zinc-500">24 Tercih Portföy Rehberi</span>
+              <span className="text-zinc-500">13.581 Program Verisi</span>
             </p>
           </div>
         </div>
@@ -395,96 +400,171 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24'lük ter
                 {/* Text Content */}
                 {renderFormattedContent(msg.content)}
 
-                {/* In-Chat Interactive Program Cards */}
+                {/* In-Chat Interactive Explainable AI Program Cards */}
                 {msg.referenced_programs && msg.referenced_programs.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2">
-                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                      📌 Önerilen Lisans Programları ({msg.referenced_programs.length})
-                    </span>
-                    <div className="grid grid-cols-1 gap-2">
+                  <div className="mt-3 pt-3 border-t border-zinc-800 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Cpu className="w-3.5 h-3.5" />
+                        Açıklanabilir Yapay Zeka (XAI) Destekli Programlar ({msg.referenced_programs.length})
+                      </span>
+                      <span className="text-[10px] text-zinc-500">LightGBM & TreeSHAP</span>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2.5">
                       {msg.referenced_programs.map((p) => {
                         const inShortlist = isShortlisted(p.program_code);
+                        const isXaiOpen = expandedXaiCode === p.program_code;
+
                         return (
                           <div
                             key={p.program_code}
-                            className="p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                            className="p-3.5 rounded-xl bg-zinc-900/95 border border-zinc-800 hover:border-zinc-700 transition space-y-2.5 text-xs shadow-lg"
                           >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-bold text-white text-xs">{p.program_name}</span>
-                                <span
-                                  className={`px-2 py-0.2 rounded text-[10px] font-extrabold ${
-                                    p.category === "reach"
-                                      ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                                      : p.category === "safe"
-                                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                      : "bg-sky-500/10 text-sky-400 border border-sky-500/20"
-                                  }`}
-                                >
-                                  {p.category_label}
+                            {/* Program Title & Category */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                              <div>
+                                <h5 className="font-extrabold text-white text-xs sm:text-sm">{p.program_name}</h5>
+                                <div className="flex items-center gap-2 text-[11px] text-zinc-400 mt-0.5">
+                                  <span className="flex items-center gap-1 text-zinc-300 font-medium">
+                                    <Building2 className="w-3 h-3 text-zinc-500" />
+                                    {p.university_name}
+                                  </span>
+                                  <span>•</span>
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="w-3 h-3 text-zinc-500" />
+                                    {p.city}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <span
+                                className={`px-2.5 py-0.5 rounded text-[10px] font-extrabold self-start sm:self-auto ${
+                                  p.category === "reach"
+                                    ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                                    : p.category === "safe"
+                                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                    : "bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                                }`}
+                              >
+                                {p.category_label}
+                              </span>
+                            </div>
+
+                            {/* XAI Prediction vs Last Year Numbers Grid */}
+                            <div className="grid grid-cols-2 gap-2 pt-1 text-[11px]">
+                              <div className="bg-zinc-950/80 p-2 rounded-lg border border-zinc-800">
+                                <span className="text-zinc-500 block text-[10px]">2025 Son Taban Sırası</span>
+                                <span className="font-mono font-bold text-white">
+                                  {formatRank(p.latest_rank)}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-2 text-[11px] text-zinc-400">
-                                <span className="flex items-center gap-1">
-                                  <Building2 className="w-3 h-3 text-zinc-500" />
-                                  {p.university_name}
+
+                              <div className="bg-emerald-950/30 p-2 rounded-lg border border-emerald-500/20">
+                                <span className="text-emerald-400 font-semibold block text-[10px] flex items-center gap-1">
+                                  <Sparkles className="w-2.5 h-2.5" />
+                                  LightGBM 2026 Tahmini
                                 </span>
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3 text-zinc-500" />
-                                  {p.city}
+                                <span className="font-mono font-extrabold text-emerald-300">
+                                  {formatRank(p.predicted_rank)}
                                 </span>
-                                {p.latest_rank && (
-                                  <>
-                                    <span>•</span>
-                                    <span className="font-mono text-emerald-400 font-bold">
-                                      {formatRank(p.latest_rank)}
-                                    </span>
-                                  </>
-                                )}
                               </div>
                             </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <button
-                                onClick={() => onOpenDetailModal(p.program_code)}
-                                title="Program Detayları"
-                                className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-medium flex items-center gap-1 text-[11px] transition cursor-pointer"
-                              >
-                                <Eye className="w-3 h-3" />
-                                <span>İncele</span>
-                              </button>
+                            {/* XAI Confidence Corridor & TreeSHAP Factor Badges */}
+                            <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                              {p.interval_lower && p.interval_upper && (
+                                <span className="px-2 py-0.5 rounded bg-zinc-950 text-zinc-300 border border-zinc-800 font-mono">
+                                  %80 Koridor: {formatRank(p.interval_lower)} – {formatRank(p.interval_upper)} (±%{p.margin_pct})
+                                </span>
+                              )}
 
-                              <button
-                                onClick={() => onOpenSimulationModal(p.program_code)}
-                                title="Kontenjan Simülasyonu"
-                                className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-medium flex items-center gap-1 text-[11px] transition cursor-pointer"
-                              >
-                                <span>Simüle Et</span>
-                              </button>
+                              {p.dominant_factor_label && (
+                                <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium flex items-center gap-1">
+                                  <Cpu className="w-2.5 h-2.5" />
+                                  Baskın Faktör: {p.dominant_factor_label}
+                                </span>
+                              )}
+                            </div>
 
-                              <button
-                                onClick={() => handleAddReferencedToShortlist(p)}
-                                disabled={inShortlist}
-                                className={`px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1 text-[11px] transition cursor-pointer ${
-                                  inShortlist
-                                    ? "bg-zinc-800 text-emerald-400 border border-emerald-500/30"
-                                    : "bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-500/20"
-                                }`}
-                              >
-                                {inShortlist ? (
-                                  <>
-                                    <Check className="w-3 h-3" />
-                                    <span>Listede</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Plus className="w-3 h-3" />
-                                    <span>Listeme Ekle</span>
-                                  </>
+                            {/* Expandable XAI Reasoning Button */}
+                            {p.xai_explanation && (
+                              <div>
+                                <button
+                                  onClick={() => setExpandedXaiCode(isXaiOpen ? null : p.program_code)}
+                                  className="text-[11px] text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 transition cursor-pointer py-0.5"
+                                >
+                                  {isXaiOpen ? (
+                                    <>
+                                      <ChevronUp className="w-3.5 h-3.5" />
+                                      <span>XAI Model Analizini Gizle</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ChevronDown className="w-3.5 h-3.5" />
+                                      <span>Neden Bu Tahmin Yapıldı? (Açıklanabilir XAI Raporu)</span>
+                                    </>
+                                  )}
+                                </button>
+
+                                {isXaiOpen && (
+                                  <div className="mt-2 p-3 rounded-xl bg-zinc-950 border border-emerald-500/30 text-xs text-zinc-300 space-y-2 animate-fade-in">
+                                    <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[11px]">
+                                      <ShieldCheck className="w-3.5 h-3.5" />
+                                      <span>Açıklanabilir Yapay Zeka (TreeSHAP) Doğrulaması</span>
+                                    </div>
+                                    <p className="leading-relaxed text-[11px] text-zinc-300">
+                                      {p.xai_explanation}
+                                    </p>
+                                  </div>
                                 )}
-                              </button>
+                              </div>
+                            )}
+
+                            {/* Card Action Buttons */}
+                            <div className="flex items-center justify-between pt-1 border-t border-zinc-800/80">
+                              <span className="text-[10px] font-mono text-zinc-500">Kod: {p.program_code}</span>
+
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => onOpenDetailModal(p.program_code)}
+                                  title="Program Detayları"
+                                  className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-medium flex items-center gap-1 text-[11px] transition cursor-pointer"
+                                >
+                                  <Eye className="w-3 h-3" />
+                                  <span>İncele</span>
+                                </button>
+
+                                <button
+                                  onClick={() => onOpenSimulationModal(p.program_code)}
+                                  title="Kontenjan Simülasyonu"
+                                  className="px-2.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-amber-300 font-medium flex items-center gap-1 text-[11px] transition cursor-pointer"
+                                >
+                                  <span>Simüle Et</span>
+                                </button>
+
+                                <button
+                                  onClick={() => handleAddReferencedToShortlist(p)}
+                                  disabled={inShortlist}
+                                  className={`px-2.5 py-1.5 rounded-lg font-bold flex items-center gap-1 text-[11px] transition cursor-pointer ${
+                                    inShortlist
+                                      ? "bg-zinc-800 text-emerald-400 border border-emerald-500/30"
+                                      : "bg-emerald-500 hover:bg-emerald-400 text-black shadow-md shadow-emerald-500/20"
+                                  }`}
+                                >
+                                  {inShortlist ? (
+                                    <>
+                                      <Check className="w-3 h-3" />
+                                      <span>Listede</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-3 h-3" />
+                                      <span>Listeme Ekle</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
