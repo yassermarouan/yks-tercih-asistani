@@ -17,19 +17,21 @@ import { WhatIfSimulatorModal } from "./components/WhatIfSimulatorModal";
 import { PreferenceListAuditModal } from "./components/PreferenceListAuditModal";
 import { TurkeyPreferenceMap } from "./components/TurkeyPreferenceMap";
 import { TrendMarketDashboard } from "./components/TrendMarketDashboard";
+import { AiChatMentor } from "./components/AiChatMentor";
 import {
   Compass,
   BookOpen,
   SlidersHorizontal,
   MapPin,
   Activity,
+  Bot,
 } from "lucide-react";
 
 const SHORTLIST_STORAGE_KEY = "yks_shortlist_programs";
 const FORM_STORAGE_KEY = "yks_saved_form_payload";
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<"advisor" | "explorer" | "map" | "trends">("advisor");
+  const [activeTab, setActiveTab] = useState<"advisor" | "explorer" | "map" | "trends" | "mentor">("advisor");
   const [cityFilterFromMap, setCityFilterFromMap] = useState<string>("");
 
   // Advisor state
@@ -233,6 +235,19 @@ export function App() {
               <Activity className="w-4 h-4" />
               <span>YKS Trend Borsası</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab("mentor")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer relative ${
+                activeTab === "mentor"
+                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              <span>AI Danışman</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            </button>
           </div>
         </div>
       </header>
@@ -299,12 +314,28 @@ export function App() {
               setActiveTab("explorer");
             }}
           />
-        ) : (
+        ) : activeTab === "trends" ? (
           <TrendMarketDashboard
             onSelectProgram={(code) => {
               getProgramDetail(code)
                 .then((p) => setSelectedProgram(p))
                 .catch((err) => console.error("Program load error:", err));
+            }}
+          />
+        ) : (
+          <AiChatMentor
+            studentProfile={formPayload}
+            shortlist={shortlist}
+            onAddToShortlist={handleToggleShortlist}
+            onOpenDetailModal={(code) => {
+              getProgramDetail(code)
+                .then((p) => setSelectedProgram(p))
+                .catch((err) => console.error("Program load error:", err));
+            }}
+            onOpenSimulationModal={(code) => {
+              getProgramDetail(code)
+                .then((p) => setSimulationProgram(p))
+                .catch((err) => console.error("Simulation load error:", err));
             }}
           />
         )}
@@ -352,6 +383,24 @@ export function App() {
           studentRank={advisorResults?.student_rank || (formPayload?.rank ? Number(formPayload?.rank) : undefined)}
           onClose={() => setSimulationProgram(null)}
         />
+      )}
+
+      {/* Floating AI Mentor Quick-Access Trigger */}
+      {activeTab !== "mentor" && (
+        <button
+          onClick={() => setActiveTab("mentor")}
+          className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border-2 border-black group"
+          title="AI Tercih Danışmanına Sor"
+        >
+          <div className="relative">
+            <Bot className="w-5 h-5 stroke-[2.4]" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-black rounded-full animate-ping" />
+          </div>
+          <div className="text-left hidden sm:block">
+            <div className="text-xs font-black leading-tight">AI Danışmana Sor</div>
+            <div className="text-[10px] opacity-80 font-medium">Rehberlik & Analiz</div>
+          </div>
+        </button>
       )}
 
       {/* Footer */}

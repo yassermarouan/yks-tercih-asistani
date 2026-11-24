@@ -10,6 +10,8 @@ import type {
   SimulationResponse,
   CitiesAnalyticsResponse,
   TrendAnalyticsResponse,
+  ChatRequestPayload,
+  ChatResponse,
 } from "./types";
 
 const API_BASE = "/api";
@@ -125,6 +127,19 @@ export async function getTrendAnalytics(scoreType: string = "ALL", limit: number
   const params = new URLSearchParams({ score_type: scoreType, limit: limit.toString() });
   const res = await fetch(`${API_BASE}/analytics/trends?${params.toString()}`);
   if (!res.ok) throw new Error("YKS trend verileri yüklenemedi.");
+  return res.json();
+}
+
+export async function sendChatMessage(payload: ChatRequestPayload): Promise<ChatResponse> {
+  const res = await fetch(`${API_BASE}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.detail || "AI Danışman yanıt verirken bir hata oluştu.");
+  }
   return res.json();
 }
 

@@ -17,6 +17,7 @@ from backend.model_service import ModelService
 from backend.explanation_service import ExplanationService
 from backend.advisor_service import AdvisorService
 from backend.analytics_service import AnalyticsService
+from backend.chat_service import ChatService
 
 # Global service singletons
 data_loader: Optional[DataLoader] = None
@@ -24,17 +25,19 @@ model_service: Optional[ModelService] = None
 explanation_service: Optional[ExplanationService] = None
 advisor_service: Optional[AdvisorService] = None
 analytics_service: Optional[AnalyticsService] = None
+chat_service: Optional[ChatService] = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global data_loader, model_service, explanation_service, advisor_service, analytics_service
+    global data_loader, model_service, explanation_service, advisor_service, analytics_service, chat_service
     print("[App Startup] Initializing YKS Tercih Asistanı backend services...")
     data_loader = DataLoader()
     model_service = ModelService()
     explanation_service = ExplanationService()
     advisor_service = AdvisorService(data_loader)
     analytics_service = AnalyticsService(data_loader)
+    chat_service = ChatService(data_loader, model_service, advisor_service, analytics_service)
     print("[App Startup] All backend services initialized.")
     yield
     print("[App Shutdown] Cleaning up services...")
@@ -205,6 +208,22 @@ def get_trends_analytics(
     if not analytics_service:
         raise HTTPException(status_code=503, detail="Analytics service not initialized")
     return analytics_service.get_trend_analytics(score_type=score_type, limit=limit)
+
+
+@app.post("/api/chat")
+def chat_with_mentor(payload: dict):
+    if not chat_service:
+        raise HTTPException(status_code=503, detail="Chat service not initialized")
+    message = payload.get("message", "").strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="Mesaj boş olamaz.")
+    conversation_history = payload.get("conversation_history", [])
+    student_context = payload.get("student_context", {})
+    return chat_service.chat(
+        message=message,
+        conversation_history=conversation_history,
+        student_context=student_context,
+    )
 
 
 if __name__ == "__main__":

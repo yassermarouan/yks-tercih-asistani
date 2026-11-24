@@ -295,3 +295,47 @@ export interface TrendAnalyticsResponse {
   top_decliners: TrendProgram[];
   sector_trends: SectorTrend[];
 }
+
+export interface ChatReferencedProgram {
+  program_code: string;
+  university_name: string;
+  program_name: string;
+  city: string;
+  score_type: string;
+  latest_rank: number | null;
+  predicted_rank: number | null;
+  category: "reach" | "target" | "safe";
+  category_label: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string;
+  source?: "openai" | "verified_rule_engine" | "fallback";
+  model?: string;
+  referenced_programs?: ChatReferencedProgram[];
+  suggestions?: string[];
+}
+
+export interface ChatRequestPayload {
+  message: string;
+  conversation_history?: Array<{ role: string; content: string }>;
+  student_context?: {
+    rank?: number | null;
+    score_type?: string;
+    preferred_cities?: string[];
+    target_programs?: string[];
+  };
+}
+
+export interface ChatResponse {
+  status: "success" | "error";
+  reply: string;
+  source?: "openai" | "verified_rule_engine" | "fallback";
+  model?: string;
+  referenced_programs: ChatReferencedProgram[];
+  suggestions: string[];
+}
+
