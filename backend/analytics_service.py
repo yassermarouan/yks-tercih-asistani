@@ -173,7 +173,7 @@ class AnalyticsService:
                 "total_quota_2025": sum(quotas) if quotas else 0,
                 "score_types_count": dict(data["score_types"]),
                 "uni_types_count": dict(data["uni_types"]),
-                "top_universities": unis_summary[:10],
+                "top_universities": unis_summary,
             })
 
         # Sort by program count descending
