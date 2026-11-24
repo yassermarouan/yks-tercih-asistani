@@ -341,7 +341,7 @@ class ChatService:
             else:
                 parts.append(
                     "Sana en doğru ve gerçekçi önerileri sunabilmem için **YKS başarı sıranı (Örn: 45.000)**, **puan türünü (SAY, EA, SÖZ)** "
-                    "ve aklındaki bölüm veya şehirleri belirtirsen, 13.581 lisans programı ve güncel YÖK verileri üzerinden "
+                    "ve aklındaki bölüm veya şehirleri belirtirsen, 13.581 lisans programı ve güncel üniversite verileri üzerinden "
                     "birebir sana özel tercih rehberliğini hemen hazırlayabilirim!"
                 )
 
@@ -443,7 +443,7 @@ class ChatService:
 
         system_prompt = (
             "Sen üniversite adayları ve velileri için çalışan deneyimli, son derece samimi, sıcak, empatik ve gerçekçi bir YKS Tercih Rehber Öğretmenisin.\n\n"
-            "ÖNEMLİ KURAL: KESİNLİKLE 'LightGBM', 'TreeSHAP', 'XAI', 'Explainable AI', 'regresyon', 'model', 'makine öğrenmesi', 'algoritma', 'kara kutu' GİBİ TEKNİK TERİMLER KULLANMA. "
+            "ÖNEMLİ KURAL: KESİNLİKLE 'LightGBM', 'TreeSHAP', 'XAI', 'Explainable AI', 'regresyon', 'model', 'makine öğrenmesi', 'algoritma', 'kara kutu', 'YÖK Atlas', 'YÖK' GİBİ TEKNİK VEYA RESMİ VERİTABANI İSİMLERİ KULLANMA. "
             "Tamamen bir rehberlik uzmanı gibi doğal, akıcı ve günlük Türkçe ile konuş.\n\n"
             "NASIL KONUŞMALISIN:\n"
             "1. TAHMİNLERİN ARKASINDAKİ NEDENLERİ DOĞAL BİR DİLLE ANLAT: Bir bölümün 2026'da hangi sıralamayla kapatacağını söylerken gerekçesini günlük rehberlik diliyle izah et. "

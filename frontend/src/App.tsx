@@ -406,9 +406,9 @@ export function App() {
       {/* Footer */}
       <footer className="border-t border-zinc-900 bg-black py-6 text-center text-xs text-zinc-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 YKS Tercih Asistanı • Resmi YÖK Atlas ve ÖSYM Açık Verileriyle Desteklenmektedir.</p>
+          <p>© 2026 YKS Tercih Asistanı • Merkezi Lisans Yerleştirme ve Tercih Rehberi</p>
           <p className="text-zinc-500">
-            Merkezi YKS Lisans Yerleştirme Karar Destek Asistanı
+            Akıllı YKS Tercih Karar Destek Asistanı
           </p>
         </div>
       </footer>

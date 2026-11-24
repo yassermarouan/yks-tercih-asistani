@@ -290,7 +290,7 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24 tercihi 
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 flex items-center gap-1.5 mt-0.5">
-              <span>YÖK Atlas & Akıllı Tercih Rehberi</span>
+              <span>Akıllı Tercih Rehberi</span>
               <span>•</span>
               <span className="text-zinc-500">13.581 Program Verisi</span>
             </p>
@@ -407,7 +407,7 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24 tercihi 
                         <Sparkles className="w-3.5 h-3.5" />
                         Önerilen Programlar ve Sıralama Analizi ({msg.referenced_programs.length})
                       </span>
-                      <span className="text-[10px] text-zinc-500">YÖK Atlas & Tercih Analizi</span>
+                      <span className="text-[10px] text-zinc-500">Kişiselleştirilmiş Tercih Analizi</span>
                     </div>
 
                     <div className="grid grid-cols-1 gap-2.5">
@@ -595,7 +595,7 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24 tercihi 
                   {!isUser && (
                     <span className="flex items-center gap-1">
                       <ShieldCheck className="w-3 h-3 text-emerald-500" />
-                      <span>{msg.source === "openai" ? "GPT-4o-mini & RAG" : "YÖK Atlas Doğrulamalı"}</span>
+                      <span>{msg.source === "openai" ? "Akıllı Tercih Danışmanı" : "Rehberlik Sistemi"}</span>
                     </span>
                   )}
                 </div>
@@ -616,7 +616,7 @@ Bana YKS başarı sıranı, aklındaki bölümleri, şehirleri ya da 24 tercihi 
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]" />
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]" />
               </div>
-              <span>Danışman YÖK Atlas ve LightGBM modelini tarıyor...</span>
+              <span>Danışman en uygun tercih seçeneklerini inceliyor...</span>
             </div>
           </div>
         )}

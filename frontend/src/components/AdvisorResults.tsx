@@ -469,7 +469,7 @@ export const AdvisorResults: React.FC<Props> = ({
       {/* Disclaimer at Bottom */}
       <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400 text-center space-y-1">
         <p>
-          ⚠️ <strong>Açıklanabilir Yapay Zeka & Yasal Bilgilendirme:</strong> Bu tavsiyeler, ÖSYM ve YÖK Atlas geçmiş merkezi yerleştirme verileri üzerinden istatistiksel kıyaslama amacıyla üretilmiştir. Kesin yerleşme veya kabul garantisi taşımaz.
+          ⚠️ <strong>Yasal Bilgilendirme:</strong> Bu tavsiyeler, geçmiş merkezi yerleştirme verileri ve istatistiksel eğilimler üzerinden kıyaslama amacıyla üretilmiştir. Kesin yerleşme veya kabul garantisi taşımaz.
         </p>
       </div>
     </div>
