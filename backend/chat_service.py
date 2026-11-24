@@ -109,9 +109,9 @@ class ChatService:
             momentum = inputs.get("rank_momentum_ratio", 1.0)
 
             xai_parts = [
-                f"LightGBM 2026 Tahmini: {pred_point:,.0f} taban sırası.",
-                f"%80 Güvenli Tercih Koridoru: {interval_lower:,.0f} – {interval_upper:,.0f} (±%{margin_pct:.1f}).",
-                f"TreeSHAP Karar Faktörü: En belirleyici ağırlık '{dominant_factor_label}' olarak hesaplandı.",
+                f"2026 Beklenen Sıralama: Yaklaşık {pred_point:,.0f} taban sırası.",
+                f"Güvenli Tercih Aralığı: {interval_lower:,.0f} – {interval_upper:,.0f} (±%{margin_pct:.1f}).",
+                f"Sıralamayı Etkileyen En Güçlü Neden: '{dominant_factor_label}'.",
             ]
             if abs(quota_chg) >= 3:
                 direction = "artışı" if quota_chg > 0 else "daralması"
@@ -263,7 +263,7 @@ class ChatService:
         parts = []
 
         # Greeting & acknowledgement
-        greeting = "Merhaba! **Açıklanabilir Yapay Zeka (XAI) Destekli YKS Tercih Danışmanın** olarak buradayım. 🎓"
+        greeting = "Merhaba! **Akıllı YKS Tercih Danışmanın** olarak buradayım. 🎓"
         parts.append(greeting)
 
         # Handle rank context
@@ -324,25 +324,25 @@ class ChatService:
         # Default / Recommendations with explicit XAI breakdown
         else:
             if referenced_programs:
-                parts.append("### 🧠 Açıklanabilir Yapay Zeka (XAI) ve Model Analizi")
+                parts.append("### 🎯 Senin İçin Seçilen Programlar ve Sıralama Analizi")
                 parts.append(
-                    "Aşağıdaki programlar sadece geçmiş yıl verisiyle değil; **LightGBM regresyonu, kontenjan baskısı "
-                    "ve TreeSHAP karar ağırlıkları** şeffaf biçimde incelenerek 2026 yılı için projeksiyonlandırılmıştır:\n"
+                    "Aşağıdaki programlar sadece geçmiş yıl verisiyle değil; kontenjan değişimleri, "
+                    "son 3 yılın talep dinamikleri ve yerleşik taban eğilimleri detaylı incelenerek 2026 yılı için öngörülmüştür:\n"
                 )
                 for p in referenced_programs:
-                    koridor = f"%80 Koridor: {p['interval_lower']:,.0f} – {p['interval_upper']:,.0f}" if p.get("interval_lower") else ""
+                    koridor = f"Beklenen Tercih Aralığı: {p['interval_lower']:,.0f} – {p['interval_upper']:,.0f}" if p.get("interval_lower") else ""
                     pred_str = f"{p['predicted_rank']:,.0f}" if p.get("predicted_rank") else "—"
                     parts.append(
                         f"• **{p['university_name']} – {p['program_name']}** ({p['city']})\n"
-                        f"  - **2026 Model Tahmini:** {pred_str} taban sırası ({koridor})\n"
-                        f"  - **XAI Karar Faktörü (TreeSHAP):** {p.get('dominant_factor_label', 'Geçmiş Taban İstikrarı')}\n"
+                        f"  - **2026 Beklenen Sıralama:** Yaklaşık {pred_str} ({koridor})\n"
+                        f"  - **Belirleyici Neden:** {p.get('dominant_factor_label', 'Geçmiş Taban İstikrarı')}\n"
                         f"  - **Senin Sıralamana Göre Durum:** {p['category_label']}"
                     )
             else:
                 parts.append(
-                    "Sana en doğru önerileri sunabilmem için **YKS başarı sıranı (Örn: 45.000)**, **puan türünü (SAY, EA, SÖZ)** "
-                    "ve aklındaki bölüm veya şehirleri belirtirsen, LightGBM modelimiz ve 13.581 programlık veri tabanımızla "
-                    "birebir sana özel Açıklanabilir Yapay Zeka analizi çıkarabilirim!"
+                    "Sana en doğru ve gerçekçi önerileri sunabilmem için **YKS başarı sıranı (Örn: 45.000)**, **puan türünü (SAY, EA, SÖZ)** "
+                    "ve aklındaki bölüm veya şehirleri belirtirsen, 13.581 lisans programı ve güncel YÖK verileri üzerinden "
+                    "birebir sana özel tercih rehberliğini hemen hazırlayabilirim!"
                 )
 
         suggestions = [
@@ -352,7 +352,7 @@ class ChatService:
         ]
         if score_type == "SAY" or "sayisal" in norm_msg:
             suggestions = [
-                "Bilgisayar ve Yazılım Mühendisliği için model tahminleri neler?",
+                "Bilgisayar ve Yazılım Mühendisliği için 2026 beklentileri neler?",
                 "Tıp Fakültesi mi Diş Hekimliği mi seçmeliyim?",
                 "24 tercihi Risk - İdeal - Güvenli olarak nasıl dağıtmalıyım?",
             ]
@@ -421,46 +421,41 @@ class ChatService:
             context_snippets.append(f"- Hedeflenen Puan Türü: {score_type}")
 
         if referenced_programs:
-            context_snippets.append("### SİSTEMİN HESAPLADIĞI AÇIKLANABİLİR YAPAY ZEKA (XAI) VE MODEL VERİLERİ:")
+            context_snippets.append("### SİSTEMİN HAZIRLADIĞI PROGRAM VE SIRALAMA BİLGİLERİ:")
             for p in referenced_programs:
                 lr_str = f"{p['latest_rank']:,.0f}" if p.get("latest_rank") else "Bilinmiyor"
                 pr_str = f"{p['predicted_rank']:,.0f}" if p.get("predicted_rank") else "Bilinmiyor"
                 koridor_str = f"{p['interval_lower']:,.0f} – {p['interval_upper']:,.0f} (±%{p['margin_pct']})" if p.get("interval_lower") else "Mevcut Değil"
                 dom_factor = p.get("dominant_factor_label", "Geçmiş Taban İstikrarı")
-                xai_note = p.get("xai_explanation", "")
+                reason_note = p.get("xai_explanation", "")
 
                 context_snippets.append(
                     f"• [{p['program_code']}] {p['university_name']} - {p['program_name']} ({p['city']})\n"
                     f"  - 2025 Son Taban Sırası: {lr_str}\n"
-                    f"  - LightGBM 2026 Model Tahmini: {pr_str}\n"
-                    f"  - %80 Güvenli Tercih Koridoru: {koridor_str}\n"
-                    f"  - TreeSHAP Belirleyici Karar Faktörü (XAI): {dom_factor}\n"
-                    f"  - XAI Karar Özeti: {xai_note}\n"
-                    f"  - Adayın Sıralamasına Göre Risk Konumu: {p['category_label']}"
+                    f"  - 2026 Beklenen Sıralama: {pr_str}\n"
+                    f"  - Güvenli Tercih Aralığı: {koridor_str}\n"
+                    f"  - Sıralamayı Belirleyen En Güçlü Neden: {dom_factor}\n"
+                    f"  - Gerekçe Detayı: {reason_note}\n"
+                    f"  - Adayın Sıralamasına Göre Konumu: {p['category_label']}"
                 )
 
         rag_data_str = "\n".join(context_snippets) if context_snippets else "Öğrenci henüz özel profil belirtmedi."
 
         system_prompt = (
-            "Sen üniversite adayları ve velileri için çalışan, **Açıklanabilir Yapay Zeka (Explainable AI - XAI)** "
-            "ilkeleriyle hareket eden kıdemli, bilge, samimi ve son derece şeffaf bir YKS Tercih Rehber Öğretmenisin. "
-            "Platformumuz Türkiye'deki 13.581 lisans programı, LightGBM regresyon modelleri, TreeSHAP karar analizleri, "
-            "şehir yaşam maliyetleri ve 24'lük tercih listesi portföy dağıtım mantığı ile doğrudan entegredir.\n\n"
-            "AÇIKLANABİLİR YAPAY ZEKA (XAI) KURALLARIN:\n"
-            "1. ASLA KARA KUTU (BLACK BOX) GİBİ KONUŞMA: Sadece 'buraya yerleşirsin' veya 'sıralaması 40.000 olur' demek KESİNLİKLE YASAKTIR. "
-            "Her tahminin ARKASINDAKİ NEDENLERİ şeffafça açıkla: Modelin 2026 tahminini, %80 güvenli tercih koridorunu ve TreeSHAP karar faktörlerini "
-            "(Geçmiş yıl yerleşik taban sırasının ağırlığı, Kontenjan artış/azalışının yarattığı esneme/baskı ve Bölümün 3 yıllık talep ivmesi) "
-            "öğrencinin anlayacağı sıcak, rehberlik odaklı bir dille metne dök.\n"
-            "2. YKS SIRALAMA MATEMATİĞİ: Sıralamada sayı küçüldükçe başarının ve rekabetin ARTTIĞINI, sayı büyüdükçe "
-            "sıralamanın gerilediğini ve kazanmanın kolaylaştığını unutma (Örn: 15.000, 35.000'den daha başarılıdır).\n"
-            "3. 24 TERCİH STRATEJİSİ VE KORİDOR: Adayın başarı sırasını modelin %80 güvenli tercih koridoruyla karşılaştır. "
-            "Programın adaya göre Üst Hedef (Risk), İdeal Hedef mi yoksa Güvenli Liman mı olduğunu belirt ve 24'lük listesinde nereye yazması gerektiğini söyle.\n"
-            "4. BİÇİMLENDİRME: Cevabında net başlıklar kullan: 🎓 Rehberlik Değerlendirmesi, 🧠 LightGBM & XAI Karar Analizi (Neden Bu Tahmin?), 🎯 Tercih Stratejin.\n"
-            "5. SOMUT VERİ KULLAN: Sistem verilerindeki gerçek üniversiteleri, kodları, 2025 ve 2026 tahmin sıralarını birebir kullan."
+            "Sen üniversite adayları ve velileri için çalışan deneyimli, son derece samimi, sıcak, empatik ve gerçekçi bir YKS Tercih Rehber Öğretmenisin.\n\n"
+            "ÖNEMLİ KURAL: KESİNLİKLE 'LightGBM', 'TreeSHAP', 'XAI', 'Explainable AI', 'regresyon', 'model', 'makine öğrenmesi', 'algoritma', 'kara kutu' GİBİ TEKNİK TERİMLER KULLANMA. "
+            "Tamamen bir rehberlik uzmanı gibi doğal, akıcı ve günlük Türkçe ile konuş.\n\n"
+            "NASIL KONUŞMALISIN:\n"
+            "1. TAHMİNLERİN ARKASINDAKİ NEDENLERİ DOĞAL BİR DİLLE ANLAT: Bir bölümün 2026'da hangi sıralamayla kapatacağını söylerken gerekçesini günlük rehberlik diliyle izah et. "
+            "Örneğin: 'Bu bölümün son yıllarda öğrencilerden yoğun talep görmesi nedeniyle sıralamasının öne çekilmesini bekliyoruz' veya 'Kontenjanındaki artış sıralamanın biraz daha geriye esnemesine yardımcı olabilir' veya 'Bölümün taban sıralaması yıllardır çok istikrarlı bir seyir izliyor' gibi doğal gerekçeler sun.\n"
+            "2. YKS SIRALAMA MANTIĞI: Sıralamada sayı küçüldükçe başarının ve rekabetin arttığını, sayı büyüdükçe sıralamanın gerilediğini ve yerleşmenin kolaylaştığını unutma (Örn: 15.000, 35.000'den daha iyidir/zordur).\n"
+            "3. 24 TERCİH DENGESİ: Adayın sıralamasını beklenen tercih aralığıyla kıyasla. Bölümün aday için 'Üst Hedef (Hayal)', 'İdeal Hedef' mi yoksa 'Güvenli Liman (Garanti)' mi olduğunu netçe belirt ve 24'lük listesinde nereye koyması gerektiğini öner.\n"
+            "4. BİÇİMLENDİRME: Cevabında sade ve doğal başlıklar kullan: 🎓 Rehberlik Değerlendirmesi, 💡 Neden Bu Sıralama Bekleniyor?, 🎯 Tercih Listen İçin Strateji.\n"
+            "5. GERÇEK VERİLER: Sistem bağlamında verilen üniversite isimlerini, şehirleri ve sıralama aralıklarını birebir ve tutarlı şekilde kullan."
         )
 
         user_content = (
-            f"[SİSTEM AÇIKLANABİLİR YAPAY ZEKA (XAI) VERİ BAĞLAMI]\n{rag_data_str}\n\n"
+            f"[SİSTEM VERİ BAĞLAMI]\n{rag_data_str}\n\n"
             f"[ÖĞRENCİ MESAJI]\n{message}"
         )
 
@@ -494,7 +489,7 @@ class ChatService:
                 suggestions = [
                     f"{score_type} {rank:,.0f} için en güvenli liman seçenekleri neler?",
                     "Ölü tercih riskini nasıl kontrol edebilirim?",
-                    "Modelin karar faktörleri sıralamamı nasıl etkiledi?",
+                    "Bölümlerin sıralamasını belirleyen temel etkenler neler?",
                 ]
 
             return {
