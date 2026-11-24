@@ -25,6 +25,101 @@ def normalize_turkish(text: str) -> str:
         "ü": "u", "Ü": "u",
     }
     return "".join(mapping.get(c, c.lower()) for c in str(text))
+TURKISH_CITIES_SET = {
+    "ADANA", "ADIYAMAN", "AFYONKARAHİSAR", "AĞRI", "AMASYA", "ANKARA", "ANTALYA", "ARTVİN", "AYDIN",
+    "BALIKESİR", "BİLECİK", "BİNGÖL", "BİTLİS", "BOLU", "BURDUR", "BURSA", "ÇANAKKALE", "ÇANKIRI",
+    "ÇORUM", "DENİZLİ", "DİYARBAKIR", "EDİRNE", "ELAZIĞ", "ERZİNCAN", "ERZURUM", "ESKİŞEHİR", "GAZİANTEP",
+    "GİRESUN", "GÜMÜŞHANE", "HAKKARİ", "HATAY", "ISPARTA", "MERSİN", "İSTANBUL", "İZMİR", "KARS",
+    "KASTAMONU", "KAYSERİ", "KIRKLARELİ", "KIRŞEHİR", "KOCAELİ", "KONYA", "KÜTAHYA", "MALATYA", "MANİSA",
+    "KAHRAMANMARAŞ", "MARDİN", "MUĞLA", "MUŞ", "NEVŞEHİR", "NİĞDE", "ORDU", "RİZE", "SAKARYA",
+    "SAMSUN", "SİİRT", "SİNOP", "SİVAS", "TEKİRDAĞ", "TOKAT", "TRABZON", "TUNCELİ", "ŞANLIURFA", "UŞAK",
+    "VAN", "YOZGAT", "ZONGULDAK", "AKSARAY", "BAYBURT", "KARAMAN", "KIRIKKALE", "BATMAN", "ŞIRNAK",
+    "BARTIN", "ARDAHAN", "IĞDIR", "YALOVA", "KARABÜK", "KİLİS", "OSMANİYE", "DÜZCE",
+    "LEFKOŞA", "GAZİMAĞUSA", "GİRNE", "GÜZELYURT"
+}
+
+FAMOUS_UNI_CITY = {
+    "ORTA DOĞU TEKNİK": "Ankara",
+    "ODTÜ": "Ankara",
+    "HACETTEPE": "Ankara",
+    "ANKARA ÜNİVERSİTESİ": "Ankara",
+    "GAZİ ÜNİVERSİTESİ": "Ankara",
+    "BİLKENT": "Ankara",
+    "TOBB": "Ankara",
+    "ÇANKAYA": "Ankara",
+    "TED": "Ankara",
+    "BAŞKENT": "Ankara",
+    "İSTANBUL TEKNİK": "İstanbul",
+    "İTÜ": "İstanbul",
+    "BOĞAZİÇİ": "İstanbul",
+    "İSTANBUL ÜNİVERSİTESİ": "İstanbul",
+    "YILDIZ TEKNİK": "İstanbul",
+    "MARMARA": "İstanbul",
+    "KOÇ": "İstanbul",
+    "SABANCI": "İstanbul",
+    "ÖZYEĞİN": "İstanbul",
+    "BAHÇEŞEHİR": "İstanbul",
+    "YEDİTEPE": "İstanbul",
+    "KADİR HAS": "İstanbul",
+    "BİLGİ": "İstanbul",
+    "GALATASARAY": "İstanbul",
+    "MİMAR SİNAN": "İstanbul",
+    "EGE": "İzmir",
+    "DOKUZ EYLÜL": "İzmir",
+    "İZMİR YÜKSEK TEKNOLOJİ": "İzmir",
+    "İYTE": "İzmir",
+    "İZMİR EKONOMİ": "İzmir",
+    "YAŞAR": "İzmir",
+    "KATİP ÇELEBİ": "İzmir",
+    "ANADOLU ÜNİVERSİTESİ": "Eskişehir",
+    "ESKİŞEHİR OSMANGAZİ": "Eskişehir",
+    "ESKİŞEHİR TEKNİK": "Eskişehir",
+    "ULUDAĞ": "Bursa",
+    "BURSA TEKNİK": "Bursa",
+    "AKDENİZ ÜNİVERSİTESİ": "Antalya",
+    "ÇUKUROVA": "Adana",
+    "KARADENİZ TEKNİK": "Trabzon",
+    "KTÜ": "Trabzon",
+    "ONDOKUZ MAYIS": "Samsun",
+    "SELÇUK": "Konya",
+    "NECMETTİN ERBAKAN": "Konya",
+    "KONYA TEKNİK": "Konya",
+    "KOCAELİ ÜNİVERSİTESİ": "Kocaeli",
+    "GEBZE TEKNİK": "Kocaeli",
+    "GTÜ": "Kocaeli",
+    "SAKARYA ÜNİVERSİTESİ": "Sakarya",
+}
+
+def infer_city(university_name: str, catalog_city: Optional[str]) -> Optional[str]:
+    """Infers the province name from catalog, parentheses, or famous university mappings."""
+    if catalog_city and str(catalog_city).strip() and str(catalog_city).strip().lower() != "nan":
+        c = str(catalog_city).strip()
+        # Title case Turkish
+        return c[0].upper() + c[1:].lower() if len(c) > 1 else c.upper()
+    
+    if not university_name:
+        return None
+
+    import re
+    # Check parenthesized words, e.g. (KAYSERİ), (İSTANBUL)
+    matches = re.findall(r"\((.*?)\)", university_name)
+    for m in matches:
+        m_clean = m.upper().strip()
+        if m_clean in TURKISH_CITIES_SET:
+            return m_clean[0].upper() + m_clean[1:].lower()
+
+    # Check famous university prefixes
+    u_upper = university_name.upper()
+    for prefix, city in FAMOUS_UNI_CITY.items():
+        if prefix in u_upper:
+            return city
+
+    # Check directly if university name contains any city
+    for city in TURKISH_CITIES_SET:
+        if city in u_upper:
+            return city[0].upper() + city[1:].lower()
+
+    return None
 
 
 class DataLoader:
@@ -117,7 +212,7 @@ class DataLoader:
                 "university_name": u_name,
                 "program_name": p_name,
                 "score_type": score_type,
-                "city": cat_info.get("city"),
+                "city": infer_city(u_name, cat_info.get("city")),
                 "faculty": cat_info.get("faculty"),
                 "teaching_language": cat_info.get("teaching_language"),
                 "scholarship": cat_info.get("scholarship"),

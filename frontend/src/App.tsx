@@ -15,17 +15,22 @@ import { ProgramExplorer } from "./components/ProgramExplorer";
 import { ProgramDetailModal } from "./components/ProgramDetailModal";
 import { WhatIfSimulatorModal } from "./components/WhatIfSimulatorModal";
 import { PreferenceListAuditModal } from "./components/PreferenceListAuditModal";
+import { TurkeyPreferenceMap } from "./components/TurkeyPreferenceMap";
+import { TrendMarketDashboard } from "./components/TrendMarketDashboard";
 import {
   Compass,
   BookOpen,
   SlidersHorizontal,
+  MapPin,
+  Activity,
 } from "lucide-react";
 
 const SHORTLIST_STORAGE_KEY = "yks_shortlist_programs";
 const FORM_STORAGE_KEY = "yks_saved_form_payload";
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<"advisor" | "explorer">("advisor");
+  const [activeTab, setActiveTab] = useState<"advisor" | "explorer" | "map" | "trends">("advisor");
+  const [cityFilterFromMap, setCityFilterFromMap] = useState<string>("");
 
   // Advisor state
   const [metadata, setMetadata] = useState<AdvisorMetadata | null>(null);
@@ -180,10 +185,10 @@ export function App() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("advisor")}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 activeTab === "advisor"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                   : "text-slate-400 hover:text-white"
@@ -195,15 +200,38 @@ export function App() {
 
             <button
               onClick={() => setActiveTab("explorer")}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
                 activeTab === "explorer"
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
                   : "text-slate-400 hover:text-white"
               }`}
             >
               <BookOpen className="w-4 h-4" />
-              <span className="hidden sm:inline">Program Rehberi</span>
-              <span className="sm:hidden">Rehber</span>
+              <span>Program Rehberi</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("map")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
+                activeTab === "map"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <MapPin className="w-4 h-4 text-emerald-400" />
+              <span>Türkiye Haritası</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("trends")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
+                activeTab === "trends"
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Activity className="w-4 h-4 text-amber-400" />
+              <span>YKS Trend Borsası</span>
             </button>
           </div>
         </div>
@@ -249,7 +277,7 @@ export function App() {
               loading={loadingAdvisor}
             />
           )
-        ) : (
+        ) : activeTab === "explorer" ? (
           <div className="space-y-4">
             <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs text-indigo-300">
@@ -259,8 +287,26 @@ export function App() {
                 </span>
               </div>
             </div>
-            <ProgramExplorer onSelectProgram={(prog) => setSelectedProgram(prog)} />
+            <ProgramExplorer
+              initialQuery={cityFilterFromMap}
+              onSelectProgram={(prog) => setSelectedProgram(prog)}
+            />
           </div>
+        ) : activeTab === "map" ? (
+          <TurkeyPreferenceMap
+            onSelectCityForSearch={(cityName) => {
+              setCityFilterFromMap(cityName);
+              setActiveTab("explorer");
+            }}
+          />
+        ) : (
+          <TrendMarketDashboard
+            onSelectProgram={(code) => {
+              getProgramDetail(code)
+                .then((p) => setSelectedProgram(p))
+                .catch((err) => console.error("Program load error:", err));
+            }}
+          />
         )}
       </main>
 

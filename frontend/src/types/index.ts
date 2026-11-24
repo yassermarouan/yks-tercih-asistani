@@ -223,3 +223,75 @@ export interface AdvisorResponse {
   items?: RecommendedProgram[];
   relaxation_suggestions?: RelaxationSuggestion[];
 }
+
+// ================= ANALYTICS & VISUALIZATION TYPES ================= //
+
+export interface TopUniversityInCity {
+  name: string;
+  type: "Devlet" | "Vakıf";
+  program_count: number;
+}
+
+export interface CitySummary {
+  city_name: string;
+  region: string;
+  university_count: number;
+  program_count: number;
+  cost_tier: "high" | "medium" | "low";
+  cost_label: string;
+  rent_index_score: number;
+  dorm_availability: string;
+  living_cost_description: string;
+  median_closing_rank: number | null;
+  min_closing_rank: number | null;
+  total_quota_2025: number;
+  score_types_count: Record<string, number>;
+  uni_types_count: Record<string, number>;
+  top_universities: TopUniversityInCity[];
+}
+
+export interface RegionSummary {
+  city_count: number;
+  program_count: number;
+  university_count: number;
+}
+
+export interface CitiesAnalyticsResponse {
+  status: string;
+  total_cities: number;
+  cities: CitySummary[];
+  regions_summary: Record<string, RegionSummary>;
+}
+
+export interface TrendProgram {
+  program_code: string;
+  university_name: string;
+  program_name: string;
+  score_type: string;
+  city: string;
+  rank_2023: number;
+  rank_2024: number | null;
+  rank_2025: number;
+  quota_2025: number;
+  rank_difference: number;
+  change_pct: number;
+}
+
+export interface SectorTrend {
+  sector_name: string;
+  program_count: number;
+  average_change_pct: number;
+  direction: "up" | "down" | "neutral";
+  median_rank_2025: number;
+  trend_label: string;
+}
+
+export interface TrendAnalyticsResponse {
+  status: string;
+  score_type: string;
+  sample_size: number;
+  ticker_headlines: string[];
+  top_gainers: TrendProgram[];
+  top_decliners: TrendProgram[];
+  sector_trends: SectorTrend[];
+}

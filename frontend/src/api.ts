@@ -8,6 +8,8 @@ import type {
   StudentPreferencePayload,
   AdvisorResponse,
   SimulationResponse,
+  CitiesAnalyticsResponse,
+  TrendAnalyticsResponse,
 } from "./types";
 
 const API_BASE = "/api";
@@ -110,6 +112,19 @@ export async function recommendPrograms(payload: StudentPreferencePayload): Prom
     body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error("Tercih önerileri hesaplanırken hata oluştu.");
+  return res.json();
+}
+
+export async function getCityAnalytics(): Promise<CitiesAnalyticsResponse> {
+  const res = await fetch(`${API_BASE}/analytics/cities`);
+  if (!res.ok) throw new Error("Şehir ve harita analitiği yüklenemedi.");
+  return res.json();
+}
+
+export async function getTrendAnalytics(scoreType: string = "ALL", limit: number = 15): Promise<TrendAnalyticsResponse> {
+  const params = new URLSearchParams({ score_type: scoreType, limit: limit.toString() });
+  const res = await fetch(`${API_BASE}/analytics/trends?${params.toString()}`);
+  if (!res.ok) throw new Error("YKS trend verileri yüklenemedi.");
   return res.json();
 }
 

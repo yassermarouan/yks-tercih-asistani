@@ -15,6 +15,7 @@ import {
 
 interface Props {
   onSelectProgram: (program: Program) => void;
+  initialQuery?: string;
 }
 
 const SCORE_TYPES = [
@@ -25,8 +26,14 @@ const SCORE_TYPES = [
   { id: "DİL", label: "Dil (DİL)" },
 ];
 
-export const ProgramExplorer: React.FC<Props> = ({ onSelectProgram }) => {
-  const [query, setQuery] = useState<string>("");
+export const ProgramExplorer: React.FC<Props> = ({ onSelectProgram, initialQuery }) => {
+  const [query, setQuery] = useState<string>(initialQuery || "");
+
+  useEffect(() => {
+    if (initialQuery !== undefined) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery]);
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
   const [scoreType, setScoreType] = useState<string>("ALL");
   const [page, setPage] = useState<number>(1);

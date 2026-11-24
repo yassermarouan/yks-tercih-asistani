@@ -16,22 +16,25 @@ from backend.data_loader import DataLoader
 from backend.model_service import ModelService
 from backend.explanation_service import ExplanationService
 from backend.advisor_service import AdvisorService
+from backend.analytics_service import AnalyticsService
 
 # Global service singletons
 data_loader: Optional[DataLoader] = None
 model_service: Optional[ModelService] = None
 explanation_service: Optional[ExplanationService] = None
 advisor_service: Optional[AdvisorService] = None
+analytics_service: Optional[AnalyticsService] = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global data_loader, model_service, explanation_service, advisor_service
+    global data_loader, model_service, explanation_service, advisor_service, analytics_service
     print("[App Startup] Initializing YKS Tercih Asistanı backend services...")
     data_loader = DataLoader()
     model_service = ModelService()
     explanation_service = ExplanationService()
     advisor_service = AdvisorService(data_loader)
+    analytics_service = AnalyticsService(data_loader)
     print("[App Startup] All backend services initialized.")
     yield
     print("[App Shutdown] Cleaning up services...")
@@ -59,7 +62,8 @@ def health():
     return {
         "status": "healthy",
         "programs_count": len(data_loader.programs_by_code) if data_loader else 0,
-        "model_loaded": model_service.model is not None if model_service else False,
+        "model_loaded": bool(model_service and len(model_service.models) > 0),
+        "score_types_supported": list(model_service.models.keys()) if model_service else [],
     }
 
 
@@ -184,6 +188,23 @@ def recommend_programs(payload: dict):
     if not advisor_service:
         raise HTTPException(status_code=503, detail="Advisor service not initialized")
     return advisor_service.recommend(payload)
+
+
+@app.get("/api/analytics/cities")
+def get_cities_analytics():
+    if not analytics_service:
+        raise HTTPException(status_code=503, detail="Analytics service not initialized")
+    return analytics_service.get_city_analytics()
+
+
+@app.get("/api/analytics/trends")
+def get_trends_analytics(
+    score_type: str = Query("ALL", description="Score type: ALL, SAY, EA, SÖZ, DİL"),
+    limit: int = Query(15, ge=5, le=50),
+):
+    if not analytics_service:
+        raise HTTPException(status_code=503, detail="Analytics service not initialized")
+    return analytics_service.get_trend_analytics(score_type=score_type, limit=limit)
 
 
 if __name__ == "__main__":
