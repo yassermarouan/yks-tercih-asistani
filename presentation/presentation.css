@@ -1928,6 +1928,63 @@ input[type="range"]::-webkit-slider-thumb:hover {
   margin-bottom: 0.75rem;
 }
 
+/* Speaker Notes in Slide and in Drawer */
+.speaker-notes {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1.25rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+  max-width: 1100px;
+  width: 100%;
+  backdrop-filter: blur(8px);
+}
+
+.speaker-notes h4 {
+  font-size: 0.92rem;
+  color: #34d399;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.speaker-notes ul,
+.notes-drawer-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.speaker-notes li,
+.notes-drawer-body li {
+  position: relative;
+  padding-left: 1.15rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.speaker-notes li::before,
+.notes-drawer-body li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #10b981;
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1;
+  top: 0.15rem;
+}
+
+.speaker-notes li strong,
+.notes-drawer-body li strong {
+  color: #ffffff;
+}
+
 /* ==========================================================================
    Slayt Genel Bakış (Overview Overlay)
    ========================================================================== */
