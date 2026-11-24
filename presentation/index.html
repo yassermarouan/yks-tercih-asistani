@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Açıklanabilir Yapay Zekâ (Explainable AI - XAI) | Akademik Sunum</title>
+  
+  <!-- Google Fonts & KaTeX for Mathematics -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- KaTeX for crisp academic LaTeX formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="if(window.renderMathInElement) renderMathInElement(document.body);"></script>
+  
+  <link rel="stylesheet" href="presentation.css">
+</head>
+<body>
+
+  <!-- Top Navigation & Presentation Toolbar -->
+  <header class="pres-header">
+    <div class="pres-header-left">
+      <div class="pres-badge">
+        <span class="pulse-dot"></span>
+        <span class="badge-title">XAI 2026 • Akademik Sunum</span>
+      </div>
+      <span class="pres-topic">Açıklanabilir Yapay Zekâ (Explainable AI) ve Karar Destek Sistemleri</span>
+    </div>
+
+    <div class="pres-header-right">
+      <div class="pres-timer" id="presTimer" title="Sunum Süresi">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="timerText">00:00</span>
+      </div>
+
+      <button class="nav-btn" id="btnNotes" title="Konuşmacı Notları (S)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Notlar (S)</span>
+      </button>
+
+      <button class="nav-btn" id="btnOverview" title="Slayt Genel Bakışı (O)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Genel Bakış (O)</span>
+      </button>
+
+      <button class="nav-btn" id="btnFullscreen" title="Tam Ekran (F)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        <span>Tam Ekran (F)</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar-container">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <!-- Main Slide Deck Container -->
+  <main class="deck-container" id="deckContainer">
+
+    <!-- ==================== SLAYT 1: BAŞLIK ==================== -->
+    <section class="slide active" data-slide="1">
+      <div class="slide-content title-slide">
+        <div class="hero-chip">
+          <span class="hero-chip-icon">🧠</span>
+          <span>Bilişim Sistemleri & Makine Öğrenmesi • Özel Uzmanlık Sunumu</span>
+        </div>
+        
+        <h1 class="main-title">
+          Açıklanabilir Yapay Zekâ<br>
+          <span class="gradient-text">(Explainable AI – XAI)</span>
+        </h1>
+        
+        <p class="subtitle">
+          Kara Kutu Modellerden Şeffaf Karar Destek Sistemlerine: Kuramsal Temeller, Yöntemler ve YKS Yerleştirme Verisi Üzerinde Gerçek Bir Uygulama Örneği
+        </p>
+
+        <div class="title-meta-grid">
+          <div class="meta-card">
+            <span class="meta-label">Odak Konusu</span>
+            <span class="meta-val">XAI & Şeffaf Karar Modelleri</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-label">Uygulama Alanı</span>
+            <span class="meta-val">13.581 Lisans Programı & Karar Desteği</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-label">Temel Yöntemler</span>
+            <span class="meta-val">TreeSHAP, Feature Importance, What-If</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-label">Sunum Türü</span>
+            <span class="meta-val">Akademik & Uygulamalı Vaka Analizi</span>
+          </div>
+        </div>
+
+        <div class="title-cta-hint">
+          <span>İlerlemek için klavyede <strong>Sağ Ok (→)</strong> veya <strong>Boşluk (Space)</strong> tuşuna basınız</span>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="1">
+        <h4>🎤 Konuşmacı Giriş Notları:</h4>
+        <p>Değerli jüri üyeleri ve katılımcılar, bugün modern yapay zekâ araştırmalarının en hayati eşiği olan "Açıklanabilir Yapay Zekâ (Explainable Artificial Intelligence – XAI)" konusunu ele alacağız.</p>
+        <p>Sunumumuz iki ana sütundan oluşmaktadır: İlk %70'lik bölümde XAI'ın kuramsal temellerini, kara kutu problemini, regülasyonları ve matematiksel yöntemleri inceleyeceğiz. İkinci %30'luk bölümde ise bu teorik prensipleri bizzat geliştirdiğimiz ve 13.581 lisans programını içeren YKS Tercih Karar Destek Sistemi üzerindeki canlı uygulama sonuçlarıyla kanıtlayacağız.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 2: KARA KUTU PROBLEMİ ==================== -->
+    <section class="slide" data-slide="2">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kuramsal Çerçeve • 01</span>
+          <h2>Kara Kutu (Black Box) Problemi & Güven Krizi</h2>
+          <p class="header-desc">Karmaşık yapay zekâ modellerinin içsel karar mekanizmasının insani anlayışa kapalı olması sorunu.</p>
+        </div>
+
+        <div class="two-col-grid">
+          <div class="concept-card">
+            <div class="card-icon-header">
+              <span class="icon-wrap warning">⚠️</span>
+              <h3>Kara Kutu Nasıl Oluşur?</h3>
+            </div>
+            <p>
+              Geleneksel makine öğrenmesinde model karmaşıklığı (derinlik, parametre sayısı ve doğrusal olmayan etkileşimler) arttıkça, <strong>tahmin doğruluğu artmakta fakat modelin yorumlanabilirliği dramatik biçimde düşmektedir</strong> (Accuracy vs. Interpretability Trade-off).
+            </p>
+            <ul class="clean-list">
+              <li><strong>Opak Karar Mekanizması:</strong> Giriş ile çıkış arasındaki binlerce ağırlık matematiksel bir labirent oluşturur.</li>
+              <li><strong>Gizli Yanlılık (Hidden Bias):</strong> Verideki önyargılar modelin derinliklerinde fark edilmeden büyür.</li>
+              <li><strong>Kırılganlık & Güven Kaybı:</strong> Kullanıcı veya uzman, kararın gerekçesini göremediğinde sisteme güvenemez.</li>
+            </ul>
+          </div>
+
+          <div class="diagram-card">
+            <h3>Doğruluk ve Yorumlanabilirlik Arasındaki Ters Orantı</h3>
+            <div class="tradeoff-diagram">
+              <div class="tradeoff-bar high-interp">
+                <div class="tradeoff-info">
+                  <span class="algo-name">Doğrusal Regresyon / Karar Ağacı</span>
+                  <span class="algo-type">Yüksek Yorumlanabilir • Düşük Karmaşıklık</span>
+                </div>
+                <div class="tradeoff-meter"><span style="width: 85%;"></span></div>
+              </div>
+
+              <div class="tradeoff-bar mid-interp">
+                <div class="tradeoff-info">
+                  <span class="algo-name">Topluluk Ağaçları (LightGBM, Random Forest)</span>
+                  <span class="algo-type">Yüksek Doğruluk • XAI ile Şeffaflaştırılabilir</span>
+                </div>
+                <div class="tradeoff-meter highlight"><span style="width: 60%;"></span></div>
+              </div>
+
+              <div class="tradeoff-bar low-interp">
+                <div class="tradeoff-info">
+                  <span class="algo-name">Derin Sinir Ağları (Deep Learning / Transformers)</span>
+                  <span class="algo-type">Çok Yüksek Karmaşıklık • Tam Kara Kutu</span>
+                </div>
+                <div class="tradeoff-meter danger"><span style="width: 25%;"></span></div>
+              </div>
+            </div>
+
+            <div class="highlight-callout">
+              <span class="callout-icon">🎯</span>
+              <span><strong>XAI'ın Misyonu:</strong> Yüksek performanslı topluluk modellerini doğruluk kaybı yaşamadan şeffaf, hesap verebilir ve yorumlanabilir kılmaktır.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="2">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Makine öğrenmesi tarihsel olarak iki kutup arasında sıkışmıştır. Bir tarafta katsayılarını net gördüğümüz ama karmaşık dünyayı modelleyemeyen basit doğrusal regresyonlar; diğer tarafta ise milyarlarca ağırlığıyla mükemmel tahmin yapan ama 'neden' sorusuna cevap veremeyen derin ağlar bulunmaktadır.</p>
+        <p>Eğer bir yapay zekâ bir öğrenciye 'Sen bu üniversiteye giremezsin' veya bir doktora 'Bu hasta kanserdir' diyorsa, tek başına bu çıktı yetersizdir. 'Neden?' sorusunun cevabı hayati bir haktır. İşte XAI, doğruluğu feda etmeden bu şeffaflığı inşa etme çabasıdır.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 3: XAI NEDEN GEREKLİDİR ==================== -->
+    <section class="slide" data-slide="3">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kuramsal Çerçeve • 02</span>
+          <h2>Açıklanabilir Yapay Zekâ Neden Zorunludur?</h2>
+          <p class="header-desc">Yasal yaptırımlar, etik sorumluluklar ve kritik karar destek alanlarındaki gereksinimler.</p>
+        </div>
+
+        <div class="four-pillar-grid">
+          <div class="pillar-card">
+            <div class="pillar-num">01</div>
+            <h3>Yasal Uyumluluk & GDPR</h3>
+            <p>
+              Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR Madde 22) ve AB Yapay Zekâ Yasası (EU AI Act), bireylerin otomatik kararlar karşısında <strong>"Açıklama Hakkı"na (Right to Explanation)</strong> sahip olduğunu yasal olarak hükme bağlamıştır.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-num">02</div>
+            <h3>Kritik Karar Desteği</h3>
+            <p>
+              Tıp, finans, adalet ve <strong>üniversite yerleştirme kararları</strong> gibi insan hayatını ve geleceğini doğrudan etkileyen yüksek riskli (high-stakes) alanlarda gerekçelendirilmemiş tahminlerin kullanılması kabul edilemez.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-num">03</div>
+            <h3>Hata Ayıklama & Denetim</h3>
+            <p>
+              Model geliştiricileri yalnızca test doğruluğuna (accuracy/MAE) bakarak modelin doğru nedenlerle mi yoksa sahte korelasyonlarla (spurious correlation) mı doğru sonuç verdiğini anlayamazlar. XAI modeli denetleme aracıdır.
+            </p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-num">04</div>
+            <h3>İnsan-YZ Güven Ortaklığı</h3>
+            <p>
+              Yapay zekâ karar vericinin yerini alan bir otonom hükümdar değil; kararı zenginleştiren bir danışmandır (Human-in-the-loop). Kararın arkasındaki dinamikler anlaşıldığında insanın YZ ile işbirliği kalitesi artar.
+            </p>
+          </div>
+        </div>
+
+        <div class="quote-banner">
+          <blockquote>
+            "Sadece çıktıyı bilmek bir kehanettir; karara giden yolu ve dayanaklarını bilmek ise bilimdir."
+          </blockquote>
+          <span class="quote-author">— XAI Akademik Literatür Prensibi</span>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="3">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>XAI artık teorik bir lüks veya akademisyenlerin entelektüel merakı değildir; kanuni ve operasyonel bir zorunluluktur. Avrupa Birliği'nin Yapay Zeka Yasası (EU AI Act), eğitim alanını 'Yüksek Riskli Sistemler' kategorisine almıştır.</p>
+        <p>Bir öğrencinin tüm lise hayatı boyunca hazırlandığı YKS tercih listesinde, bir algoritmanın 'burayı yazma, açıkta kalırsın' demesi öğrenci için travmatiktir. Ancak 'Geçen yıl kontenjan %20 daraldı, son 3 yıldır talep ivmesi öne çekiliyor, bu yüzden taban sırası 40.000'e kayabilir' dediğiniz anda öğrenciye eyleme geçirilebilir bir strateji vermiş olursunuz.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 4: GELENEKSEL VS AÇIKLANABİLİR YZ ==================== -->
+    <section class="slide" data-slide="4">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kuramsal Çerçeve • 03</span>
+          <h2>Geleneksel YZ vs. Açıklanabilir YZ (XAI)</h2>
+          <p class="header-desc">Sadece tahmin üretmekten, matematiksel gerekçesi doğrulanmış karar sunmaya geçiş.</p>
+        </div>
+
+        <div class="comparison-dual-container">
+          <!-- Geleneksel YZ -->
+          <div class="comparison-column traditional">
+            <div class="comp-col-header">
+              <span class="comp-badge trad">Geleneksel Kara Kutu YZ</span>
+              <h3>Doğrudan Tahmin Odaklı</h3>
+            </div>
+            
+            <div class="pipeline-flow trad">
+              <div class="pipe-node">Girdi Verisi $(X)$</div>
+              <div class="pipe-arrow">➔</div>
+              <div class="pipe-node dark-box">Kapalı Fonksiyon $f(X)$</div>
+              <div class="pipe-arrow">➔</div>
+              <div class="pipe-node">Tekil Çıktı $(\hat{y})$</div>
+            </div>
+
+            <ul class="comp-specs">
+              <li><strong>Temel Soru:</strong> "Sonuç nedir?" (Sadece $\hat{y}$)</li>
+              <li><strong>Kullanıcı Rolü:</strong> Pasif kabul edici veya körü körüne reddedici</li>
+              <li><strong>Hata Tespiti:</strong> Yalnızca sonuç gerçek dünyada başarısız olduğunda anlaşılır</li>
+              <li><strong>Açıklama:</strong> Yok ("Sistem böyle hesapladı")</li>
+              <li><strong>Güven Faktörü:</strong> Denetlenemez güven</li>
+            </ul>
+          </div>
+
+          <!-- Açıklanabilir YZ -->
+          <div class="comparison-column explainable">
+            <div class="comp-col-header">
+              <span class="comp-badge xai">Açıklanabilir Yapay Zekâ (XAI)</span>
+              <h3>Gerekçe ve Kanıt Odaklı</h3>
+            </div>
+
+            <div class="pipeline-flow xai">
+              <div class="pipe-node">Girdi Verisi $(X)$</div>
+              <div class="pipe-arrow">➔</div>
+              <div class="pipe-node glass-box">Şeffaf Model & Yorumlama $\Phi$</div>
+              <div class="pipe-arrow">➔</div>
+              <div class="pipe-node highlight">Tahmin $(\hat{y})$ + Gerekçeler $(\Phi_i)$ + Güven Koridoru</div>
+            </div>
+
+            <ul class="comp-specs">
+              <li><strong>Temel Soru:</strong> "Neden bu sonuç çıktı?" ve "Girdi değişseydi ne olurdu?"</li>
+              <li><strong>Kullanıcı Rolü:</strong> Kararı denetleyen, senaryoları simüle eden aktif uzman</li>
+              <li><strong>Hata Tespiti:</strong> Anomali veya mantıksız etki anında görselleştirilir</li>
+              <li><strong>Açıklama:</strong> Shapley katkıları, öznitelik ağırlıkları ve karşı-olgusal kanıt</li>
+              <li><strong>Güven Faktörü:</strong> Matematiksel ve nedensel kanıta dayalı güven</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="4">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Bu slaytta iki paradigmanın temel mimari farkını görüyoruz. Geleneksel yapay zekâda f(X) fonksiyonu kapalı bir kutudur; girdi girer, çıktı çıkar. Eğer bir anormallik varsa sistem sizi uyarmaz.</p>
+        <p>Açıklanabilir yapay zekâda ise f(X) çıktısı tek başına bir ürün değildir. Çıktının yanına 'Phi' yerel katkı vektörü, yani her özniteliğin karara pozitif veya negatif yönlü katkısı eklenir. Böylece kullanıcı yalnızca 'ne' olduğunu değil, 'nasıl' ve 'neden' olduğunu da eşzamanlı olarak görür.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 5: XAI TAKSONOMİSİ ==================== -->
+    <section class="slide" data-slide="5">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Metodoloji • 01</span>
+          <h2>Açıklanabilir Yapay Zekâ Yöntemlerinin Taksonomisi</h2>
+          <p class="header-desc">Literatürde XAI tekniklerinin zamanlama, kapsam ve model bağımlılığına göre 3 eksenli sınıflandırılması.</p>
+        </div>
+
+        <div class="taxonomy-grid">
+          <div class="taxonomy-dim-card">
+            <div class="dim-header">
+              <span class="dim-tag">1. Eksen: Zamanlama</span>
+              <h3>Intrinsic vs. Post-hoc</h3>
+            </div>
+            <div class="dim-body">
+              <div class="dim-item">
+                <h4>Doğal (Intrinsic / Ante-hoc)</h4>
+                <p>Model doğası gereği basittir ve eğitimi sırasında kendini açıklar (Doğrusal Regresyon, Tek Karar Ağacı, K-NN).</p>
+              </div>
+              <div class="dim-item highlight">
+                <h4>Model Sonrası (Post-hoc)</h4>
+                <p>Karmaşık model eğitildikten sonra, dışsal bir açıklayıcı algoritma (SHAP, LIME) devreye girerek kararları analiz eder.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="taxonomy-dim-card">
+            <div class="dim-header">
+              <span class="dim-tag">2. Eksen: Kapsam</span>
+              <h3>Global vs. Local</h3>
+            </div>
+            <div class="dim-body">
+              <div class="dim-item">
+                <h4>Küresel (Global Interpretability)</h4>
+                <p>Modelin genel veri setindeki genel davranışını ve özniteliklerin genel önem hiyerarşisini gösterir.</p>
+              </div>
+              <div class="dim-item highlight">
+                <h4>Yerel (Local Explainability)</h4>
+                <p>Tekil bir tahmin örneği için hangi faktörlerin o anki çıktıyı belirlediğini açıklar (Örn: Ege Bilgisayar tahmini).</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="taxonomy-dim-card">
+            <div class="dim-header">
+              <span class="dim-tag">3. Eksen: Model Bağımlılığı</span>
+              <h3>Model-Agnostic vs. Model-Specific</h3>
+            </div>
+            <div class="dim-body">
+              <div class="dim-item">
+                <h4>Modele Bağımsız (Model-Agnostic)</h4>
+                <p>Herhangi bir kara kutu modele uygulanabilen genel yöntemler (KernelSHAP, LIME, Permütasyon Önemi).</p>
+              </div>
+              <div class="dim-item highlight">
+                <h4>Modele Özgü (Model-Specific)</h4>
+                <p>Belirli mimarilerin iç yapısını sömürerek çok hızlı ve kesin hesaplama yapan yöntemler (<strong>TreeSHAP</strong>).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="system-choice-banner">
+          <span class="choice-title">Projemizin Metodolojik Tercihi:</span>
+          <span class="choice-tag">Post-Hoc</span>
+          <span class="choice-tag">Yerel (Local) + Küresel (Global)</span>
+          <span class="choice-tag">Modele Özgü Hızlı Ağaç Çözümleyicisi (TreeSHAP)</span>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="5">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Akademik literatürde Christoph Molnar ve Marco Ribeiro'nun tanımladığı taksonomiye göre XAI yöntemleri 3 ana eksende sınıflandırılır: Ne zaman açıklıyoruz? (Intrinsic/Post-hoc), Kimi açıklıyoruz? (Global/Local) ve Hangi modellerde çalışıyor? (Agnostic/Specific).</p>
+        <p>Bizim çalışmamızda yüksek doğruluklu LightGBM ağaçlarını korumak istediğimiz için 'Post-hoc', hem genel veri setini hem tekil üniversite programlarını açıklamak istediğimiz için 'Global + Local', ve en önemlisi saniyeler içinde binlerce programı gecikmesiz hesaplayabilmek için 'Model-Specific TreeSHAP' eksenini tercih ettik.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 6: ÖZELLİK ÖNEMİ ==================== -->
+    <section class="slide" data-slide="6">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kullanılan Yöntemler • 01</span>
+          <h2>Özellik Önemi (Feature Importance) & Hiyerarşi</h2>
+          <p class="header-desc">Modelin tahmin gücünü oluşturan 4 temel özniteliğin küresel ve yerel etki ağırlıkları.</p>
+        </div>
+
+        <div class="two-col-grid">
+          <div class="feat-list-card">
+            <h3>Modelimizde Kullanılan 4 Ana Öznitelik</h3>
+            
+            <div class="feature-item-box">
+              <div class="feat-top">
+                <span class="feat-code">previous_closing_rank</span>
+                <span class="feat-badge dominant">En Yüksek Ağırlık (~%78)</span>
+              </div>
+              <h4>Son Yıl Taban Sıralaması & Yerleşik Talep</h4>
+              <p>Programın geçmiş yerleştirme yılındaki kapanış sırası. Üniversitenin marka değeri, şehir çekiciliği ve akademik prestijinin birikimli göstergesidir.</p>
+            </div>
+
+            <div class="feature-item-box">
+              <div class="feat-top">
+                <span class="feat-code">published_quota</span>
+                <span class="feat-badge">Orta Ağırlık (~%12)</span>
+              </div>
+              <h4>Kontenjan Hacmi (Kapasite)</h4>
+              <p>Bölümün kabul ettiği toplam öğrenci adedi. Yüksek kontenjanlı bölümler sıralama dalgalanmalarına karşı daha dirençli ve istikrarlıdır.</p>
+            </div>
+
+            <div class="feature-item-box">
+              <div class="feat-top">
+                <span class="feat-code">quota_change_pct</span>
+                <span class="feat-badge delta">Dinamik Baskı (~%6)</span>
+              </div>
+              <h4>Kontenjan Değişim Yüzdesi (Arz Şoku)</h4>
+              <p>Kontenjandaki ani artış veya daralmanın yarattığı esneme/rekabet baskısı (Laplace yumuşatması $k=10$ uygulanmıştır).</p>
+            </div>
+
+            <div class="feature-item-box">
+              <div class="feat-top">
+                <span class="feat-code">rank_momentum_ratio</span>
+                <span class="feat-badge trend">Trend İvmesi (~%4)</span>
+              </div>
+              <h4>Son 3 Yıllık Sıralama İvmesi (Talep Trendi)</h4>
+              <p>Bölümün son 3 yıldaki popülarite artışı veya gevşeme ivmesi ($Rank_{t-1} / Rank_{t-2}$).</p>
+            </div>
+          </div>
+
+          <div class="feat-chart-card">
+            <h3>Küresel Öznitelik Önemi (Global Feature Gain Dağılımı)</h3>
+            <div class="bar-chart-container">
+              <div class="chart-row">
+                <div class="chart-label-wrap">
+                  <span class="lbl-main">Geçmiş Taban Sırası</span>
+                  <span class="lbl-pct">%78.4</span>
+                </div>
+                <div class="chart-track"><div class="chart-fill c-emerald" style="width: 78.4%;"></div></div>
+              </div>
+
+              <div class="chart-row">
+                <div class="chart-label-wrap">
+                  <span class="lbl-main">Kontenjan Büyüklüğü</span>
+                  <span class="lbl-pct">%11.8</span>
+                </div>
+                <div class="chart-track"><div class="chart-fill c-cyan" style="width: 11.8%;"></div></div>
+              </div>
+
+              <div class="chart-row">
+                <div class="chart-label-wrap">
+                  <span class="lbl-main">Kontenjan Değişim Oranı (Δ%)</span>
+                  <span class="lbl-pct">%5.9</span>
+                </div>
+                <div class="chart-track"><div class="chart-fill c-amber" style="width: 5.9%;"></div></div>
+              </div>
+
+              <div class="chart-row">
+                <div class="chart-label-wrap">
+                  <span class="lbl-main">Sıralama Trend İvmesi</span>
+                  <span class="lbl-pct">%3.9</span>
+                </div>
+                <div class="chart-track"><div class="chart-fill c-rose" style="width: 3.9%;"></div></div>
+              </div>
+            </div>
+
+            <div class="scientific-insight-box">
+              <h4>💡 Akademik Bulgumuz:</h4>
+              <p>Taban sıralaması ana omurgayı belirlerken (%78), kontenjan değişimleri ve ivme özellikleri özellikle sınırda olan öğrencilerin yerleşme ihtimalini belirleyen kritik kırılma noktalarını oluşturmaktadır.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="6">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Modelimizin girdi katmanında rastgele yüzlerce değişken kullanmak yerine, literatüre uygun olarak nedensel ilişkisi olan 4 temel öznitelik tasarladık. Veri setimizde 13.581 lisans programının son 3 yılı incelendi.</p>
+        <p>Grafikte görüldüğü üzere model kararlarının yaklaşık %78'ini geçmiş yıl taban sırasından almaktadır. Ancak asıl katma değer diğer üç özellikte yatmaktadır: Kontenjan daralması veya bölümün son yıllarda popülerleşmesi (momentum), sıralamanın geçen yıldan sapmasını sağlayan ana etkenlerdir.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 7: TREESHAP & WATERFALL ==================== -->
+    <section class="slide" data-slide="7">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kullanılan Yöntemler • 02</span>
+          <h2>TreeSHAP: Oyun Teorisi & Kesin Toplamsallık</h2>
+          <p class="header-desc">Shapley Additive exPlanations teorisi ve model tahminlerinin nedensel bileşenlerine ayrıştırılması.</p>
+        </div>
+
+        <div class="shap-layout-grid">
+          <div class="shap-formula-card">
+            <h3>Matematiksel Zemin: Shapley Formülasyonu</h3>
+            <p class="formula-desc">
+              Lloyd Shapley'in (1953) kooperatif oyun teorisine dayanan formül; her bir özniteliğin model tahminine yaptığı marjinal katkıyı adil bir biçimde hesaplar:
+            </p>
+            
+            <div class="katex-render" id="shapFormula">
+              $$\phi_i(x) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|!(|F| - |S| - 1)!}{|F|!} \left[ f(S \cup \{i\}) - f(S) \right]$$
+            </div>
+
+            <div class="axioms-box">
+              <h4>Aksiyomatik Garantiler (TreeSHAP Neden Üstündür?):</h4>
+              <ul>
+                <li><strong>1. Yerel Doğruluk (Local Accuracy / Additivity):</strong><br>
+                  Modelin baz değeri ile öznitelik katkılarının toplamı istisnasız kesin nihai tahmini verir:
+                  $$\hat{y}(x) = \phi_0 + \sum_{i=1}^M \phi_i(x)$$
+                </li>
+                <li><strong>2. Tutarlılık (Consistency):</strong> Bir özniteliğin marjinal katkısı artarsa, Shapley değeri asla düşemez.</li>
+                <li><strong>3. Ağaç Optimizasyonu:</strong> Lundberg et al. (2020) TreeSHAP algoritması, üssel karmaşıklığı polinomiyal $O(TLD^2)$ süresine indirir.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="shap-interactive-demo">
+            <div class="demo-header">
+              <h3>İnteraktif SHAP Waterfall (Şelale) Ayrıştırması</h3>
+              <span class="demo-tag">Doğrulanmış Program Verisi</span>
+            </div>
+            
+            <p class="demo-sub">Aşağıdaki şelale grafiğinde baz değerden nihai 2026 tahminine giden her adım doğrulanabilir biçimde gösterilmektedir:</p>
+
+            <div class="waterfall-viz">
+              <div class="wf-step base">
+                <span class="wf-label">Başlangıç Baz Değeri $(\phi_0)$ [SAY Ortalaması]</span>
+                <span class="wf-val">97.450</span>
+              </div>
+
+              <div class="wf-step positive">
+                <span class="wf-label">Geçmiş Taban Sırası Katkısı ($\phi_1$ - Yüksek Başarı)</span>
+                <span class="wf-val">-58.210 sıra öne</span>
+              </div>
+
+              <div class="wf-step negative">
+                <span class="wf-label">Kontenjan Artışı Katkısı ($\phi_2$ - Rahatlama)</span>
+                <span class="wf-val">+1.420 sıra geri</span>
+              </div>
+
+              <div class="wf-step positive">
+                <span class="wf-label">Popülarite & Trend İvmesi Katkısı ($\phi_3$ - İlgi Artışı)</span>
+                <span class="wf-val">-1.709 sıra öne</span>
+              </div>
+
+              <div class="wf-step total">
+                <span class="wf-label">2026 Model Projeksiyon Taban Sırası $(\hat{y})$</span>
+                <span class="wf-val">38.951</span>
+              </div>
+            </div>
+
+            <div class="verification-badge">
+              <span class="v-icon">✓</span>
+              <span><strong>Toplamsallık Doğrulandı:</strong> $97.450 - 58.210 + 1.420 - 1.709 = 38.951$ (Hata Payı = 0.00)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="7">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Sunumumuzun en önemli metodolojik slaytı burasıdır. XAI literatüründe birçok yöntem yaklaşıktır; ancak SHAP'ı diğerlerinden ayıran en büyük güç matematiksel aksiyomlarıdır. Özellikle 'Efficiency' yani Toplamsallık kuralı sayesinde, baz değer olan 97.450'ye tüm özellikleri eklediğimizde tamı tamına 38.951 tahminine ulaşırız.</p>
+        <p>Sağdaki şelale diyagramı sistemimizin her bir program için ürettiği gerçek çıktıdır. Öğrenci veya araştırmacı bu şemaya baktığında, bölümün neden 38 bine çekildiğini; geçmiş taban gücünün -58 bin çektiğini, kontenjanın biraz rahatlattığını ama trend ivmesinin sıralamayı daha da öne ittiğini açıkça görür.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 8: KARŞI-OLGUSAL AÇIKLAMALAR ==================== -->
+    <section class="slide" data-slide="8">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kullanılan Yöntemler • 03</span>
+          <h2>Karşı-Olgusal Açıklamalar (Counterfactuals) & What-If</h2>
+          <p class="header-desc">"Girdi şöyle olsaydı sonuç nasıl değişirdi?" sorusuna yanıt veren eyleme dönük XAI yöntemi.</p>
+        </div>
+
+        <div class="two-col-grid">
+          <div class="concept-card">
+            <div class="card-icon-header">
+              <span class="icon-wrap info">🔮</span>
+              <h3>Karşı-Olgusal Düşünme Nedir?</h3>
+            </div>
+            <p>
+              Wachter et al. (2017) tarafından temelleri atılan Karşı-Olgusal Açıklamalar (Counterfactual Explanations); modelin iç mekanizmasını bilmeye gerek kalmadan, <strong>sonucu istenen hedefe ($y^*$) ulaştırmak için girdide yapılması gereken minimum değişikliği ($x \rightarrow x^*$)</strong> tanımlar:
+            </p>
+            
+            <div class="katex-render" id="counterfactualFormula">
+              $$\arg\min_{x^*} \mathcal{D}(x, x^*) \quad \text{öyle ki} \quad f(x^*) = y^*$$
+            </div>
+
+            <ul class="clean-list">
+              <li><strong>Eyleme Dönük İçgörü (Actionable Recourse):</strong> Kullanıcıya yalnızca mevcut durumu değil, durumun nasıl değişebileceğini gösterir.</li>
+              <li><strong>Duyarlılık Testi:</strong> Kararın hangi parametreye karşı ne kadar hassas olduğunu ortaya çıkarır.</li>
+              <li><strong>Karar Sınırları:</strong> "Güvenli Liman", "İdeal Hedef" ve "Riskli" kategorileri arasındaki geçiş çizgilerini görünür kılar.</li>
+            </ul>
+          </div>
+
+          <div class="simulator-card">
+            <div class="sim-header">
+              <h3>Projedeki Uygulama: Kontenjan Duyarlılık Simülatörü</h3>
+              <span class="sim-badge">Canlı Simülasyon</span>
+            </div>
+
+            <div class="sim-interactive-box">
+              <div class="sim-control-row">
+                <label for="slideQuotaRange">Simüle Edilen Kontenjan: <strong id="slideQuotaVal">60 Kişi</strong></label>
+                <input type="range" id="slideQuotaRange" min="30" max="120" step="5" value="60">
+              </div>
+
+              <div class="sim-results-grid">
+                <div class="sim-metric">
+                  <span class="m-label">Mevcut Taban Tahmini</span>
+                  <span class="m-val" id="slideBaseRank">38.951</span>
+                </div>
+                <div class="sim-metric highlight">
+                  <span class="m-label">Simüle Edilen Sıralama</span>
+                  <span class="m-val" id="slideSimRank">38.951</span>
+                </div>
+                <div class="sim-metric">
+                  <span class="m-label">Sıralama Değişimi ($\Delta$)</span>
+                  <span class="m-val" id="slideRankDelta">0 sıra</span>
+                </div>
+                <div class="sim-metric">
+                  <span class="m-label">Aday Risk Durumu</span>
+                  <span class="m-val category" id="slideCategoryLabel">İdeal Hedef</span>
+                </div>
+              </div>
+
+              <div class="sim-explanation-box" id="slideSimExplanation">
+                Kontenjan sabit tutulduğunda sıralamada bir sapma beklenmemektedir.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="8">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Karşı-olgusal açıklamalar, psikolojideki 'keşke şöyle olsaydı ne olurdu' mantığının yapay zekâya uyarlanmış halidir. Bir adaya yalnızca 'puanın yetmiyor' demek eylemsizlik yaratır. Ancak 'Bu bölümün kontenjanı 20 kişi artarsa sıralaması 44 bine geriler ve senin sıralamanla güvenli limana girer' demek, adaya senaryo analizi yapma imkânı verir.</p>
+        <p>Sağ tarafta gördüğünüz simülatör, sistemimizde canlı olarak çalışan Kontenjan Simülatörünün interaktif modelidir. Kullanıcı slider'ı oynattığı anda model arkada anlık çıkarım yapar ve adayın hedef kategorisinin nasıl değiştiğini açıklar.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 9: XAI YÖNTEMLERİ KARŞILAŞTIRMASI ==================== -->
+    <section class="slide" data-slide="9">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Metodolojik Analiz • 04</span>
+          <h2>XAI Yöntemlerinin Karşılaştırmalı Değerlendirmesi</h2>
+          <p class="header-desc">Literatürdeki başlıca açıklanabilirlik teknikleri ve projemizdeki seçim gerekçeleri.</p>
+        </div>
+
+        <div class="table-responsive">
+          <table class="benchmark-table">
+            <thead>
+              <tr>
+                <th>Yöntem</th>
+                <th>Veri Türü</th>
+                <th>Teorik Dayanak</th>
+                <th>Matematiksel Toplamsallık</th>
+                <th>Hesaplama Hızı</th>
+                <th>Projede Durumu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="selected-row">
+                <td><strong>TreeSHAP</strong></td>
+                <td>Tabüler / Ağaç</td>
+                <td>İşbirlikçi Oyun Teorisi</td>
+                <td><span class="badge-success">✓ Kesin (Exact)</span></td>
+                <td><span class="badge-success">Çok Hızlı ($O(TLD^2)$)</span></td>
+                <td><span class="badge-active">✅ Birincil XAI Motoru</span></td>
+              </tr>
+              <tr class="selected-row">
+                <td><strong>Counterfactual (What-If)</strong></td>
+                <td>Tabüler / Çoklu</td>
+                <td>Nedensel Optimizasyon</td>
+                <td><span class="badge-neutral">Uygulanamaz</span></td>
+                <td><span class="badge-success">Anlık (Milisiye)</span></td>
+                <td><span class="badge-active">✅ İnteraktif Simülatör</span></td>
+              </tr>
+              <tr>
+                <td><strong>LIME</strong></td>
+                <td>Tabüler, Metin, Görsel</td>
+                <td>Yerel Perturbasyon / Regresyon</td>
+                <td><span class="badge-danger">✗ Yok (Rassal)</span></td>
+                <td><span class="badge-warning">Orta (Örnekleme Bağımlı)</span></td>
+                <td><span class="badge-excluded">❌ Elendi (TreeSHAP Tercih Edildi)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Partial Dependence (PDP)</strong></td>
+                <td>Tabüler / Sürekli</td>
+                <td>Marjinal Beklenti Entegrali</td>
+                <td><span class="badge-neutral">Uygulanamaz</span></td>
+                <td><span class="badge-warning">Yavaş (Tüm Veri Taraması)</span></td>
+                <td><span class="badge-excluded">❌ Elendi (What-If Tercih Edildi)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Grad-CAM</strong></td>
+                <td>Görsel (CNN / Vision)</td>
+                <td>Gradyan Ağırlıklı Aktivasyon Haritası</td>
+                <td><span class="badge-neutral">Uygulanamaz</span></td>
+                <td><span class="badge-success">Hızlı</span></td>
+                <td><span class="badge-excluded">❌ Kapsam Dışı (Sadece Görsel)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rationale-cards-grid">
+          <div class="rationale-card">
+            <h4>Neden LIME Değil TreeSHAP?</h4>
+            <p>LIME her çalıştığında rastgele veri ürettiği için aynı veri noktasına iki farklı açıklama üretebilir (Non-deterministic). TreeSHAP ise deterministiktir ve matematiksel kesin toplamsallık (Additivity) sunar.</p>
+          </div>
+          <div class="rationale-card">
+            <h4>Neden Grad-CAM Kullanılmadı?</h4>
+            <p>Grad-CAM görüntü piksellerindeki evrişim katmanlarını analiz eder. Üniversite tercih verisi tabüler nitelikte olduğu için teorik olarak Grad-CAM bu veri tipine uygulanamaz.</p>
+          </div>
+          <div class="rationale-card">
+            <h4>Neden PDP Yerine What-If?</h4>
+            <p>PDP sadece ortalama genel eğilimi verir ve tekil bir öğrencinin özgül koşullarını kaçırır. What-If simülatörü adayın tek bir program üzerindeki karar sınırını test etmesine imkan tanır.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="9">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Bu slayt, çalışmamızın metodolojik tutarlılığını savunan kritik bir karşılaştırma tablosudur. XAI literatüründe popüler olan 5 temel tekniği karşılaştırdık.</p>
+        <p>Görüldüğü üzere, LIME rassal örnekleme yaptığı için jüri veya denetçi karşısında aynı öğrenciye farklı iki açıklama üretme riskine sahiptir. Grad-CAM ise görsel modellere hastır. Bu nedenle tabüler veride dünya standardı olan TreeSHAP ve kullanıcı deneyiminde en güçlü eyleme dönük karşılığı olan Counterfactual (What-If) ikilisi çalışmamızın omurgasını oluşturmuştur.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 10: PROJE ÖRNEĞİ & PROBLEM ==================== -->
+    <section class="slide" data-slide="10">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Uygulama Örneği • 01</span>
+          <h2>Gerçek Dünya Uygulaması: YKS Tercih Asistanı</h2>
+          <p class="header-desc">Açıklanabilir yapay zekânın merkezi üniversite yerleştirmelerinde bir karar destek sistemi olarak hayata geçirilmesi.</p>
+        </div>
+
+        <div class="two-col-grid">
+          <div class="project-intro-card">
+            <h3>Projenin Amacı ve Çözülen Problem</h3>
+            <p>
+              Türkiye'de her yıl <strong>3 milyondan fazla aday</strong> Yükseköğretim Kurumları Sınavı'na (YKS) girmekte ve merkezi sistemde 24 tercih hakkını kullanarak geleceğini şekillendirmektedir.
+            </p>
+
+            <div class="problem-box">
+              <h4>Mevcut Durumdaki Kritik Sorunlar:</h4>
+              <ul>
+                <li><strong>13.581 Lisans Programı:</strong> Adayların devasa veri havuzunda kaybolması ve bilgi asimetrisi.</li>
+                <li><strong>Dinamik Kontenjan & Talep Dalgalanmaları:</strong> Sadece geçen yılın puanına bakarak tercih yapmanın yarattığı "Ölü Tercih" ve açıkta kalma riskleri.</li>
+                <li><strong>Kara Kutu Danışmanlık:</strong> "Burası gelir" diyen ama hiçbir nedensel dayanak sunamayan klasik yapay zekâ botlarının güven vermemesi.</li>
+              </ul>
+            </div>
+
+            <div class="solution-box">
+              <h4>Geliştirilen XAI Çözümü:</h4>
+              <p>Öğrencinin puanına ve profiline göre 13.581 programı tarayan, <strong>2026 taban sıralamasını öngören, arkasındaki nedenleri TreeSHAP ile ayrıştıran, %80 güven koridoru sunan</strong> ve kullanıcıyla doğal Türkçe rehberlik diliyle konuşan entegre platform.</p>
+            </div>
+          </div>
+
+          <div class="project-stats-card">
+            <h3>Sistem Kapsamı ve Veri Altyapısı</h3>
+            
+            <div class="stat-highlight-grid">
+              <div class="stat-cube">
+                <span class="s-num">13.581</span>
+                <span class="s-label">Aktif Lisans Programı</span>
+              </div>
+              <div class="stat-cube">
+                <span class="s-num">81 İl + KKTC</span>
+                <span class="s-label">Bölgesel Yaşam Endeksi</span>
+              </div>
+              <div class="stat-cube">
+                <span class="s-num">4 Puan Türü</span>
+                <span class="s-label">SAY, EA, SÖZ, DİL Modelleri</span>
+              </div>
+              <div class="stat-cube">
+                <span class="s-num">3 Yıllık Trend</span>
+                <span class="s-label">2023 – 2025 Resmi Verileri</span>
+              </div>
+            </div>
+
+            <div class="ethics-callout">
+              <h4>🛡️ Etik XAI Prensibi:</h4>
+              <p>Sistem asla öğrenciden gizli kural yürütmez. Her tahmin; <strong>Geçmiş Taban İstikrarı</strong>, <strong>Kontenjan Değişimi</strong> ve <strong>Talep İvmesi</strong> olmak üzere üç şeffaf faktör üzerinden açıklanır.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="10">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Sunumumuzun ikinci ana bölümüne, yani geliştirdiğimiz 'YKS Tercih Asistanı' uygulamasına geçiyoruz. Bu proje bir oyuncak veri seti üzerinde değil; Türkiye genelindeki 81 il ve KKTC'yi kapsayan 13.581 resmi lisans programı üzerinde çalışmaktadır.</p>
+        <p>Çözdüğümüz temel problem, üniversite tercihlerinde yaşanan bilgi kirliliği ve tercih hatalarıdır. Geleneksel yapay zekâ sistemleri adaya 'Hacettepe Bilgisayar gelir' diyerek öğrenciyi yanıltabilirken, bizim sistemimiz her tahminin arkasındaki koridoru ve faktörleri açıklayarak adayın riskini minimize eder.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 11: SİSTEM MİMARİSİ ==================== -->
+    <section class="slide" data-slide="11">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Uygulama Örneği • 02</span>
+          <h2>Sistem Mimarisi & Uçtan Uca XAI Hattı</h2>
+          <p class="header-desc">Veri yüklemeden model çıkarımına, SHAP hesaplamasından doğal dil üretimine çok katmanlı mimari.</p>
+        </div>
+
+        <div class="architecture-diagram">
+          <!-- Katman 1 -->
+          <div class="arch-layer">
+            <div class="layer-header">
+              <span class="layer-tag">Katman 1</span>
+              <h4>Veri & İndeksleme Katmanı</h4>
+            </div>
+            <div class="layer-content">
+              <div class="arch-box">13.581 Lisans Programı (ÖSYM/YÖK Atlas)</div>
+              <div class="arch-box">2023–2025 Taban Sıraları & Kontenjanlar</div>
+              <div class="arch-box">81 İl Yaşam Maliyeti & Barınma Endeksleri</div>
+            </div>
+          </div>
+
+          <div class="arch-arrow-down">⬇️</div>
+
+          <!-- Katman 2 -->
+          <div class="arch-layer highlight-layer">
+            <div class="layer-header">
+              <span class="layer-tag">Katman 2</span>
+              <h4>Tahmin & Çıkarım Motoru (ModelService)</h4>
+            </div>
+            <div class="layer-content">
+              <div class="arch-box highlight">
+                <strong>LightGBM Medyan Regresyonu (L1)</strong>
+                <span>Nokta Taban Sırası Tahmini</span>
+              </div>
+              <div class="arch-box highlight">
+                <strong>Quantile Regresyon (α=0.10 & α=0.90)</strong>
+                <span>%80 Güvenli Tercih Koridoru</span>
+              </div>
+              <div class="arch-box highlight">
+                <strong>SAY, EA, SÖZ, DİL</strong>
+                <span>4 Ayrı Bağımsız Eğitilmiş Model</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow-down">⬇️</div>
+
+          <!-- Katman 3 -->
+          <div class="arch-layer xai-layer">
+            <div class="layer-header">
+              <span class="layer-tag">Katman 3</span>
+              <h4>Açıklanabilirlik Katmanı (XAI Engine)</h4>
+            </div>
+            <div class="layer-content">
+              <div class="arch-box xai">
+                <strong>TreeSHAP Decomposition</strong>
+                <span>4 Özelliğin İşaretli Katkıları ($\phi_i$)</span>
+              </div>
+              <div class="arch-box xai">
+                <strong>Toplamsallık Doğrulama</strong>
+                <span>$\hat{y} = \phi_0 + \sum \phi_i$ Kontrolü</span>
+              </div>
+              <div class="arch-box xai">
+                <strong>What-If Kontenjan Simülatörü</strong>
+                <span>Karşı-Olgusal Senaryo Üretimi</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="arch-arrow-down">⬇️</div>
+
+          <!-- Katman 4 -->
+          <div class="arch-layer ui-layer">
+            <div class="layer-header">
+              <span class="layer-tag">Katman 4</span>
+              <h4>Kullanıcı Deneyimi & Doğal Dil (Frontend & Chat)</h4>
+            </div>
+            <div class="layer-content">
+              <div class="arch-box">İnteraktif React UI (Harita, Trend Borsası, Simülatör)</div>
+              <div class="arch-box">Açılır Gerekçe Analizi Çekmecesi & Karar Kartları</div>
+              <div class="arch-box">Doğal Rehber Öğretmen Chatbotu (GPT-4o-mini & XAI RAG)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="11">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Mimari şemamız sistemin üretim ortamındaki 4 katmanını net biçimde göstermektedir. Sistemimiz FastAPI tabanlı mikroservis mantığıyla çalışmaktadır.</p>
+        <p>Dikkat edilmesi gereken en önemli nokta 3. Katmandır. Model çıkarım yaptıktan hemen sonra çıktı ham haliyle kullanıcıya iletilmez. TreeSHAP motoru anlık olarak şelale adımlarını hesaplar, matematiksel toplamsallığı doğrular, ardından 4. Katmandaki hem görsel arayüze hem de doğal dil rehberlik botuna bu gerekçeleri besler.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 12: EKRANLAR & CANLI VAKA ==================== -->
+    <section class="slide" data-slide="12">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Uygulama Örneği • 03</span>
+          <h2>Arayüz Entegrasyonu & Gerçek Ekran Sonuçları</h2>
+          <p class="header-desc">Öğrenci arayüzünde teknik terim karmaşasından uzak, şeffaf karar kartları ve akıllı rehberlik.</p>
+        </div>
+
+        <div class="screens-grid">
+          <div class="screen-card">
+            <div class="screen-badge">Bileşen 1</div>
+            <h4>Program Karar Kartı & Güven Koridoru</h4>
+            <div class="mock-card">
+              <div class="mock-top">
+                <span class="m-uni">EGE ÜNİVERSİTESİ (İZMİR)</span>
+                <span class="m-tag safe">Sıralamana Yakın</span>
+              </div>
+              <div class="m-prog">Bilgisayar Mühendisliği (İngilizce)</div>
+              
+              <div class="m-grid">
+                <div class="m-box">
+                  <span class="m-sub">2025 Taban Sırası</span>
+                  <span class="m-num">40.120</span>
+                </div>
+                <div class="m-box highlight">
+                  <span class="m-sub">2026 Beklenen Sıralama</span>
+                  <span class="m-num">38.951</span>
+                </div>
+              </div>
+
+              <div class="m-corridor">
+                Güvenli Tercih Aralığı: 35.800 – 42.100 (±%8.1)
+              </div>
+              <div class="m-factor">
+                💡 Belirleyici Neden: Bölümün Yerleşik Talebi & Taban Gücü
+              </div>
+            </div>
+            <p class="screen-note">Aday tek bir bakışta son yıl tabanını, öngörülen yeni sırayı ve güven aralığını görür.</p>
+          </div>
+
+          <div class="screen-card">
+            <div class="screen-badge">Bileşen 2</div>
+            <h4>Gerekçe Analizi (Şeffaf Çekmece)</h4>
+            <div class="mock-drawer">
+              <h5>💡 Sıralamayı Etkileyen Temel Faktörler:</h5>
+              <p>• <strong>Yerleşik Talep:</strong> Programın geçmiş yıllardaki 40.120 taban sırası ve prestiji en belirleyici güçtür.</p>
+              <p>• <strong>Kontenjan Baskısı:</strong> Kontenjanda değişiklik olmaması sıralama istikrarını korumaktadır.</p>
+              <p>• <strong>Talep İvmesi:</strong> Son 3 yıllık bilişim mühendislikleri ilgisi sıralamayı yaklaşık 1.200 sıra öne çekici baskı üretmektedir.</p>
+            </div>
+            <p class="screen-note">Teknik formüller yerine öğrencinin anlayacağı doğal ve kanıtlanabilir gerekçeler sunulur.</p>
+          </div>
+
+          <div class="screen-card">
+            <div class="screen-badge">Bileşen 3</div>
+            <h4>Doğal Rehberlik Danışmanı (AI Chatbot)</h4>
+            <div class="mock-chat">
+              <div class="chat-bubble user">Sayısal 45.000 ile Ege Bilgisayar gelir mi?</div>
+              <div class="chat-bubble bot">
+                <strong>🎓 Rehberlik Değerlendirmesi:</strong> Ege Bilgisayar için 2026 beklenen sıralaması 38.951'dir (Aralık: 35.800–42.100). 45.000 sıralamanla 'Üst Hedef (Hayal)' tercihi olarak ilk sıralara yazabilirsin; ancak listeni riske atmamak için Marmara ve Başkent gibi programlarla desteklemelisin.
+              </div>
+            </div>
+            <p class="screen-note">LLM arkadaki XAI verisini alır ve öğrenciye samimi, sıcak bir uzman gibi açıklar.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="12">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Burada geliştirdiğimiz arayüzün üç temel bileşenini görüyoruz. İlk bileşende karar kartı bulunmaktadır; burada LightGBM veya TreeSHAP gibi teknik kelimeler yerine öğrenci dostu '2026 Beklenen Sıralama' ve 'Güvenli Tercih Aralığı' ifadeleri yer alır.</p>
+        <p>İkinci bileşende açılır çekmece ile kararın arkasındaki gerekçeler sunulur. Üçüncü bileşende ise entegre sohbet danışmanı devreye girerek öğrencinin özel başarı sırasına göre 24'lük tercih listesi stratejisi oluşturur.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 13: AMPİRİK DOĞRULAMA ==================== -->
+    <section class="slide" data-slide="13">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Uygulama Örneği • 04</span>
+          <h2>Ampirik Model Doğrulaması & Performans Bulguları</h2>
+          <p class="header-desc">7.811 aktif lisans programı üzerinde kör test ile ölçülen gerçek akademik doğruluk metrikleri.</p>
+        </div>
+
+        <div class="two-col-grid">
+          <div class="eval-metrics-card">
+            <h3>Puan Türlerine Göre Model Başarı Metrikleri (MAE)</h3>
+            <p class="eval-sub">2024 yılı verileriyle eğitilen modeller, 2025 yılı gerçek yerleştirme sonuçları üzerinde test edilmiştir:</p>
+
+            <div class="score-type-table-wrap">
+              <table class="eval-table">
+                <thead>
+                  <tr>
+                    <th>Puan Türü</th>
+                    <th>Örneklem ($N$)</th>
+                    <th>Geçmiş Yıl MAE</th>
+                    <th>Model MAE</th>
+                    <th>Hata Azalması</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="st-pill say">SAY (Sayısal)</span></td>
+                    <td>3.205 Program</td>
+                    <td>60.396</td>
+                    <td><strong>61.253</strong></td>
+                    <td class="stable">Dengeli (~%0)</td>
+                  </tr>
+                  <tr class="best-row">
+                    <td><span class="st-pill ea">EA (Eşit Ağırlık)</span></td>
+                    <td>2.726 Program</td>
+                    <td>158.817</td>
+                    <td><strong>125.072</strong></td>
+                    <td class="gain">+%21,25 Başarı</td>
+                  </tr>
+                  <tr class="best-row">
+                    <td><span class="st-pill soz">SÖZ (Sözel)</span></td>
+                    <td>1.391 Program</td>
+                    <td>79.005</td>
+                    <td><strong>61.767</strong></td>
+                    <td class="gain">+%21,82 Başarı</td>
+                  </tr>
+                  <tr>
+                    <td><span class="st-pill dil">DİL (Yabancı Dil)</span></td>
+                    <td>489 Program</td>
+                    <td>10.621</td>
+                    <td><strong>9.241</strong></td>
+                    <td class="gain">+%13,00 Başarı</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="total-summary-box">
+              <span class="ts-label">Genel Toplam (7.811 Program):</span>
+              <span class="ts-vals">Baseline MAE: 94.942 ➔ Model MAE: <strong>80.361</strong> (<span class="text-gain">%15,36 Hata Azalması</span>)</span>
+            </div>
+          </div>
+
+          <div class="eval-insights-card">
+            <h3>Akademik Çıkarımlar & Değerlendirme</h3>
+
+            <div class="eval-point">
+              <div class="ep-num">1</div>
+              <div class="ep-text">
+                <h4>EA ve SÖZ Alanlarında %21'i Aşan Doğruluk Kazancı</h4>
+                <p>Eşit Ağırlık ve Sözel programlarında kontenjan dalgalanmaları çok şiddetli olduğu için, sadece geçmiş yıla bakan geleneksel yöntemler 158 bin sıra hata yaparken, modelimiz bu hatayı 125 bine indirmiştir.</p>
+              </div>
+            </div>
+
+            <div class="eval-point">
+              <div class="ep-num">2</div>
+              <div class="ep-text">
+                <h4>Sayısal Alanda Yüksek İstikrar</h4>
+                <p>Sayısal bölümlerde (Tıp, Diş, Köklü Mühendislikler) taban sıraları çok oturmuş olduğundan model aşırı tahmin üretmeyerek geçmiş taban istikrarını korumuştur.</p>
+              </div>
+            </div>
+
+            <div class="eval-point">
+              <div class="ep-num">3</div>
+              <div class="ep-text">
+                <h4>Quantile Güven Aralığı Güvenilirliği</h4>
+                <p>Modellerimizin ürettiği %10 - %90 güven koridorları, gerçekleşen 2025 sınav sonuçlarının ortalama %55-60'ını doğrudan başarı bandı içerisine almıştır.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="13">
+        <h4>🎤 Konuşmacı Notları:</h4>
+        <p>Bu slayt çalışmamızın somut ampirik kanıtıdır. Projemizde tahmini rakamlar değil, 7.811 aktif lisans programı üzerinde ölçülmüş resmi test sonuçları bulunmaktadır.</p>
+        <p>Özellikle Eşit Ağırlık ve Sözel alanlarında elde ettiğimiz %21'lik hata azalması çok büyüktür. Hukuk, Psikoloji veya İİBF gibi bölümlerde kontenjan değişimleri çok yüksek olduğu için modelimiz geçmiş yıla göre 33 bin sıra daha isabetli tahmin üretmiştir. Bu da öğrencilerin tercih listelerini oluştururken açıkta kalma riskini doğrudan bertaraf etmektedir.</p>
+      </aside>
+    </section>
+
+    <!-- ==================== SLAYT 14: SONUÇ & KAYNAKÇA ==================== -->
+    <section class="slide" data-slide="14">
+      <div class="slide-content">
+        <div class="slide-header">
+          <span class="section-tag">Kapanış • 01</span>
+          <h2>Sonuç, Tartışma, Sınırlılıklar & Bilimsel Kaynakça</h2>
+          <p class="header-desc">Araştırmanın genel sentezi, gelecek çalışmalar ve akademik referanslar.</p>
+        </div>
+
+        <div class="conclusion-grid">
+          <div class="concl-card strengths">
+            <h3>🎯 Temel Katkılar ve Sonuçlar</h3>
+            <ul>
+              <li><strong>Şeffaflık ile Doğruluk Birleşti:</strong> LightGBM'in yüksek tahmin gücü (%15.36 hata azalması) TreeSHAP ile matematiksel olarak şeffaflaştırıldı.</li>
+              <li><strong>Eyleme Dönük Karar Desteği:</strong> What-If simülatörü adayın pasif bir izleyici yerine senaryo test eden bir karar verici olmasını sağladı.</li>
+              <li><strong>İki Katmanlı İletişim:</strong> Uzmanlar için matematiksel Shapley adımları; öğrenciler için doğal Türkçe rehberlik dili sunuldu.</li>
+            </ul>
+          </div>
+
+          <div class="concl-card limits">
+            <h3>⚠️ Sınırlılıklar & Gelecek Çalışmalar</h3>
+            <ul>
+              <li><strong>Sosyal Medya Trendlerinin Eksikliği:</strong> Ani meslek popülarite patlamaları (örn. Yapay Zekâ Mühendisliği) geçmiş veride henüz iz bırakmadan gerçekleşebilmektedir; gelecekte sosyal medya duygu analizi eklenebilir.</li>
+              <li><strong>Uç Sıralama Varyansı:</strong> 500.000'den sonraki sıralamalarda yerleşme motivasyonu düzensizleştiği için hata payı büyümektedir.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bibliography-box">
+          <h3>📚 Bilimsel Kaynakça (Selected References)</h3>
+          <div class="bib-grid">
+            <div class="bib-item">
+              <span class="bib-author">Lundberg, S. M., & Lee, S.-I. (2017).</span>
+              <span class="bib-title">A Unified Approach to Interpreting Model Predictions.</span>
+              <span class="bib-source">Advances in Neural Information Processing Systems (NeurIPS 30).</span>
+            </div>
+            <div class="bib-item">
+              <span class="bib-author">Lundberg, S. M. et al. (2020).</span>
+              <span class="bib-title">From local explanations to global understanding with explainable AI for trees.</span>
+              <span class="bib-source">Nature Machine Intelligence, 2(1), 56-67.</span>
+            </div>
+            <div class="bib-item">
+              <span class="bib-author">Molnar, C. (2022).</span>
+              <span class="bib-title">Interpretable Machine Learning: A Guide for Making Black Box Models Explainable.</span>
+              <span class="bib-source">2nd Edition, christophm.github.io/interpretable-ml-book.</span>
+            </div>
+            <div class="bib-item">
+              <span class="bib-author">Wachter, S., Mittelstadt, B., & Russell, C. (2017).</span>
+              <span class="bib-title">Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.</span>
+              <span class="bib-source">Harvard Journal of Law & Technology, 31(2).</span>
+            </div>
+            <div class="bib-item">
+              <span class="bib-author">Ke, G. et al. (2017).</span>
+              <span class="bib-title">LightGBM: A Highly Efficient Gradient Boosting Decision Tree.</span>
+              <span class="bib-source">Advances in Neural Information Processing Systems (NeurIPS 30).</span>
+            </div>
+            <div class="bib-item">
+              <span class="bib-author">Ribeiro, M. T., Singh, S., & Guestrin, C. (2016).</span>
+              <span class="bib-title">"Why Should I Trust You?": Explaining the Predictions of Any Classifier.</span>
+              <span class="bib-source">ACM SIGKDD International Conference on Knowledge Discovery and Data Mining.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="thanks-footer">
+          <span>Dinlediğiniz için teşekkür ederim. Sorularınızı yanıtlamaktan memnuniyet duyarım.</span>
+        </div>
+      </div>
+
+      <aside class="speaker-notes" data-for-slide="14">
+        <h4>🎤 Kapanış Konuşmacı Notları:</h4>
+        <p>Değerli jüri üyeleri, özetlemek gerekirse: Bu çalışmada Açıklanabilir Yapay Zekâ'nın teorik ilkelerini sadece literatür düzeyinde bırakmayıp, Türkiye'nin en büyük karar destek problemlerinden biri olan YKS tercihleri üzerinde somut bir başarıya dönüştürdük.</p>
+        <p>Modelimiz hem matematiksel doğrulukta %15'in üzerinde bir hata indirgemesi sağlamış, hem de TreeSHAP ve Counterfactual Simülatör sayesinde öğrencilere 'neden' sorusunun tam ve eksiksiz cevabını vermiştir. İlginiz ve sabrınız için teşekkür eder, sorularınızı memnuniyetle beklerim.</p>
+      </aside>
+    </section>
+
+  </main>
+
+  <!-- Bottom Control Bar -->
+  <footer class="pres-footer">
+    <div class="footer-left">
+      <button class="footer-nav-btn" id="btnPrev" title="Önceki Slayt (Sol Ok)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        <span>Önceki</span>
+      </button>
+
+      <div class="slide-indicator" id="slideIndicator">
+        <span class="current-slide" id="currentSlideNum">01</span>
+        <span class="slash">/</span>
+        <span class="total-slides" id="totalSlidesNum">14</span>
+      </div>
+
+      <button class="footer-nav-btn" id="btnNext" title="Sonraki Slayt (Sağ Ok veya Boşluk)">
+        <span>Sonraki</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+
+    <div class="footer-center">
+      <div class="keyboard-shortcuts-pill">
+        <span>Klavye: <strong>←</strong> / <strong>→</strong> Geçiş • <strong>S</strong> Notlar • <strong>O</strong> Genel Bakış • <strong>F</strong> Tam Ekran</span>
+      </div>
+    </div>
+
+    <div class="footer-right">
+      <span class="footer-meta-tag">XAI & Karar Destek Mimarisi</span>
+    </div>
+  </footer>
+
+  <!-- Speaker Notes Drawer / Modal -->
+  <div class="notes-drawer" id="notesDrawer">
+    <div class="notes-drawer-header">
+      <div class="notes-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Konuşmacı Notları — Slayt <span id="notesSlideNumber">1</span></span>
+      </div>
+      <button class="btn-close-notes" id="btnCloseNotes" title="Kapat (S veya ESC)">✕</button>
+    </div>
+    <div class="notes-drawer-body" id="notesBody">
+      <!-- Injected dynamically based on current active slide -->
+    </div>
+  </div>
+
+  <!-- Slide Overview Grid Overlay -->
+  <div class="overview-overlay" id="overviewOverlay">
+    <div class="overview-header">
+      <h3>Slayt Genel Bakışı (Tıkla ve Git)</h3>
+      <button class="btn-close-overview" id="btnCloseOverview">✕ Kapat (O veya ESC)</button>
+    </div>
+    <div class="overview-grid" id="overviewGrid">
+      <!-- Injected dynamically via JS -->
+    </div>
+  </div>
+
+  <script src="presentation.js"></script>
+</body>
+</html>

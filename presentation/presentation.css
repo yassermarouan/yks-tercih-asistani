@@ -1,0 +1,2045 @@
+/* ==========================================================================
+   Açıklanabilir Yapay Zekâ (XAI) Akademik Sunum Stili
+   Renk Teması: Koyu Akademik Slate (#070C15, #0B132B), Neon Zümrüt (#10B981),
+   Siyanür (#06B6D4), Kehribar (#F59E0B) ve Yüksek Kontrastlı Beyaz Tipografi.
+   ========================================================================== */
+
+:root {
+  --bg-primary: #060913;
+  --bg-secondary: #0c1222;
+  --bg-card: rgba(15, 23, 42, 0.85);
+  --bg-card-border: rgba(51, 65, 85, 0.45);
+  --bg-card-hover: rgba(30, 41, 59, 0.95);
+
+  --accent-emerald: #10b981;
+  --accent-emerald-glow: rgba(16, 185, 129, 0.25);
+  --accent-cyan: #06b6d4;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --accent-indigo: #6366f1;
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --header-height: 54px;
+  --footer-height: 62px;
+  --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Header & Toolbar
+   ========================================================================== */
+.pres-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: rgba(6, 9, 19, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(51, 65, 85, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 100;
+}
+
+.pres-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pres-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.3rem 0.75rem;
+  rounded: 20px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-emerald);
+  letter-spacing: 0.02em;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: var(--accent-emerald);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-emerald);
+  animation: pulseAnim 2s infinite;
+}
+
+@keyframes pulseAnim {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.pres-topic {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 1rem;
+}
+
+.pres-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pres-timer {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.3);
+  padding: 0.35rem 0.7rem;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent-cyan);
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  color: var(--text-muted);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.nav-btn:hover {
+  background: rgba(30, 41, 59, 0.9);
+  color: #ffffff;
+  border-color: var(--accent-emerald);
+  transform: translateY(-1px);
+}
+
+.nav-btn.active {
+  background: var(--accent-emerald);
+  color: #000000;
+  border-color: var(--accent-emerald);
+}
+
+/* ==========================================================================
+   Progress Bar
+   ========================================================================== */
+.progress-bar-container {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 99;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 7.14%;
+  background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  transition: width 0.3s ease;
+}
+
+/* ==========================================================================
+   Slide Deck Container
+   ========================================================================== */
+.deck-container {
+  position: absolute;
+  top: calc(var(--header-height) + 3px);
+  bottom: var(--footer-height);
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  padding: 2.2rem 3.5rem;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(40px) scale(0.985);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+  display: flex;
+  flex-direction: column;
+}
+
+.slide.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0) scale(1);
+  z-index: 10;
+}
+
+.slide.prev-slide {
+  transform: translateX(-40px) scale(0.985);
+}
+
+.slide-content {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+/* Slide Header */
+.slide-header {
+  margin-bottom: 1.8rem;
+}
+
+.section-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-emerald);
+  margin-bottom: 0.4rem;
+}
+
+.slide-header h2 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.header-desc {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 0.35rem;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   SLAYT 1: Başlık Slaytı
+   ========================================================================== */
+.title-slide {
+  text-align: center;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 0.5rem 1.2rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  margin-bottom: 1.5rem;
+}
+
+.main-title {
+  font-size: 3.4rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  max-width: 860px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.title-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 1050px;
+  margin-bottom: 2rem;
+}
+
+.meta-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  text-align: left;
+  transition: var(--transition-smooth);
+}
+
+.meta-card:hover {
+  border-color: var(--accent-emerald);
+  transform: translateY(-2px);
+}
+
+.meta-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.meta-val {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.title-cta-hint {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.title-cta-hint strong {
+  color: var(--accent-emerald);
+}
+
+/* ==========================================================================
+   2 ve 3 Sütunlu Izgaralar (Grid Layouts)
+   ========================================================================== */
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+  width: 100%;
+}
+
+.concept-card, .diagram-card, .feat-list-card, .feat-chart-card,
+.project-intro-card, .project-stats-card, .eval-metrics-card, .eval-insights-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 18px;
+  padding: 1.6rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.concept-card p {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+.card-icon-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+}
+
+.card-icon-header h3, .diagram-card h3, .feat-list-card h3, .feat-chart-card h3,
+.project-intro-card h3, .project-stats-card h3, .eval-metrics-card h3, .eval-insights-card h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.icon-wrap.warning {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.icon-wrap.info {
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.clean-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.clean-list li {
+  position: relative;
+  padding-left: 1.3rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.clean-list li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--accent-emerald);
+  font-size: 1.4rem;
+  line-height: 1;
+  top: -0.1rem;
+}
+
+.clean-list li strong {
+  color: #ffffff;
+}
+
+/* Tradeoff Diagram */
+.tradeoff-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  margin: 1.4rem 0;
+}
+
+.tradeoff-bar {
+  background: rgba(6, 9, 19, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+}
+
+.tradeoff-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.algo-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.algo-type {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.tradeoff-meter {
+  height: 7px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.tradeoff-meter span {
+  display: block;
+  height: 100%;
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+
+.tradeoff-meter.highlight span {
+  background: linear-gradient(90deg, var(--accent-emerald), var(--accent-cyan));
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.tradeoff-meter.danger span {
+  background: var(--accent-rose);
+}
+
+.highlight-callout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: auto;
+}
+
+.highlight-callout strong {
+  color: var(--accent-emerald);
+}
+
+/* ==========================================================================
+   SLAYT 3: 4 Pillar Grid
+   ========================================================================== */
+.four-pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.8rem;
+}
+
+.pillar-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  padding: 1.5rem 1.4rem;
+  border-radius: 16px;
+  position: relative;
+  transition: var(--transition-smooth);
+}
+
+.pillar-card:hover {
+  border-color: var(--accent-emerald);
+  transform: translateY(-3px);
+}
+
+.pillar-num {
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.12);
+  margin-bottom: 0.75rem;
+}
+
+.pillar-card h3 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+}
+
+.pillar-card p {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.quote-banner {
+  background: rgba(15, 23, 42, 0.7);
+  border-left: 4px solid var(--accent-emerald);
+  padding: 1.2rem 1.8rem;
+  border-radius: 0 14px 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.quote-banner blockquote {
+  font-size: 1.05rem;
+  font-weight: 500;
+  font-style: italic;
+  color: #ffffff;
+}
+
+.quote-author {
+  font-size: 0.8rem;
+  color: var(--accent-emerald);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   SLAYT 4: Dual Comparison Columns
+   ========================================================================== */
+.comparison-dual-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.comparison-column {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 18px;
+  padding: 1.8rem 2rem;
+}
+
+.comparison-column.explainable {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, rgba(15, 23, 42, 0.9) 100%);
+}
+
+.comp-col-header {
+  margin-bottom: 1.5rem;
+}
+
+.comp-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+.comp-badge.trad {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--accent-rose);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.comp-badge.xai {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.comp-col-header h3 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.pipeline-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(6, 9, 19, 0.7);
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.pipe-node {
+  padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  color: #cbd5e1;
+}
+
+.pipe-node.dark-box {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--accent-rose);
+  border: 1px dashed rgba(244, 63, 94, 0.5);
+}
+
+.pipe-node.glass-box {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.5);
+}
+
+.pipe-node.highlight {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.3), rgba(6, 182, 212, 0.3));
+  color: #ffffff;
+  border: 1px solid var(--accent-emerald);
+}
+
+.pipe-arrow {
+  color: var(--text-dim);
+}
+
+.comp-specs {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.comp-specs li {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding-bottom: 0.65rem;
+}
+
+.comp-specs li strong {
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   SLAYT 5: Taksonomi
+   ========================================================================== */
+.taxonomy-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.taxonomy-dim-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 18px;
+  padding: 1.6rem;
+}
+
+.dim-tag {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.dim-header h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1.25rem;
+}
+
+.dim-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dim-item {
+  background: rgba(6, 9, 19, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.35);
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+}
+
+.dim-item.highlight {
+  border-color: var(--accent-emerald);
+  background: rgba(16, 185, 129, 0.07);
+}
+
+.dim-item h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.dim-item.highlight h4 {
+  color: var(--accent-emerald);
+}
+
+.dim-item p {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.system-choice-banner {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.choice-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.choice-tag {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   SLAYT 6: Feature Items & Chart
+   ========================================================================== */
+.feature-item-box {
+  background: rgba(6, 9, 19, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.35);
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  margin-bottom: 0.85rem;
+}
+
+.feat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+.feat-code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--accent-cyan);
+}
+
+.feat-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.feat-badge.dominant {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.feature-item-box h4 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.feature-item-box p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 0;
+}
+
+.bar-chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 1.8rem 0;
+}
+
+.chart-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.chart-label-wrap {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.lbl-main { color: #ffffff; }
+.lbl-pct { font-family: var(--font-mono); color: var(--accent-emerald); }
+
+.chart-track {
+  height: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.chart-fill {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 1s ease;
+}
+
+.c-emerald { background: var(--accent-emerald); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.c-cyan { background: var(--accent-cyan); }
+.c-amber { background: var(--accent-amber); }
+.c-rose { background: var(--accent-rose); }
+
+.scientific-insight-box {
+  background: rgba(6, 182, 212, 0.08);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-top: auto;
+}
+
+.scientific-insight-box h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  margin-bottom: 0.3rem;
+}
+
+.scientific-insight-box p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   SLAYT 7: TreeSHAP & Waterfall
+   ========================================================================== */
+.shap-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.75rem;
+}
+
+.shap-formula-card, .shap-interactive-demo {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 18px;
+  padding: 1.6rem 1.8rem;
+}
+
+.formula-desc {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+}
+
+.katex-render {
+  background: rgba(6, 9, 19, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1.25rem;
+  overflow-x: auto;
+}
+
+.axioms-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+}
+
+.axioms-box h4 {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--accent-emerald);
+  margin-bottom: 0.6rem;
+}
+
+.axioms-box ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.axioms-box strong { color: #ffffff; }
+
+.demo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.demo-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.demo-sub {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.25rem;
+}
+
+.waterfall-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.wf-step {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+
+.wf-step.base {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.wf-step.positive {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--accent-emerald);
+  font-weight: 600;
+}
+
+.wf-step.negative {
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: var(--accent-rose);
+  font-weight: 600;
+}
+
+.wf-step.total {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.25));
+  border: 1px solid var(--accent-emerald);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.wf-val {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.verification-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.v-icon {
+  width: 20px;
+  height: 20px;
+  background: var(--accent-emerald);
+  color: #000000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 0.75rem;
+  shrink-0: 0;
+}
+
+/* ==========================================================================
+   SLAYT 8: Counterfactual Simulator
+   ========================================================================== */
+.simulator-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 18px;
+  padding: 1.6rem 1.8rem;
+}
+
+.sim-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sim-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-cyan);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.sim-control-row {
+  margin-bottom: 1.5rem;
+}
+
+.sim-control-row label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+}
+
+.sim-control-row label strong {
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-emerald);
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.7);
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.sim-results-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sim-metric {
+  background: rgba(6, 9, 19, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+}
+
+.sim-metric.highlight {
+  border-color: var(--accent-cyan);
+  background: rgba(6, 182, 212, 0.08);
+}
+
+.m-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 0.25rem;
+}
+
+.m-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-mono);
+}
+
+.m-val.category {
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  color: var(--accent-cyan);
+}
+
+.sim-explanation-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid var(--accent-cyan);
+  padding: 0.85rem 1.1rem;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   SLAYT 9: Karşılaştırma Tablosu
+   ========================================================================== */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.benchmark-table th {
+  background: rgba(15, 23, 42, 0.95);
+  color: #ffffff;
+  font-weight: 800;
+  padding: 0.9rem 1.1rem;
+  border-bottom: 1px solid var(--bg-card-border);
+}
+
+.benchmark-table td {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.benchmark-table tr.selected-row {
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.badge-success { color: var(--accent-emerald); font-weight: 700; }
+.badge-danger { color: var(--accent-rose); font-weight: 700; }
+.badge-warning { color: var(--accent-amber); font-weight: 700; }
+.badge-neutral { color: var(--text-dim); }
+
+.badge-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-emerald);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-excluded {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.rationale-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.rationale-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+
+.rationale-card h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.4rem;
+}
+
+.rationale-card p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   SLAYT 10: Proje Tanımı
+   ========================================================================== */
+.problem-box, .solution-box {
+  background: rgba(6, 9, 19, 0.6);
+  border-radius: 12px;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.problem-box {
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+.problem-box h4 {
+  font-size: 0.92rem;
+  color: var(--accent-rose);
+  margin-bottom: 0.5rem;
+}
+
+.problem-box ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.solution-box {
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.solution-box h4 {
+  font-size: 0.92rem;
+  color: var(--accent-emerald);
+  margin-bottom: 0.35rem;
+}
+
+.solution-box p {
+  font-size: 0.84rem;
+  color: #ffffff;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.stat-highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stat-cube {
+  background: rgba(6, 9, 19, 0.6);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  padding: 1.2rem;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.s-num {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #ffffff;
+  display: block;
+  font-family: var(--font-mono);
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.s-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.ethics-callout {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1.1rem;
+  border-radius: 12px;
+  margin-top: auto;
+}
+
+.ethics-callout h4 {
+  font-size: 0.88rem;
+  color: var(--accent-cyan);
+  margin-bottom: 0.35rem;
+}
+
+.ethics-callout p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   SLAYT 11: Sistem Mimarisi
+   ========================================================================== */
+.architecture-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 1050px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.arch-layer {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 14px;
+  padding: 0.9rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.arch-layer.highlight-layer {
+  border-color: rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.05);
+}
+
+.arch-layer.xai-layer {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.arch-layer.ui-layer {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.layer-header {
+  width: 200px;
+  shrink-0: 0;
+}
+
+.layer-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.layer-header h4 {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.layer-content {
+  display: flex;
+  gap: 0.85rem;
+  flex: 1;
+}
+
+.arch-box {
+  background: rgba(6, 9, 19, 0.7);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.arch-box strong { color: #ffffff; font-size: 0.82rem; }
+.arch-box span { font-size: 0.7rem; color: var(--text-dim); }
+
+.arch-arrow-down {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1;
+}
+
+/* ==========================================================================
+   SLAYT 12: Arayüz Ekranları
+   ========================================================================== */
+.screens-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+}
+
+.screen-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 16px;
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent-emerald);
+  margin-bottom: 0.2rem;
+}
+
+.screen-card h4 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+.mock-card {
+  background: rgba(6, 9, 19, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 0.8rem;
+  margin-bottom: 0.85rem;
+}
+
+.mock-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  margin-bottom: 0.3rem;
+}
+
+.m-uni { color: #94a3b8; font-weight: 600; }
+.m-tag { padding: 0.15rem 0.45rem; border-radius: 4px; font-weight: 700; font-size: 0.65rem; }
+.m-tag.safe { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+
+.m-prog { font-size: 0.9rem; font-weight: 800; color: #ffffff; margin-bottom: 0.75rem; }
+
+.m-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.m-box {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.m-box.highlight {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.m-sub { display: block; font-size: 0.65rem; color: #94a3b8; }
+.m-num { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 800; color: #ffffff; }
+.m-box.highlight .m-num { color: var(--accent-emerald); }
+
+.m-corridor {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  font-family: var(--font-mono);
+  margin-bottom: 0.4rem;
+}
+
+.m-factor {
+  font-size: 0.72rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+}
+
+.mock-drawer {
+  background: rgba(6, 9, 19, 0.85);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.85rem;
+}
+
+.mock-drawer h5 {
+  color: var(--accent-cyan);
+  font-size: 0.82rem;
+  margin-bottom: 0.5rem;
+}
+
+.mock-chat {
+  background: rgba(6, 9, 19, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.76rem;
+}
+
+.chat-bubble {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  line-height: 1.45;
+}
+
+.chat-bubble.user {
+  background: rgba(255, 255, 255, 0.08);
+  align-self: flex-end;
+  color: #ffffff;
+}
+
+.chat-bubble.bot {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #e2e8f0;
+}
+
+.screen-note {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: auto;
+}
+
+/* ==========================================================================
+   SLAYT 13: Ampirik Doğrulama Tablosu
+   ========================================================================== */
+.score-type-table-wrap {
+  margin: 1.25rem 0;
+}
+
+.eval-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.eval-table th {
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--bg-card-border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.eval-table td {
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.st-pill {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.st-pill.say { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.st-pill.ea { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.st-pill.soz { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+.st-pill.dil { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+.best-row { background: rgba(16, 185, 129, 0.05); }
+
+.gain { color: var(--accent-emerald); font-weight: 700; font-family: var(--font-mono); }
+.stable { color: var(--text-dim); font-size: 0.78rem; }
+
+.total-summary-box {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.9rem 1.2rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  margin-top: auto;
+}
+
+.text-gain { color: var(--accent-emerald); font-weight: 800; font-family: var(--font-mono); }
+
+.eval-point {
+  display: flex;
+  gap: 0.9rem;
+  margin-bottom: 1.1rem;
+}
+
+.ep-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  shrink-0: 0;
+}
+
+.ep-text h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 0.25rem;
+}
+
+.ep-text p {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* ==========================================================================
+   SLAYT 14: Sonuç & Kaynakça
+   ========================================================================== */
+.conclusion-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.concl-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 16px;
+  padding: 1.4rem 1.6rem;
+}
+
+.concl-card.strengths {
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.concl-card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 0.85rem;
+}
+
+.concl-card ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.concl-card li strong { color: #ffffff; }
+
+.bibliography-box {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  border-radius: 16px;
+  padding: 1.25rem 1.6rem;
+}
+
+.bibliography-box h3 {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  margin-bottom: 0.75rem;
+}
+
+.bib-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem 1.5rem;
+}
+
+.bib-item {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.bib-author { font-weight: 700; color: #cbd5e1; }
+.bib-title { font-style: italic; color: #ffffff; }
+.bib-source { color: var(--text-dim); }
+
+.thanks-footer {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent-emerald);
+}
+
+/* ==========================================================================
+   Footer Controls
+   ========================================================================== */
+.pres-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--footer-height);
+  background: rgba(6, 9, 19, 0.94);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(51, 65, 85, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  z-index: 100;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.footer-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  color: #ffffff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.footer-nav-btn:hover {
+  background: var(--accent-emerald);
+  color: #000000;
+  border-color: var(--accent-emerald);
+}
+
+.footer-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.slide-indicator {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 800;
+  padding: 0 0.4rem;
+}
+
+.current-slide { color: var(--accent-emerald); font-size: 1.05rem; }
+.slash { color: var(--text-dim); margin: 0 0.15rem; }
+.total-slides { color: var(--text-muted); }
+
+.footer-center {
+  display: flex;
+  align-items: center;
+}
+
+.keyboard-shortcuts-pill {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  background: rgba(15, 23, 42, 0.5);
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.keyboard-shortcuts-pill strong {
+  color: var(--text-muted);
+}
+
+.footer-meta-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+/* ==========================================================================
+   Konuşmacı Notları (Speaker Notes Drawer)
+   ========================================================================== */
+.notes-drawer {
+  position: fixed;
+  bottom: var(--footer-height);
+  right: 1.5rem;
+  width: 480px;
+  max-height: 400px;
+  background: rgba(11, 19, 43, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--accent-emerald);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(110%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notes-drawer.open {
+  transform: translateY(0);
+}
+
+.notes-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+}
+
+.notes-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--accent-emerald);
+}
+
+.btn-close-notes {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+
+.btn-close-notes:hover { color: #ffffff; }
+
+.notes-drawer-body {
+  padding: 1.25rem;
+  overflow-y: auto;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+.notes-drawer-body h4 {
+  font-size: 0.95rem;
+  color: #ffffff;
+  margin-bottom: 0.6rem;
+}
+
+.notes-drawer-body p {
+  margin-bottom: 0.75rem;
+}
+
+/* ==========================================================================
+   Slayt Genel Bakış (Overview Overlay)
+   ========================================================================== */
+.overview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 9, 19, 0.95);
+  backdrop-filter: blur(20px);
+  z-index: 200;
+  padding: 2.5rem 3.5rem;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.overview-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.overview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.overview-header h3 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.btn-close-overview {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  overflow-y: auto;
+  flex: 1;
+  padding-bottom: 2rem;
+}
+
+.overview-thumb {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-card-border);
+  padding: 1.1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.overview-thumb:hover, .overview-thumb.active {
+  border-color: var(--accent-emerald);
+  transform: translateY(-3px);
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.thumb-num {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--accent-emerald);
+  margin-bottom: 0.3rem;
+}
+
+.thumb-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.35;
+}
+
+/* ==========================================================================
+   Baskı & PDF Dışa Aktarma Stilleri (Print CSS)
+   ========================================================================== */
+@media print {
+  .pres-header, .pres-footer, .progress-bar-container, .notes-drawer, .overview-overlay {
+    display: none !important;
+  }
+
+  html, body {
+    overflow: visible !important;
+    height: auto !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+  }
+
+  .deck-container {
+    position: static !important;
+    display: block !important;
+  }
+
+  .slide {
+    position: relative !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    page-break-after: always !important;
+    min-height: 100vh !important;
+    padding: 2rem !important;
+  }
+}
