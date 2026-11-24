@@ -162,9 +162,7 @@ def create_presentation():
         p_val.font.bold = True
         p_val.font.color.rgb = COLOR_TEXT_WHITE
 
-    add_speaker_notes(s1, """• Giriş: Sayın jüri üyeleri ve değerli katılımcılar, sunumuma hoş geldiniz.
-• Konu: Bugün sizlere Açıklanabilir Yapay Zekâ, yani XAI konusunu ve karar destek sistemlerindeki önemini sunacağım.
-• Sunum Planı: Sunumumuz iki ana bölümden oluşuyor: İlk bölümde XAI'ın teorik temellerini ve yöntemlerini ele alacağız. İkinci bölümde ise geliştirdiğimiz YKS Tercih Karar Destek Sistemi üzerindeki gerçek uygulama sonuçlarını göreceğiz.""")
+    add_speaker_notes(s1, """Sayın jüri üyeleri ve değerli katılımcılar, sunumuma hoş geldiniz. Bugün sizlere Açıklanabilir Yapay Zekâ konusunu ve karar destek sistemlerindeki önemini aktaracağım. Sunumumuz iki ana bölümden oluşmaktadır: İlk bölümde Açıklanabilir Yapay Zekâ'nın teorik temellerini ve yöntemlerini ele alacağız. İkinci bölümde ise geliştirdiğimiz YKS Tercih Karar Destek Sistemi üzerindeki gerçek uygulama sonuçlarını inceleyeceğiz.""")
 
     # ==========================================================================
     # SLAYT 2: Kara Kutu Problemi & Güven Krizi
@@ -252,9 +250,7 @@ def create_presentation():
     p.font.size = Pt(10)
     p.font.color.rgb = COLOR_TEXT_MUTED
 
-    add_speaker_notes(s2, """• Kara Kutu: Klasik yapay zekâ modelleri çok yüksek doğrulukla tahmin yapar; ancak kararı nasıl verdiklerini açıklayamazlar.
-• Neden Sorusu: Özellikle eğitim, sağlık ve finans gibi hayati alanlarda sadece bir sonuç almak yetersizdir; "Neden bu sonuç çıktı?" sorusunun cevabı zorunludur.
-• XAI'ın Amacı: Açıklanabilir Yapay Zekâ, modelin yüksek tahmin gücünü korurken karar adımlarını şeffaf ve denetlenebilir hale getirir.""")
+    add_speaker_notes(s2, """Klasik yapay zekâ modelleri çok yüksek doğrulukla tahmin yapsa da kararı nasıl verdiklerini açıklayamazlar. Özellikle eğitim, sağlık ve finans gibi hayati alanlarda sadece bir sonuç almak yetersizdir; sonucun gerekçesini bilmek kritik bir gereksinimdir. Açıklanabilir Yapay Zekâ, modelin yüksek tahmin gücünü korurken karar adımlarını şeffaf ve denetlenebilir hale getirir.""")
 
     # ==========================================================================
     # SLAYT 3: XAI Neden Zorunludur?
@@ -316,9 +312,7 @@ def create_presentation():
     p.font.bold = True
     p.font.color.rgb = COLOR_EMERALD
 
-    add_speaker_notes(s3, """• Yasal Zorunluluk: Açıklanabilirlik artık sadece akademik bir tercih değil, yasal bir zorunluluktur. Avrupa Birliği Yapay Zekâ Yasası ve GDPR, bireylere "açıklama hakkı" tanımaktadır.
-• Kritik Kararlar: Üniversite tercihi gibi hayatı etkileyen kararlarda gerekçesiz bir tahmine güvenmek mümkün değildir.
-• Güven Ortaklığı: Öğrenciye kararın dayanaklarını gösterdiğimizde, yapay zekâ kör bir karar verici değil, güvenilir bir danışman haline gelir.""")
+    add_speaker_notes(s3, """Açıklanabilirlik artık sadece akademik bir tercih değil, yasal bir zorunluluktur. Avrupa Birliği Yapay Zekâ Yasası ve GDPR, bireylere otomatik kararlar karşısında açıklama hakkı tanımaktadır. Üniversite tercihi gibi hayatı etkileyen kararlarda gerekçesiz bir tahmine güvenmek mümkün değildir. Öğrenciye kararın dayanakları sunulduğunda, yapay zekâ güvenilir bir danışman haline gelir.""")
 
     # ==========================================================================
     # SLAYT 4: Geleneksel YZ vs. Açıklanabilir YZ
@@ -410,9 +404,7 @@ def create_presentation():
         p.font.color.rgb = COLOR_TEXT_MUTED
         p.space_after = Pt(6)
 
-    add_speaker_notes(s4, """• Geleneksel YZ: Solda geleneksel yaklaşımı görüyoruz; sisteme girdi verirsiniz ve kapalı bir kutudan sadece tekil bir tahmin alırsınız.
-• XAI Yaklaşımı: Sağda ise geliştirdiğimiz açıklanabilir sistem yer alıyor; tahminin yanında o kararı oluşturan tüm etkenler ve bir güven aralığı birlikte sunulur.
-• Sonuç: Kullanıcı pasif bir izleyici olmak yerine, kararı denetleyen ve anlayan aktif bir karar verici olur.""")
+    add_speaker_notes(s4, """Bu slaytta iki paradigmanın temel farkını görüyoruz. Geleneksel yapay zekâda sisteme girdi verilir ve kapalı bir kutudan sadece tekil bir tahmin alınır. Açıklanabilir sistemde ise tahminin yanında kararı oluşturan tüm etkenler ve güven aralığı birlikte sunulur. Böylece kullanıcı pasif bir izleyici olmak yerine, kararı denetleyen ve anlayan aktif bir karar verici olur.""")
 
     # ==========================================================================
     # SLAYT 5: XAI Yöntemlerinin Taksonomisi
@@ -488,9 +480,7 @@ def create_presentation():
     p.font.size = Pt(9.5)
     p.font.color.rgb = COLOR_TEXT_MUTED
 
-    add_speaker_notes(s5, """• Üç Temel Eksen: Literatürde XAI yöntemleri; açıklamanın ne zaman yapıldığına, kapsamına ve modele bağımlılığına göre 3 eksende ayrılır.
-• Bizim Tercihimiz: Projemizde tabüler veriler ve karar ağaçları için altın standart kabul edilen "TreeSHAP" yöntemini seçtik.
-• Avantajı: TreeSHAP, karmaşık modellerin performansını korurken saniyeler içinde kesin matematiksel açıklamalar üretebilmektedir.""")
+    add_speaker_notes(s5, """Literatürde açıklama yöntemleri; açıklamanın ne zaman yapıldığına, kapsamına ve modele bağımlılığına göre üç eksende sınıflandırılır. Projemizde tabüler veriler ve karar ağaçları için altın standart kabul edilen TreeSHAP yöntemini seçtik. TreeSHAP, karmaşık modellerin performansını korurken saniyeler içinde kesin matematiksel açıklamalar üretebilmektedir.""")
 
     # ==========================================================================
     # SLAYT 6: Özellik Önemi (Feature Importance)
@@ -574,9 +564,7 @@ def create_presentation():
     p.font.size = Pt(9.5)
     p.font.color.rgb = COLOR_TEXT_MUTED
 
-    add_speaker_notes(s6, """• Öznitelikler: Modelimizde rastgele değişkenler yerine etki gücü yüksek 4 temel faktör kullandık.
-• Taban Sıralaması: Grafikte görüldüğü gibi, kararların yaklaşık yüzde 78'i programın geçmiş taban sıralamasına ve yerleşik talebine dayanmaktadır.
-• Dinamik Faktörler: Kontenjan değişimleri ve son 3 yıllık talep trendi ise sıralamanın öne veya geriye kaymasını belirleyen kritik unsurlardır.""")
+    add_speaker_notes(s6, """Modelimizde rastgele değişkenler yerine alan uzmanlığına dayalı dört temel faktör kullandık. Kararların yaklaşık yüzde 78'i programın geçmiş taban sıralamasına ve yerleşik talebine dayanmaktadır. Kontenjan değişimleri ve son üç yıllık talep trendi ise sıralamanın öne veya geriye kaymasını belirleyen kritik unsurlardır.""")
 
     # ==========================================================================
     # SLAYT 7: TreeSHAP & Waterfall
@@ -688,9 +676,7 @@ def create_presentation():
     p.font.size = Pt(9.5)
     p.font.color.rgb = COLOR_TEXT_WHITE
 
-    add_speaker_notes(s7, """• Matematiksel Zemin: TreeSHAP kooperatif oyun teorisine dayanır ve en büyük gücü matematiksel toplamsallık ilkesidir.
-• Şelale Analizi: Sağdaki grafikte gerçek bir örnek görüyoruz: Başlangıç ortalama değerine her faktörün artı veya eksi etkisi eklenir ve tam olarak tahmin edilen sıralamaya ulaşılır.
-• Şeffaflık: Sistemde gizli hiçbir kural yoktur; her sayının hesabı ve dayanağı tamamen açıktır.""")
+    add_speaker_notes(s7, """TreeSHAP kooperatif oyun teorisine dayanır ve en büyük gücü matematiksel toplamsallık ilkesidir. Sağdaki şelale grafiğinde gördüğümüz gibi, başlangıç ortalama değerine her faktörün artı veya eksi etkisi eklenir ve tam olarak tahmin edilen sıralamaya ulaşılır. Sistemde gizli bir kural yoktur; her sayının hesabı ve dayanağı tamamen açıktır.""")
 
     # ==========================================================================
     # SLAYT 8: Karşı-Olgusal Açıklamalar & What-If
@@ -779,9 +765,7 @@ def create_presentation():
     p.font.size = Pt(9.2)
     p.font.color.rgb = COLOR_TEXT_MUTED
 
-    add_speaker_notes(s8, """• Karşı-Olgusal Mantık: Bu yöntem "Girdi şöyle değişseydi sonuç ne olurdu?" sorusuna yanıt verir.
-• Canlı Simülatör: Sağ tarafta projemizdeki simülatörü görüyoruz. Kontenjan değiştirildiğinde, sıralama tahmininin ve adayın risk durumunun anında nasıl değiştiğini test edebiliyoruz.
-• Eyleme Dönük Fayda: Böylece aday sadece mevcut durumu görmekle kalmaz, farklı senaryoları önceden görerek doğru strateji kurar.""")
+    add_speaker_notes(s8, """Karşı-olgusal açıklamalar, "Girdi şöyle değişseydi sonuç ne olurdu?" sorusuna yanıt verir. Projemizdeki simülatör sayesinde kontenjan değiştirildiğinde, sıralama tahmininin ve adayın risk durumunun anında nasıl değiştiği test edilebilmektedir. Böylece aday farklı senaryoları önceden görerek doğru tercih stratejisini kurar.""")
 
     # ==========================================================================
     # SLAYT 9: Karşılaştırmalı Yöntem Analizi (XAI Benchmark)
@@ -867,10 +851,7 @@ def create_presentation():
         p.font.size = Pt(8.5)
         p.font.color.rgb = COLOR_TEXT_MUTED
 
-    add_speaker_notes(s9, """• Karşılaştırma: Bu tabloda literatürdeki başlıca açıklanabilirlik yöntemlerini ve seçim nedenlerimizi görüyoruz.
-• Neden LIME Değil: LIME rastgele örnekleme yaptığı için aynı veriye farklı açıklamalar üretebilir. TreeSHAP ise tutarlı ve deterministiktir.
-• Neden Grad-CAM Değil: Grad-CAM görüntü işleme modellerine özeldir; tabüler tercih verisine uygulanamaz.
-• Seçimimiz: Bu doğrultuda projemizin omurgasını TreeSHAP ve What-If simülatörü oluşturmuştur.""")
+    add_speaker_notes(s9, """Bu tabloda literatürdeki başlıca açıklanabilirlik yöntemlerini ve seçim nedenlerimizi görüyoruz. LIME rastgele örnekleme yaptığı için aynı veriye farklı açıklamalar üretebilir. Grad-CAM ise görüntü modellerine özeldir. Bu doğrultuda çalışmamızda tutarlı ve deterministik olan TreeSHAP ile senaryo analizi sağlayan What-If simülatörü tercih edilmiştir.""")
 
     # ==========================================================================
     # SLAYT 10: Uygulama Örneği: YKS Tercih Asistanı
@@ -971,9 +952,7 @@ def create_presentation():
     p.font.size = Pt(9)
     p.font.color.rgb = COLOR_TEXT_MUTED
 
-    add_speaker_notes(s10, """• Uygulama Alanı: Sunumumuzun ikinci bölümünde geliştirdiğimiz YKS Tercih Asistanı projesini ele alıyoruz.
-• Problem: Türkiye'de 3 milyondan fazla aday, 13 binden fazla lisans programı arasından 24 tercih yapmaktadır. Sadece geçen yılın puanına bakmak büyük hatalara ve açıkta kalmaya yol açabilmektedir.
-• Çözüm: Geliştirdiğimiz sistem, hem yeni dönemin sıralamasını öngörmekte hem de arkasındaki gerekçeleri ve güven koridorunu şeffafça sunmaktadır.""")
+    add_speaker_notes(s10, """Sunumumuzun ikinci bölümünde geliştirdiğimiz YKS Tercih Asistanı projesini ele alıyoruz. Türkiye'de 3 milyondan fazla aday, 13 binden fazla lisans programı arasından tercih yapmaktadır. Geliştirdiğimiz sistem, yalnızca yeni dönemin taban sıralamasını öngörmekle kalmaz; arkasındaki gerekçeleri ve güven koridorunu şeffaf bir şekilde kullanıcıya sunar.""")
 
     # ==========================================================================
     # SLAYT 11: Sistem Mimarisi & Uçtan Uca XAI Hattı
@@ -1013,9 +992,7 @@ def create_presentation():
         p.font.size = Pt(9.5)
         p.font.color.rgb = COLOR_TEXT_WHITE if is_highlight else COLOR_TEXT_MUTED
 
-    add_speaker_notes(s11, """• Dört Katman: Mimarimiz veri katmanından kullanıcı arayüzüne kadar 4 aşamadan oluşur.
-• Tahmin & XAI: İkinci katmanda makine öğrenmesi modellerimiz tahmin ve güven aralıklarını hesaplar; üçüncü katmanda ise TreeSHAP motoru devreye girerek gerekçeleri ayrıştırır.
-• Kullanıcı Deneyimi: Dördüncü katmanda tüm bu matematiksel analizler, karar kartları ve akıllı rehber danışman aracılığıyla kullanıcıya ulaştırılır.""")
+    add_speaker_notes(s11, """Sistem mimarimiz veri katmanından kullanıcı deneyimine kadar dört aşamadan oluşur. İkinci katmanda makine öğrenmesi modellerimiz tahmin ve güven aralıklarını hesaplar; üçüncü katmanda ise TreeSHAP motoru devreye girerek gerekçeleri ayrıştırır. Dördüncü katmanda tüm bu analizler karar kartları ve akıllı rehber danışman aracılığıyla sunulur.""")
 
     # ==========================================================================
     # SLAYT 12: Arayüz Entegrasyonu & Ekran Çıktıları
@@ -1082,10 +1059,7 @@ def create_presentation():
             p.font.color.rgb = COLOR_TEXT_MUTED
             p.space_after = Pt(4)
 
-    add_speaker_notes(s12, """• Üç Temel Bileşen: Burada geliştirdiğimiz arayüzün üç ana parçasını görüyoruz.
-• Karar Kartı: İlk bileşende adayın son yıl tabanını, beklenen sıralamayı ve güven aralığını tek bakışta gördüğü karar kartı bulunur.
-• Gerekçe Analizi: İkinci bileşende açılır çekmece yer alır ve kararı etkileyen faktörler şeffaf olarak listelenir.
-• Rehberlik Danışmanı: Üçüncü bileşende ise adayın sıralamasına göre 24'lük tercih listesi stratejisi oluşturan rehber danışman yer alır.""")
+    add_speaker_notes(s12, """Burada geliştirdiğimiz arayüzün üç temel bileşenini görüyoruz. İlk bileşende adayın son yıl tabanını, beklenen sıralamayı ve güven aralığını gördüğü karar kartı yer alır. İkinci bileşende açılır çekmece ile kararı etkileyen faktörler listelenir. Üçüncü bileşende ise adayın sıralamasına göre kişiselleştirilmiş tercih stratejisi sunan rehber danışman bulunur.""")
 
     # ==========================================================================
     # SLAYT 13: Ampirik Model Doğrulaması & Performans Bulguları
@@ -1173,9 +1147,7 @@ def create_presentation():
         p.font.color.rgb = COLOR_TEXT_MUTED
         p.space_after = Pt(8)
 
-    add_speaker_notes(s13, """• Gerçek Test: Modellerimiz 7.811 aktif lisans programı ve 2025 yılı gerçek yerleştirme sonuçları üzerinde test edilmiştir.
-• Hata İndirgeme: Modellerimiz geçmiş yıl tabanına kıyasla ortalama yüzde 15.36 hata azalması sağlamıştır.
-• Alan Başarısı: Özellikle Eşit Ağırlık ve Sözel alanlarında hata payı yüzde 21'in üzerinde düşürülerek öğrencilerin açıkta kalma riski belirgin şekilde azaltılmıştır.""")
+    add_speaker_notes(s13, """Modellerimiz 7.811 aktif lisans programı ve 2025 yılı gerçek yerleştirme sonuçları üzerinde test edilmiştir. Sistemimiz geçmiş yıl tabanına kıyasla ortalama yüzde 15.36 hata azalması sağlamıştır. Özellikle Eşit Ağırlık ve Sözel alanlarında hata payı yüzde 21'in üzerinde düşürülerek öğrencilerin açıkta kalma riski belirgin şekilde azaltılmıştır.""")
 
     # ==========================================================================
     # SLAYT 14: Sonuç, Tartışma, Sınırlılıklar & Bilimsel Kaynakça
@@ -1262,9 +1234,7 @@ def create_presentation():
     p.font.bold = True
     p.font.color.rgb = COLOR_EMERALD
 
-    add_speaker_notes(s14, """• Özet: Bu çalışmada Açıklanabilir Yapay Zekâ ilkelerini teoride bırakmayıp, gerçek bir karar destek probleminde başarıyla uyguladık.
-• Temel Katkı: Yüksek tahmin doğruluğunu şeffaf gerekçeler ve senaryo simülasyonlarıyla birleştirdik.
-• Teşekkür: Beni dinlediğiniz için çok teşekkür ederim. Şimdi sorularınızı memnuniyetle yanıtlamak isterim.""")
+    add_speaker_notes(s14, """Özetle; bu çalışmada Açıklanabilir Yapay Zekâ ilkelerini gerçek bir karar destek probleminde başarıyla uyguladık. Yüksek tahmin doğruluğunu şeffaf gerekçeler ve senaryo simülasyonlarıyla birleştirdik. Dinlediğiniz için teşekkür ederim, sorularınızı yanıtlamaktan memnuniyet duyarım.""")
 
     # Kaydetme
     out_path = os.path.join("presentation", "Aciklanabilir_Yapay_Zeka_XAI_Sunumu.pptx")

@@ -1943,10 +1943,18 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .speaker-notes h4 {
   font-size: 0.92rem;
   color: #34d399;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.45rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  font-weight: 600;
+}
+
+.speaker-notes p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin: 0;
 }
 
 .speaker-notes ul,
