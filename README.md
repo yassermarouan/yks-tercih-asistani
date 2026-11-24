@@ -16,7 +16,7 @@ Tüm komutlar **Windows PowerShell** ortamına uygun olarak hazırlanmıştır.
 
 #### Backend Bağımlılıkları (Python):
 ```powershell
-pip install fastapi uvicorn scikit-learn shap joblib pandas numpy openai python-dotenv
+pip install -r requirements.txt
 ```
 
 #### Frontend Bağımlılıkları (Node.js):
@@ -26,7 +26,13 @@ npm.cmd install
 cd ..
 ```
 
-### 2. Ortam Değişkenleri (.env)
+### 2. Modelleri Eğitme (LightGBM & XGBoost)
+Depo klonlandığında model dosyasını (`models/yks_lgbm_models.joblib`) üretmek için kök dizinde eğitim betiğini bir kez çalıştırın (~10 saniye sürer):
+```powershell
+python train_model.py
+```
+
+### 3. Ortam Değişkenleri (.env)
 
 Kök dizinde `.env` dosyasını oluşturun veya mevcut şablonu kullanın:
 ```powershell
@@ -43,7 +49,7 @@ OPENAI_MODEL=gpt-4o-mini
 
 ## 🖥️ Uygulamayı Çalıştırma (Running the App)
 
-Uygulamanın çalışması için backend ve frontend sunucularını iki ayrı PowerShell penceresinde başlatın:
+Uygulamanın çalışması için backend ve frontend sunucularını iki ayrı PowerShell veya terminal penceresinde başlatın:
 
 ### Terminal 1: Backend Sunucusu (FastAPI)
 ```powershell
