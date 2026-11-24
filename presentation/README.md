@@ -6,22 +6,24 @@ Sunum, proje kodlarını değiştirmeksizin tamamen bağımsız bir modül olara
 
 ---
 
-## 🚀 Hızlı Başlangıç (Nasıl Çalıştırılır?)
+## 🚀 Sunum Formatları (Nasıl Çalıştırılır?)
 
-Sunum tamamen istemci taraflı (HTML5 / CSS3 / ES6 JS) olarak tasarlanmıştır. Herhangi bir derleme işlemine gerek yoktur.
+Bu sunum hem **Microsoft PowerPoint (.pptx)** formatında hem de **İnteraktif Web Uygulaması (.html)** formatında eksiksiz olarak sunulmuştur:
 
-### Yöntem 1: Doğrudan Tarayıcıda Açma (Önerilen)
-`presentation/index.html` dosyasına çift tıklayarak veya tarayıcınıza sürükleyerek anında tam özellikleriyle çalıştırabilirsiniz:
-```text
-file:///c:/Users/hp/Desktop/random forest/presentation/index.html
-```
+### 1. PowerPoint Formatı (.pptx) — (Klasik Sunum ve Jüri Savunması İçin)
+Microsoft PowerPoint, Keynote veya Google Slaytlar ile açmak için doğrudan dosyayı çalıştırabilirsiniz:
+📁 **[`presentation/Aciklanabilir_Yapay_Zeka_XAI_Sunumu.pptx`](file:///c:/Users/hp/Desktop/random%20forest/presentation/Aciklanabilir_Yapay_Zeka_XAI_Sunumu.pptx)**
+* 16:9 Geniş Ekran (Widescreen) formatında tasarlanmıştır.
+* **Tüm 14 slayt için ayrıntılı Konuşmacı Notları (Speaker Notes)** PowerPoint sunucu görünümüne (`Alt + F5`) gömülüdür.
+* Eğer slaytlarda düzenleme yapıp yeniden PowerPoint dosyası üretmek isterseniz:
+  ```powershell
+  python presentation/generate_pptx.py
+  ```
 
-### Yöntem 2: Yerel Python Sunucusu ile Açma
-PowerShell terminalinde sunum klasöründen yerel sunucu başlatabilirsiniz:
-```powershell
-python -m http.server 3000 --directory presentation
-```
-Tarayıcınızda `http://localhost:3000` adresine gidiniz.
+### 2. İnteraktif Web Uygulaması Formatı (.html) — (Canlı İnteraktif Gösterim İçin)
+`presentation/index.html` dosyasına çift tıklayarak tarayıcınızda açabilirsiniz:
+🌐 **[`presentation/index.html`](file:///c:/Users/hp/Desktop/random%20forest/presentation/index.html)**
+* Canlı Kontenjan Simülatörü ve SHAP Waterfall grafiklerini etkileşimli olarak çalıştırma imkanı sunar.
 
 ---
 
