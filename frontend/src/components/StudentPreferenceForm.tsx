@@ -196,16 +196,16 @@ export const StudentPreferenceForm: React.FC<Props> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       {/* Hero Header */}
-      <div className="bg-gradient-to-br from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-br from-zinc-950 via-zinc-900 to-black border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold uppercase tracking-wider">
-            <Compass className="w-4 h-4 text-indigo-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold uppercase tracking-wider">
+            <Compass className="w-4 h-4 text-emerald-400" />
             Akıllı Tercih Danışmanı
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
             2026 YKS Üniversite Tercih Asistanı
           </h2>
-          <p className="text-sm text-slate-300 max-w-2xl leading-relaxed">
+          <p className="text-sm text-zinc-300 max-w-2xl leading-relaxed">
             Puan türünü, başarı sıranı ve ilgilendiğin bölümleri gir; kriterlerini <strong>Şart</strong> veya <strong>Tercih</strong> olarak belirle. Yapay zeka ve geçmiş kabul verileriyle kişiselleştirilmiş öneri listeni oluştur.
           </p>
         </div>
@@ -219,16 +219,16 @@ export const StudentPreferenceForm: React.FC<Props> = ({
       )}
 
       {/* Section 1: Required Fields */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-5">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-5">
         <h3 className="text-base font-bold text-white flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
           Temel YKS Bilgileri <span className="text-xs text-rose-400 font-normal">(Zorunlu)</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Puan Türü */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
+            <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
               1. Puan Türü
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -237,10 +237,10 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                   type="button"
                   key={st.id}
                   onClick={() => setScoreType(st.id)}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold transition border ${
+                  className={`py-2.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
                     scoreType === st.id
-                      ? "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30"
-                      : "bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700"
+                      ? "bg-emerald-500 border-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
+                      : "bg-black border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
                   }`}
                 >
                   {st.id}
@@ -251,7 +251,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
 
           {/* Başarı Sırası */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
+            <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
               2. YKS Başarı Sıran
             </label>
             <div className="relative">
@@ -260,7 +260,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                 value={rankInput}
                 onChange={handleRankChange}
                 placeholder="Örn: 120.000"
-                className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono text-base placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition"
+                className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-xl text-white font-mono text-base placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
               />
               {isValidRank && (
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -268,15 +268,15 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-zinc-400">
               Gerçek YKS sınav veya deneme sıralamanızı girin.
             </p>
           </div>
         </div>
 
         {/* Bölüm Tercihleri (Tag Autocomplete) */}
-        <div className="space-y-2 pt-2 border-t border-slate-800/80" ref={progRef}>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-300 block">
+        <div className="space-y-2 pt-2 border-t border-zinc-800/80" ref={progRef}>
+          <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
             3. İlgilendiğin Bölümler
           </label>
 
@@ -285,7 +285,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
             {targetPrograms.map((p) => (
               <span
                 key={p}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-medium"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-medium"
               >
                 {p}
                 <button
@@ -310,33 +310,33 @@ export const StudentPreferenceForm: React.FC<Props> = ({
               }}
               onFocus={() => setProgDropdownOpen(true)}
               placeholder="Bölüm ara ve ekle (Örn: Bilgisayar Mühendisliği, Mimarlık, Tıp, Yazılım...)"
-              className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition"
+              className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-xl text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
             />
 
             {progDropdownOpen && filteredPrograms.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-30 max-h-56 overflow-y-auto divide-y divide-slate-800/60">
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-30 max-h-56 overflow-y-auto divide-y divide-zinc-800/60">
                 {filteredPrograms.map((prog) => (
                   <button
                     type="button"
                     key={prog}
                     onClick={() => handleAddProgram(prog)}
-                    className="w-full text-left px-4 py-2.5 text-xs text-slate-200 hover:bg-slate-800 flex items-center justify-between group transition"
+                    className="w-full text-left px-4 py-2.5 text-xs text-zinc-200 hover:bg-zinc-900 flex items-center justify-between group transition cursor-pointer"
                   >
                     <span>{prog}</span>
-                    <Plus className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400" />
+                    <Plus className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400" />
                   </button>
                 ))}
               </div>
             )}
           </div>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-zinc-400">
             Birden fazla bölüm seçebilirsiniz. Örnek: Bilgisayar Mühendisliği, Yapay Zeka, Yazılım Mühendisliği.
           </p>
         </div>
       </div>
 
       {/* Section 2: Optional Criteria with Strictness Toggle */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-6">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-6">
         <div>
           <h3 className="text-base font-bold text-white flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -348,18 +348,18 @@ export const StudentPreferenceForm: React.FC<Props> = ({
         </div>
 
         {/* 1. Şehir Tercihi */}
-        <div className="space-y-2 pb-4 border-b border-slate-800/60" ref={cityRef}>
+        <div className="space-y-2 pb-4 border-b border-zinc-850" ref={cityRef}>
           <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-indigo-400" />
+            <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+              <MapPin className="w-4 h-4 text-emerald-400" />
               Şehir Tercihi
             </label>
-            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+            <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
               <button
                 type="button"
                 onClick={() => setCitiesStrict(false)}
-                className={`px-2.5 py-1 rounded text-[11px] font-semibold transition ${
-                  !citiesStrict ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                className={`px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+                  !citiesStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400 hover:text-white"
                 }`}
               >
                 Tercih
@@ -367,8 +367,8 @@ export const StudentPreferenceForm: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => setCitiesStrict(true)}
-                className={`px-2.5 py-1 rounded text-[11px] font-semibold transition ${
-                  citiesStrict ? "bg-rose-600 text-white" : "text-slate-400 hover:text-white"
+                className={`px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
+                  citiesStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400 hover:text-white"
                 }`}
               >
                 Şart
@@ -380,7 +380,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
             {preferredCities.map((c) => (
               <span
                 key={c}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 text-xs"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs"
               >
                 {c}
                 <button
@@ -404,20 +404,20 @@ export const StudentPreferenceForm: React.FC<Props> = ({
               }}
               onFocus={() => setCityDropdownOpen(true)}
               placeholder="Şehir ara ve ekle (Örn: İstanbul, Ankara, İzmir, Kayseri...)"
-              className="w-full px-3.5 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+              className="w-full px-3.5 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition"
             />
 
             {cityDropdownOpen && filteredCities.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl z-30 max-h-48 overflow-y-auto divide-y divide-slate-800/60">
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-30 max-h-48 overflow-y-auto divide-y divide-zinc-800/60">
                 {filteredCities.map((city) => (
                   <button
                     type="button"
                     key={city}
                     onClick={() => handleAddCity(city)}
-                    className="w-full text-left px-3.5 py-2 text-xs text-slate-200 hover:bg-slate-800 flex items-center justify-between group transition"
+                    className="w-full text-left px-3.5 py-2 text-xs text-zinc-200 hover:bg-zinc-900 flex items-center justify-between group transition cursor-pointer"
                   >
                     <span>{city}</span>
-                    <Plus className="w-3.5 h-3.5 text-slate-500 group-hover:text-indigo-400" />
+                    <Plus className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400" />
                   </button>
                 ))}
               </div>
@@ -426,20 +426,20 @@ export const StudentPreferenceForm: React.FC<Props> = ({
         </div>
 
         {/* 2. Üniversite Türü & Öğretim Dili Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-4 border-b border-slate-800/60">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-4 border-b border-zinc-850">
           {/* Üniversite Türü */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <GraduationCap className="w-4 h-4 text-indigo-400" />
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                <GraduationCap className="w-4 h-4 text-emerald-400" />
                 Üniversite Türü
               </label>
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setUniversityTypeStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    !universityTypeStrict ? "bg-indigo-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    !universityTypeStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
                   }`}
                 >
                   Tercih
@@ -447,8 +447,8 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setUniversityTypeStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    universityTypeStrict ? "bg-rose-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    universityTypeStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
                   }`}
                 >
                   Şart
@@ -459,7 +459,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
             <select
               value={universityType}
               onChange={(e) => setUniversityType(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
             >
               {metadata.university_types.map((ut) => (
                 <option key={ut.id} value={ut.id}>
@@ -472,16 +472,16 @@ export const StudentPreferenceForm: React.FC<Props> = ({
           {/* Öğretim Dili */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <Languages className="w-4 h-4 text-indigo-400" />
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                <Languages className="w-4 h-4 text-emerald-400" />
                 Öğretim Dili
               </label>
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setLanguageStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    !languageStrict ? "bg-indigo-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    !languageStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
                   }`}
                 >
                   Tercih
@@ -489,8 +489,8 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setLanguageStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    languageStrict ? "bg-rose-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    languageStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
                   }`}
                 >
                   Şart
@@ -501,7 +501,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
             <select
               value={teachingLanguage}
               onChange={(e) => setTeachingLanguage(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
             >
               {metadata.teaching_languages.map((tl) => (
                 <option key={tl.id} value={tl.id}>
@@ -513,20 +513,20 @@ export const StudentPreferenceForm: React.FC<Props> = ({
         </div>
 
         {/* 3. Burs ve Maksimum Ücret */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-4 border-b border-slate-800/60">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-4 border-b border-zinc-850">
           {/* Burs Durumu */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-indigo-400" />
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4 text-emerald-400" />
                 Burs / İndirim Durumu
               </label>
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setScholarshipStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    !scholarshipStrict ? "bg-indigo-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    !scholarshipStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
                   }`}
                 >
                   Tercih
@@ -534,8 +534,8 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setScholarshipStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    scholarshipStrict ? "bg-rose-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    scholarshipStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
                   }`}
                 >
                   Şart
@@ -546,7 +546,7 @@ export const StudentPreferenceForm: React.FC<Props> = ({
             <select
               value={scholarship}
               onChange={(e) => setScholarship(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
             >
               {metadata.scholarships.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -559,16 +559,16 @@ export const StudentPreferenceForm: React.FC<Props> = ({
           {/* Maksimum Yıllık Ücret */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-indigo-400" />
+              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4 text-emerald-400" />
                 Maksimum Yıllık Ücret (TL)
               </label>
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setTuitionStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    !tuitionStrict ? "bg-indigo-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    !tuitionStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
                   }`}
                 >
                   Tercih
@@ -576,8 +576,8 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => setTuitionStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                    tuitionStrict ? "bg-rose-600 text-white" : "text-slate-400"
+                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
+                    tuitionStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
                   }`}
                 >
                   Şart
@@ -590,9 +590,9 @@ export const StudentPreferenceForm: React.FC<Props> = ({
               value={maxTuition}
               onChange={(e) => setMaxTuition(e.target.value)}
               placeholder="Örn: 250000"
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white text-xs focus:outline-none focus:border-indigo-500"
+              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
             />
-            <p className="text-[10px] text-slate-400">
+            <p className="text-[10px] text-zinc-400">
               * Not: Yıllık ücret bilgileri resmi kılavuzda doğrulanmadığı takdirde &apos;Şart&apos; seçilirse programlar elenebilir.
             </p>
           </div>
@@ -600,8 +600,8 @@ export const StudentPreferenceForm: React.FC<Props> = ({
 
         {/* 4. Benim İçin En Önemli Kriter */}
         <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+          <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
             Benim İçin En Önemli Kriter (Öneri Sıralamasını Şekillendirir)
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
@@ -612,10 +612,10 @@ export const StudentPreferenceForm: React.FC<Props> = ({
                   type="button"
                   key={p.id}
                   onClick={() => setPriority(p.id)}
-                  className={`p-3 rounded-xl border text-left transition ${
+                  className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                     isSelected
-                      ? "bg-indigo-600/20 border-indigo-500 text-white shadow"
-                      : "bg-slate-950 border-slate-800 text-slate-400 hover:text-white"
+                      ? "bg-emerald-500/10 border-emerald-500 text-white font-bold ring-1 ring-emerald-500/30"
+                      : "bg-black border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700"
                   }`}
                 >
                   <span className="text-xs font-bold block">{p.label}</span>
@@ -631,16 +631,16 @@ export const StudentPreferenceForm: React.FC<Props> = ({
         <button
           type="submit"
           disabled={loading}
-          className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-xl shadow-indigo-600/30 transition disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm shadow-xl shadow-emerald-500/25 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
         >
           {loading ? (
             <>
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
               <span>Tercih Önerileri Hazırlanıyor...</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-5 h-5 text-amber-300" />
+              <Sparkles className="w-5 h-5 text-black" />
               <span>Kişiselleştirilmiş Tercih Listemi Oluştur</span>
             </>
           )}

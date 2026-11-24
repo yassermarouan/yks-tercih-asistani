@@ -85,22 +85,22 @@ export const ProgramExplorer: React.FC<Props> = ({ onSelectProgram, initialQuery
   return (
     <div className="space-y-6">
       {/* Search & Filter Controls */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 sm:p-6 shadow-xl">
         <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-center justify-between">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Üniversite, program adı veya kod ile arayın... (Örn: Abdullah Gül Mimarlık, Bilgisayar, 106510014)"
-              className="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition"
+              className="w-full pl-11 pr-4 py-3 bg-black border border-zinc-800 rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded bg-slate-800"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white px-1.5 py-0.5 rounded bg-zinc-800 cursor-pointer"
               >
                 Temizle
               </button>
@@ -108,8 +108,8 @@ export const ProgramExplorer: React.FC<Props> = ({ onSelectProgram, initialQuery
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center gap-2 text-xs text-slate-400 px-1">
-            <SlidersHorizontal className="w-4 h-4 text-slate-500" />
+          <div className="flex items-center gap-2 text-xs text-zinc-400 px-1">
+            <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
             <span>
               Toplam Bulunan:{" "}
               <strong className="text-white font-mono">{data ? formatRank(data.total) : "—"}</strong> program
@@ -118,18 +118,18 @@ export const ProgramExplorer: React.FC<Props> = ({ onSelectProgram, initialQuery
         </div>
 
         {/* Score Type Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-800/80">
-          <span className="text-xs font-semibold text-slate-400 mr-1">Puan Türü:</span>
+        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-zinc-800">
+          <span className="text-xs font-semibold text-zinc-400 mr-1">Puan Türü:</span>
           {SCORE_TYPES.map((st) => {
             const isActive = scoreType === st.id;
             return (
               <button
                 key={st.id}
                 onClick={() => handleScoreTypeChange(st.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   isActive
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20"
-                    : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white"
+                    ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                    : "bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
                 }`}
               >
                 {st.label}
@@ -201,34 +201,34 @@ export const ProgramExplorer: React.FC<Props> = ({ onSelectProgram, initialQuery
                       )}
                     </div>
 
-                    <h4 className="text-base font-bold text-white group-hover:text-indigo-400 transition tracking-tight">
+                    <h4 className="text-base font-bold text-white group-hover:text-emerald-400 transition tracking-tight">
                       {prog.program_name}
                     </h4>
 
-                    <p className="text-xs text-slate-400 flex items-center gap-1.5">
-                      <Building2 className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+                    <p className="text-xs text-zinc-400 flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" />
                       {prog.university_name}
-                      {prog.faculty && <span className="text-slate-500 hidden sm:inline">• {prog.faculty}</span>}
+                      {prog.faculty && <span className="text-zinc-500 hidden sm:inline">• {prog.faculty}</span>}
                     </p>
                   </div>
 
                   {/* Right: Ranks & Action */}
-                  <div className="flex items-center justify-between md:justify-end gap-6 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800/60">
+                  <div className="flex items-center justify-between md:justify-end gap-6 pt-2 md:pt-0 border-t md:border-t-0 border-zinc-800">
                     <div className="text-left md:text-right">
-                      <span className="text-[10px] uppercase font-semibold text-slate-400 block tracking-wide">
+                      <span className="text-[10px] uppercase font-semibold text-zinc-400 block tracking-wide">
                         {latestYear} Taban Sıra
                       </span>
                       <span className="text-sm font-bold font-mono text-white block">
-                        {latestRank ? formatRank(latestRank) : <span className="text-slate-500 font-normal">Açıklanmadı</span>}
+                        {latestRank ? formatRank(latestRank) : <span className="text-zinc-500 font-normal">Açıklanmadı</span>}
                       </span>
                       {latestQuota && (
-                        <span className="text-[11px] text-slate-400 block mt-0.5">
+                        <span className="text-[11px] text-zinc-400 block mt-0.5">
                           Kontenjan: {formatRank(latestQuota)}
                         </span>
                       )}
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-slate-800 group-hover:bg-indigo-600 text-slate-400 group-hover:text-white transition">
+                    <div className="p-2.5 rounded-xl bg-zinc-900 group-hover:bg-emerald-500 text-zinc-400 group-hover:text-black transition">
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>

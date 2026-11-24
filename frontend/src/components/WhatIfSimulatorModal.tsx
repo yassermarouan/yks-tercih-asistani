@@ -106,10 +106,10 @@ export const WhatIfSimulatorModal: React.FC<Props> = ({
         <div className="sticky top-0 z-20 bg-slate-900/95 backdrop-blur border-b border-slate-800 px-6 py-4 flex items-start justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/30">
+              <span className="w-8 h-8 rounded-xl bg-emerald-500 text-black flex items-center justify-center shadow-lg shadow-emerald-500/20">
                 <Sliders className="w-4 h-4" />
               </span>
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
                 XAI &quot;Ne Olur?&quot; Kontenjan Simülatörü
               </span>
             </div>
@@ -362,18 +362,18 @@ export const WhatIfSimulatorModal: React.FC<Props> = ({
               )}
 
               {/* AI Simulation Guidance Counselor Section */}
-              <div className="p-5 rounded-2xl bg-gradient-to-b from-indigo-950/40 to-slate-950 border border-indigo-500/30 shadow-xl space-y-4">
+              <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-xl space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-amber-400" />
+                      <Sparkles className="w-4 h-4 text-emerald-400" />
                       <h4 className="text-sm font-bold text-white tracking-wide">
                         Yapay Zeka Rehberlik Değerlendirmesi
                       </h4>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      Kontenjanın <strong className="text-indigo-300">{debouncedQuota} kişiye</strong> değişmesinin, 
-                      2026 taban sırasına ve {studentRank ? <strong className="text-indigo-300">{formatRank(studentRank)}</strong> : "senin"} yerleşme şansına etkisini uzman rehber diliyle yorumlayın.
+                    <p className="text-xs text-zinc-300 leading-relaxed">
+                      Kontenjanın <strong className="text-emerald-400">{debouncedQuota} kişiye</strong> değişmesinin, 
+                      2026 taban sırasına ve {studentRank ? <strong className="text-emerald-400">{formatRank(studentRank)}</strong> : "senin"} yerleşme şansına etkisini uzman rehber diliyle yorumlayın.
                     </p>
                   </div>
 
@@ -381,16 +381,16 @@ export const WhatIfSimulatorModal: React.FC<Props> = ({
                     type="button"
                     onClick={handleGenerateAi}
                     disabled={loadingAi}
-                    className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/25 transition disabled:opacity-50 cursor-pointer active:scale-95"
+                    className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-500/25 transition disabled:opacity-50 cursor-pointer active:scale-95"
                   >
                     {loadingAi ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                         <span>Rehber Analizi Hazırlanıyor...</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4 text-amber-300" />
+                        <Sparkles className="w-4 h-4 text-black" />
                         <span>Simülasyon İçin Uzman Yorumu Al</span>
                       </>
                     )}
@@ -405,9 +405,9 @@ export const WhatIfSimulatorModal: React.FC<Props> = ({
                 )}
 
                 {explanation ? (
-                  <div className="p-5 rounded-2xl bg-slate-900/90 border border-indigo-500/30 shadow-inner space-y-3 animate-in fade-in duration-300">
-                    <div className="flex items-center justify-between text-xs text-slate-400 pb-2.5 border-b border-slate-800">
-                      <span className="flex items-center gap-1.5 font-bold text-indigo-300">
+                  <div className="p-5 rounded-2xl bg-black border border-zinc-800 shadow-inner space-y-3 animate-in fade-in duration-300">
+                    <div className="flex items-center justify-between text-xs text-zinc-400 pb-2.5 border-b border-zinc-800">
+                      <span className="flex items-center gap-1.5 font-bold text-emerald-400">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         {explanation.source === "openai" ? "Yapay Zeka Rehberlik Danışmanı Değerlendirmesi" : "Doğrulanmış Uzman Rehberlik Analizi"}
                       </span>

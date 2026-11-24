@@ -35,27 +35,27 @@ export const RankComparisonChart: React.FC<Props> = ({
   const studentPercent = getPercent(studentRank);
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+    <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-800">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+            <span className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
               <BarChart3 className="w-4 h-4" />
             </span>
             <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
               Sıralama Karşılaştırma & Güvenlik Spektrumu
             </h3>
           </div>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-zinc-400 mt-1">
             Başarı sıranın önerilen en yüksek eşleşmeli programlara göre göreli konumu ve güvenlik marjı
           </p>
         </div>
 
         {/* Candidate Benchmark Chip */}
-        <div className="flex items-center gap-2 bg-indigo-600/20 border border-indigo-500/40 px-3.5 py-1.5 rounded-xl">
-          <span className="w-2.5 h-2.5 rounded-full bg-indigo-400"></span>
-          <span className="text-xs font-bold text-indigo-200">
+        <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-xl">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <span className="text-xs font-bold text-emerald-300">
             Senin Başarı Sıran: <strong className="text-white font-mono">{formatRank(studentRank)}</strong>
           </span>
         </div>
@@ -63,9 +63,9 @@ export const RankComparisonChart: React.FC<Props> = ({
 
       {/* Visual Axis Indicator */}
       <div className="relative pt-6 pb-2">
-        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 mb-2 px-1">
-          <span className="flex items-center gap-1 text-indigo-400">
-            <TrendingUp className="w-3.5 h-3.5" />
+        <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-400 mb-2 px-1">
+          <span className="flex items-center gap-1 text-white">
+            <TrendingUp className="w-3.5 h-3.5 text-amber-400" />
             Daha Üst / Rekabetçi Dilim (Küçük Sıralama)
           </span>
           <span className="flex items-center gap-1 text-emerald-400">
@@ -75,13 +75,13 @@ export const RankComparisonChart: React.FC<Props> = ({
         </div>
 
         {/* Global Ruler Line */}
-        <div className="relative h-2 w-full bg-slate-950 rounded-full border border-slate-800">
+        <div className="relative h-2 w-full bg-black rounded-full border border-zinc-800">
           {/* Student Benchmark Marker on Ruler */}
           <div
             style={{ left: `${studentPercent}%` }}
             className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none"
           >
-            <div className="w-3.5 h-3.5 rounded-full bg-indigo-400 ring-4 ring-indigo-600/50 shadow-lg shadow-indigo-500/50" />
+            <div className="w-3.5 h-3.5 rounded-full bg-emerald-400 ring-4 ring-emerald-500/40 shadow-lg shadow-emerald-500/50" />
           </div>
         </div>
       </div>

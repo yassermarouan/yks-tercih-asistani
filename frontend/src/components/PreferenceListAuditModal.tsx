@@ -156,7 +156,7 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
               type="button"
               onClick={handlePrint}
               disabled={shortlist.length === 0}
-              className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-md shadow-indigo-600/20 disabled:opacity-40"
+              className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-md shadow-emerald-500/20 disabled:opacity-40 cursor-pointer"
               title="Resmi ÖSYM Tercih Formu Çıktısı Al"
             >
               <Printer className="w-4 h-4" />
@@ -166,7 +166,7 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+              className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-white transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -174,15 +174,15 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
         </div>
 
         {/* Tab Controls & Quick Summary Bar */}
-        <div className="px-6 py-3 bg-slate-950/70 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="px-6 py-3 bg-black border-b border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setActiveTab("audit")}
-              className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
                 activeTab === "audit"
-                  ? "bg-indigo-600 text-white shadow"
-                  : "bg-slate-800 text-slate-300 hover:text-white"
+                  ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                  : "bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white"
               }`}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -192,10 +192,10 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
             <button
               type="button"
               onClick={() => setActiveTab("list")}
-              className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
                 activeTab === "list"
-                  ? "bg-indigo-600 text-white shadow"
-                  : "bg-slate-800 text-slate-300 hover:text-white"
+                  ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                  : "bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white"
               }`}
             >
               <span>Tercih Sıralamam ({shortlist.length}/24)</span>
@@ -207,7 +207,7 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={handleAutoSort}
-                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-indigo-200 font-semibold flex items-center gap-1.5 border border-slate-700 transition"
+                className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 border border-zinc-800 transition cursor-pointer"
                 title="Ölü tercihleri önlemek için sıralamaya göre otomatik düzenler"
               >
                 <Wand2 className="w-3.5 h-3.5 text-indigo-400" />

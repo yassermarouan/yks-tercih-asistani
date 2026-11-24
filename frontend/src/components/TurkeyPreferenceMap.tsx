@@ -123,11 +123,11 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
   return (
     <div className="space-y-6">
       {/* Top Banner & Overview */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-black border border-zinc-800 rounded-2xl p-6 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 🗺️ Bölgesel Tercih & Şehir Rehberi
               </span>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -137,28 +137,28 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Türkiye Üniversite & Tercih Haritası
             </h2>
-            <p className="text-sm text-slate-300 max-w-2xl mt-1.5 leading-relaxed">
+            <p className="text-sm text-zinc-300 max-w-2xl mt-1.5 leading-relaxed">
               İllerin üniversite yoğunluğunu, taban sıralama seviyelerini ve ortalama barınma/yaşam maliyeti düzeylerini
               inceleyin. Şehirlere tıklayarak o ildeki tüm lisans programlarını anında filtreleyin.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 text-center">
-            <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 min-w-[110px]">
-              <span className="text-xs text-slate-400 block font-medium">Toplam Şehir</span>
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 min-w-[110px]">
+              <span className="text-xs text-zinc-400 block font-medium">Toplam Şehir</span>
               <span className="text-xl font-bold font-mono text-white mt-0.5 block">
                 {data?.total_cities || 81}
               </span>
             </div>
-            <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 min-w-[110px]">
-              <span className="text-xs text-slate-400 block font-medium">Üniversiteler</span>
-              <span className="text-xl font-bold font-mono text-indigo-300 mt-0.5 block">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 min-w-[110px]">
+              <span className="text-xs text-zinc-400 block font-medium">Üniversiteler</span>
+              <span className="text-xl font-bold font-mono text-emerald-400 mt-0.5 block">
                 {totalUniversities > 0 ? `${totalUniversities}+` : "200+"}
               </span>
             </div>
-            <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 min-w-[110px]">
-              <span className="text-xs text-slate-400 block font-medium">Lisans Programı</span>
-              <span className="text-xl font-bold font-mono text-emerald-300 mt-0.5 block">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 min-w-[110px]">
+              <span className="text-xs text-zinc-400 block font-medium">Lisans Programı</span>
+              <span className="text-xl font-bold font-mono text-white mt-0.5 block">
                 {totalPrograms > 0 ? formatRank(totalPrograms) : "13.000+"}
               </span>
             </div>
@@ -167,22 +167,22 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
       </div>
 
       {/* Control Bar: Region tabs, Cost filter, City Search */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg space-y-3">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 shadow-lg space-y-3">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Search bar */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Şehir veya üniversite adı arayın (Örn: Eskişehir, Ege, ODTÜ)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-800/90 border border-slate-700 text-white rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 placeholder-slate-400 transition"
+              className="w-full bg-black border border-zinc-800 text-white rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 placeholder-zinc-500 transition"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -191,13 +191,13 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
 
           {/* Cost tier selector */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400 font-medium flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5 text-amber-400" /> Yaşam Maliyeti:
+            <span className="text-zinc-400 font-medium flex items-center gap-1">
+              <DollarSign className="w-3.5 h-3.5 text-emerald-400" /> Yaşam Maliyeti:
             </span>
             <select
               value={selectedCostTier}
               onChange={(e) => setSelectedCostTier(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-slate-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"
+              className="bg-black border border-zinc-800 text-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
             >
               <option value="all">Tüm Maliyet Seviyeleri</option>
               <option value="high">Metropol (Yüksek Maliyet)</option>
@@ -208,8 +208,8 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
         </div>
 
         {/* Region tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar border-t border-slate-800/80">
-          <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mr-1 hidden sm:inline">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar border-t border-zinc-800">
+          <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider mr-1 hidden sm:inline">
             Bölge:
           </span>
           {REGIONS.map((reg) => (
@@ -218,8 +218,8 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
               onClick={() => setSelectedRegion(reg)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 selectedRegion === reg
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                  : "bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
               }`}
             >
               {reg}
@@ -437,9 +437,9 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
                     onSelectCityForSearch(activeCityModal.city_name);
                     setActiveCityModal(null);
                   }}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Compass className="w-4 h-4" />
+                  <Compass className="w-4 h-4 text-black" />
                   <span>{activeCityModal.city_name} Programlarını Keşfet</span>
                 </button>
               )}

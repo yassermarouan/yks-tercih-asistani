@@ -56,31 +56,31 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
   return (
     <div className="space-y-6">
       {/* Top Banner & Live Ticker */}
-      <div className="bg-gradient-to-r from-slate-900 via-emerald-950/20 to-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-black border border-zinc-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-5">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
                 <Activity className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
                 YKS Tercih Borsası & Makro Trendler
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-900 text-zinc-300 border border-zinc-800">
                 2023 – 2025 Dinamikleri
               </span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               Popülarite & Taban Sıralaması Trendleri
             </h2>
-            <p className="text-sm text-slate-300 max-w-2xl mt-1.5 leading-relaxed">
+            <p className="text-sm text-zinc-300 max-w-2xl mt-1.5 leading-relaxed">
               Son 3 yılda Türkiye genelinde talebi hızla tırmanan (tavan yapan) ve taban sıralaması gevşeyerek adaylara
               stratejik fırsat sunan lisans programlarının borsa analizi.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="bg-slate-800/80 border border-slate-700/60 rounded-xl px-4 py-3 text-center">
-              <span className="text-[11px] text-slate-400 block font-medium">İncelenen Program</span>
-              <span className="text-xl font-bold font-mono text-emerald-300 block mt-0.5">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-center">
+              <span className="text-[11px] text-zinc-400 block font-medium">İncelenen Program</span>
+              <span className="text-xl font-bold font-mono text-emerald-400 block mt-0.5">
                 {data?.sample_size ? formatRank(data.sample_size) : "7.800+"}
               </span>
             </div>
@@ -89,7 +89,7 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
 
         {/* Live Ticker Strip */}
         {data?.ticker_headlines && data.ticker_headlines.length > 0 && (
-          <div className="bg-slate-950/70 border border-slate-800 rounded-xl px-4 py-2.5 flex items-center gap-3 overflow-x-auto no-scrollbar">
+          <div className="bg-black border border-zinc-800 rounded-xl px-4 py-2.5 flex items-center gap-3 overflow-x-auto no-scrollbar">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1 flex-shrink-0">
               <Activity className="w-3.5 h-3.5" /> Trend Akışı:
             </span>
@@ -97,7 +97,7 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
               {data.ticker_headlines.map((item, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 rounded-md bg-slate-800/90 text-slate-200 border border-slate-700/60 font-mono text-[11px] flex-shrink-0"
+                  className="px-2.5 py-1 rounded-md bg-zinc-900 text-zinc-200 border border-zinc-800 font-mono text-[11px] flex-shrink-0"
                 >
                   {item}
                 </span>
@@ -108,7 +108,7 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
       </div>
 
       {/* Control Bar: Score Type Selector & Section Tabs */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Score Type Tabs */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
           {SCORE_TYPES.map((st) => (
@@ -117,8 +117,8 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
               onClick={() => setSelectedScoreType(st.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 selectedScoreType === st.id
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-850 hover:text-white"
+                  ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                  : "bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
               }`}
             >
               {st.label}
@@ -127,13 +127,13 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
         </div>
 
         {/* View mode toggle */}
-        <div className="flex items-center gap-2 bg-slate-950/80 p-1 rounded-xl border border-slate-800 self-start md:self-auto">
+        <div className="flex items-center gap-2 bg-black p-1 rounded-xl border border-zinc-800 self-start md:self-auto">
           <button
             onClick={() => setActiveTab("gainers")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === "gainers"
-                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                : "text-zinc-400 hover:text-white"
             }`}
           >
             <Flame className="w-3.5 h-3.5 text-emerald-400" />
@@ -144,11 +144,11 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
             onClick={() => setActiveTab("decliners")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === "decliners"
-                ? "bg-sky-500/20 text-sky-300 border border-sky-500/40"
-                : "text-slate-400 hover:text-white"
+                ? "bg-white text-black font-extrabold shadow-md"
+                : "text-zinc-400 hover:text-white"
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+            <ShieldCheck className="w-3.5 h-3.5 text-zinc-400" />
             <span>Fırsat Havuzu (Tabanı Gevşeyenler)</span>
           </button>
 
@@ -156,11 +156,11 @@ export const TrendMarketDashboard: React.FC<Props> = ({ onSelectProgram }) => {
             onClick={() => setActiveTab("sectors")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               activeTab === "sectors"
-                ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/40"
-                : "text-slate-400 hover:text-white"
+                ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                : "text-zinc-400 hover:text-white"
             }`}
           >
-            <BarChart3 className="w-3.5 h-3.5 text-indigo-400" />
+            <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
             <span>Sektörel Genel Bakış</span>
           </button>
         </div>

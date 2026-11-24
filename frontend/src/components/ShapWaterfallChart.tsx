@@ -52,12 +52,12 @@ export const ShapWaterfallChart: React.FC<Props> = ({
 
         <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-sky-500 inline-block"></span>
-            <span className="text-slate-300">Daha Rekabetçi (Sıralamayı Küçülten)</span>
+            <span className="w-3 h-3 rounded bg-emerald-500 inline-block"></span>
+            <span className="text-zinc-300">Daha Rekabetçi (Sıralamayı Küçülten)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded bg-amber-500 inline-block"></span>
-            <span className="text-slate-300">Daha Az Rekabetçi (Sıralamayı Büyüten)</span>
+            <span className="text-zinc-300">Daha Az Rekabetçi (Sıralamayı Büyüten)</span>
           </div>
         </div>
       </div>
@@ -72,16 +72,16 @@ export const ShapWaterfallChart: React.FC<Props> = ({
           // Compute bar position on scale
           let barLeft = 0;
           let barWidth = 0;
-          let barColor = "bg-indigo-600";
+          let barColor = "bg-emerald-600";
 
           if (isBase) {
             barLeft = 0;
             barWidth = getPercent(step.value ?? step.cumulative);
-            barColor = "bg-slate-600";
+            barColor = "bg-zinc-600";
           } else if (isFinal) {
             barLeft = 0;
             barWidth = getPercent(step.value ?? step.cumulative);
-            barColor = "bg-indigo-500";
+            barColor = "bg-emerald-500";
           } else {
             const startVal = idx > 0 ? steps[idx - 1].cumulative : referenceValue;
             const endVal = step.cumulative;
@@ -90,28 +90,28 @@ export const ShapWaterfallChart: React.FC<Props> = ({
 
             barLeft = Math.min(startPct, endPct);
             barWidth = Math.max(1.5, Math.abs(endPct - startPct));
-            barColor = isNegative ? "bg-sky-500" : "bg-amber-500";
+            barColor = isNegative ? "bg-emerald-500" : "bg-amber-500";
           }
 
           return (
             <div key={idx} className="group">
               <div className="flex items-center justify-between text-xs mb-1.5">
-                <span className="font-medium text-slate-300 flex items-center gap-1.5">
-                  <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-[10px] font-mono">
+                <span className="font-medium text-zinc-300 flex items-center gap-1.5">
+                  <span className="w-5 h-5 rounded-full bg-zinc-850 text-zinc-400 flex items-center justify-center text-[10px] font-mono">
                     {idx + 1}
                   </span>
                   {step.label}
                   {step.input_val !== undefined && (
-                    <span className="text-slate-400 font-normal">
-                      (Değer: <strong className="text-slate-200">{formatRank(step.input_val)}</strong>)
+                    <span className="text-zinc-400 font-normal">
+                      (Değer: <strong className="text-zinc-200">{formatRank(step.input_val)}</strong>)
                     </span>
                   )}
                 </span>
                 <span className="font-mono text-sm font-semibold">
-                  {isBase && <span className="text-slate-300">{formatRank(step.value)}</span>}
-                  {isFinal && <span className="text-indigo-400 text-base">{formatRank(step.value)}</span>}
+                  {isBase && <span className="text-zinc-300">{formatRank(step.value)}</span>}
+                  {isFinal && <span className="text-emerald-400 text-base font-extrabold">{formatRank(step.value)}</span>}
                   {!isBase && !isFinal && (
-                    <span className={`flex items-center gap-0.5 ${isNegative ? "text-sky-400" : "text-amber-400"}`}>
+                    <span className={`flex items-center gap-0.5 ${isNegative ? "text-emerald-400" : "text-amber-400"}`}>
                       {isNegative ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                       {step.change > 0 ? `+${formatRank(step.change)}` : formatRank(step.change)}
                     </span>

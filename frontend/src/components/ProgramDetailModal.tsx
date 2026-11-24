@@ -214,11 +214,11 @@ export const ProgramDetailModal: React.FC<Props> = ({
           <div className="bg-slate-800/40 border border-slate-800 rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                   {prediction?.model_label || "2026 YKS Taban Sıralaması Projeksiyonu"}
                 </span>
                 <h4 className="text-lg font-bold text-white mt-1 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-indigo-400" />
+                  <TrendingUp className="w-5 h-5 text-emerald-400" />
                   Gelecek Dönem Taban Sıralaması Projeksiyonu & XAI Analizi
                 </h4>
               </div>
@@ -227,18 +227,18 @@ export const ProgramDetailModal: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => onOpenSimulator(program)}
-                  className="px-3.5 py-2 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 border border-violet-500/40 text-violet-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                  className="px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-200 border border-zinc-200 text-black text-xs font-extrabold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
                   title="Kontenjan değişiminin taban sıralamaya etkisini simüle edin"
                 >
-                  <Sliders className="w-3.5 h-3.5 text-violet-400" />
+                  <Sliders className="w-3.5 h-3.5 text-black" />
                   <span>Ne Olur? (Simülatör)</span>
                 </button>
               )}
             </div>
 
             {loadingPred ? (
-              <div className="py-8 text-center text-slate-400">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-2"></div>
+              <div className="py-8 text-center text-zinc-400">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mb-2"></div>
                 <p className="text-sm">Model projeksiyonu ve SHAP değerleri hesaplanıyor...</p>
               </div>
             ) : predError ? (
@@ -384,16 +384,16 @@ export const ProgramDetailModal: React.FC<Props> = ({
                     <button
                       onClick={handleGenerateAi}
                       disabled={loadingAi}
-                      className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-700 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-xs sm:text-sm shadow-lg shadow-indigo-600/25 transition disabled:opacity-50 cursor-pointer active:scale-95"
+                      className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs sm:text-sm shadow-lg shadow-emerald-500/25 transition disabled:opacity-50 cursor-pointer active:scale-95"
                     >
                       {loadingAi ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                           <span>Rehber Analizi Hazırlanıyor...</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-4 h-4 text-amber-300" />
+                          <Sparkles className="w-4 h-4 text-black" />
                           <span>Uzman Rehberlik & Yapay Zeka Analizi Al</span>
                         </>
                       )}
@@ -408,9 +408,9 @@ export const ProgramDetailModal: React.FC<Props> = ({
                   )}
 
                   {explanation && (
-                    <div className="p-5 rounded-2xl bg-slate-900/90 border border-indigo-500/30 shadow-inner space-y-3 animate-in fade-in duration-300">
-                      <div className="flex items-center justify-between text-xs text-slate-400 pb-2.5 border-b border-slate-800">
-                        <span className="flex items-center gap-1.5 font-bold text-indigo-300">
+                    <div className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-inner space-y-3 animate-in fade-in duration-300">
+                      <div className="flex items-center justify-between text-xs text-zinc-400 pb-2.5 border-b border-zinc-800">
+                        <span className="flex items-center gap-1.5 font-bold text-emerald-400">
                           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                           {explanation.source === "openai" ? "Yapay Zeka Rehberlik Danışmanı Değerlendirmesi" : "Doğrulanmış Uzman Rehberlik Analizi"}
                         </span>

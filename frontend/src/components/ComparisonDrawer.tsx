@@ -38,9 +38,9 @@ export const ComparisonDrawer: React.FC<Props> = ({
   return (
     <>
       {/* Floating Bottom Shortlist Bar */}
-      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-11/12 max-w-2xl bg-slate-900/95 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-3 sm:p-4 shadow-2xl flex items-center justify-between gap-3">
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-11/12 max-w-2xl bg-black/95 backdrop-blur-md border border-zinc-800 rounded-2xl p-3 sm:p-4 shadow-2xl flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+          <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <Scale className="w-5 h-5" />
           </div>
           <div>
@@ -52,7 +52,7 @@ export const ComparisonDrawer: React.FC<Props> = ({
                 Aktif Liste
               </span>
             </div>
-            <span className="text-[11px] text-slate-400 hidden sm:block">
+            <span className="text-[11px] text-zinc-400 hidden sm:block">
               Ölü tercih denetimi yapabilir ve resmi PDF raporu alabilirsiniz.
             </span>
           </div>
@@ -62,7 +62,7 @@ export const ComparisonDrawer: React.FC<Props> = ({
           <button
             type="button"
             onClick={onClear}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 transition"
+            className="p-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-rose-400 transition cursor-pointer"
             title="Listeyi Temizle"
           >
             <Trash2 className="w-4 h-4" />
@@ -71,7 +71,7 @@ export const ComparisonDrawer: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenAuditModal}
-            className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-600/30 transition flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer"
           >
             <span>24 Tercih & Denetim</span>
           </button>
@@ -79,7 +79,7 @@ export const ComparisonDrawer: React.FC<Props> = ({
           <button
             type="button"
             onClick={onOpenModal}
-            className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5"
+            className="px-3.5 py-2 rounded-xl bg-white hover:bg-zinc-200 text-black text-xs font-extrabold shadow-md transition flex items-center gap-1.5 cursor-pointer"
           >
             <Scale className="w-4 h-4" />
             <span className="hidden sm:inline">Karşılaştır</span>
@@ -89,12 +89,12 @@ export const ComparisonDrawer: React.FC<Props> = ({
 
       {/* Side-by-Side Comparison Modal */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-          <div className="relative w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden my-6 max-h-[92vh] flex flex-col">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+          <div className="relative w-full max-w-5xl bg-zinc-950 border border-zinc-800 rounded-3xl shadow-2xl overflow-hidden my-6 max-h-[92vh] flex flex-col">
             {/* Header */}
-            <div className="p-5 sm:p-6 border-b border-slate-800 flex items-center justify-between bg-slate-900/95 sticky top-0 z-10 backdrop-blur">
+            <div className="p-5 sm:p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-950/95 sticky top-0 z-10 backdrop-blur">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+                <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <Scale className="w-6 h-6" />
                 </div>
                 <div>
@@ -102,8 +102,8 @@ export const ComparisonDrawer: React.FC<Props> = ({
                     Programları Yan Yana Karşılaştır
                   </h3>
                   {studentRank && (
-                    <span className="text-xs text-slate-400">
-                      Başarı Sıran: <strong className="text-indigo-400 font-mono">{formatRank(studentRank)}</strong>
+                    <span className="text-xs text-zinc-400">
+                      Başarı Sıran: <strong className="text-emerald-400 font-mono">{formatRank(studentRank)}</strong>
                     </span>
                   )}
                 </div>

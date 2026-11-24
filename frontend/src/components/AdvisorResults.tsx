@@ -59,25 +59,25 @@ export const AdvisorResults: React.FC<Props> = ({
   return (
     <div className="space-y-8 max-w-5xl mx-auto pb-20">
       {/* Top Banner / Summary Header */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-4">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-5 sm:p-7 shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <button
             type="button"
             onClick={onBackToForm}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition w-fit"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-bold transition w-fit cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kriterleri Yeniden Düzenle</span>
           </button>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-bold">
+            <span className="px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold">
               Puan Türü: {results.score_type}
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono font-bold">
+            <span className="px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-200 font-mono font-bold">
               Başarı Sıran: {formatRank(studentRank)}
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300">
+            <span className="px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300">
               Öneri Havuzu: <strong className="text-white">{items.length}</strong> program
             </span>
           </div>
@@ -85,24 +85,24 @@ export const AdvisorResults: React.FC<Props> = ({
 
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-            <Compass className="w-6 h-6 text-indigo-400" />
+            <Compass className="w-6 h-6 text-emerald-400" />
             Kişiselleştirilmiş Tercih & Açıklanabilir AI Danışmanı
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-3xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-zinc-300 mt-1 max-w-3xl leading-relaxed">
             Resmi ÖSYM taban sıralamaları, kontenjan trendleri ve bireysel kriterlerin matematiksel uyum puanlamasıyla sıralandı.
             Tüm öneriler <strong>XAI (Açıklanabilir Yapay Zeka)</strong> şeffaflığıyla faktör bazında gerekçelendirilmiştir.
           </p>
         </div>
 
         {/* Category Filter Navigation Bar */}
-        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-800/80">
+        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-zinc-800/80">
           <button
             type="button"
             onClick={() => setSelectedCategory("all")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               selectedCategory === "all"
-                ? "bg-white text-slate-950 shadow-md"
-                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300"
+                ? "bg-white text-black font-extrabold shadow-md"
+                : "bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300"
             }`}
           >
             Tüm Öneriler ({items.length})
@@ -111,23 +111,23 @@ export const AdvisorResults: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => setSelectedCategory("target")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === "target"
-                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300"
+                ? "bg-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
+                : "bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300"
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-indigo-400"></span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             Sıralamana Yakın ({countTarget})
           </button>
 
           <button
             type="button"
             onClick={() => setSelectedCategory("reach")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === "reach"
-                ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
-                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300"
+                ? "bg-amber-500 text-black font-extrabold shadow-lg shadow-amber-500/20"
+                : "bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300"
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-amber-400"></span>
@@ -137,10 +137,10 @@ export const AdvisorResults: React.FC<Props> = ({
           <button
             type="button"
             onClick={() => setSelectedCategory("safe")}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === "safe"
-                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
-                : "bg-slate-800/80 hover:bg-slate-800 text-slate-300"
+                ? "bg-emerald-600 text-white font-extrabold shadow-lg shadow-emerald-600/20"
+                : "bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-300"
             }`}
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
@@ -256,10 +256,10 @@ export const AdvisorResults: React.FC<Props> = ({
                     <button
                       type="button"
                       onClick={() => onSelectProgramForDetail(prog.program_code)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-600/10 hover:bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 hover:text-white transition flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
                       title="2026 taban sıralaması tahmini ve uzman yapay zeka rehberlik analizini görüntüle"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                      <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                       <span>AI Rehberlik & Analiz</span>
                     </button>
                   )}
@@ -268,10 +268,10 @@ export const AdvisorResults: React.FC<Props> = ({
                     <button
                       type="button"
                       onClick={() => onOpenSimulator(prog)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-violet-600/10 hover:bg-violet-600/20 border border-violet-500/30 text-violet-300 hover:text-white transition flex items-center gap-1.5"
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 hover:text-white transition flex items-center gap-1.5 cursor-pointer"
                       title="Kontenjan değişirse taban sıralama ve senin şansın ne olur? Test et"
                     >
-                      <Sliders className="w-3.5 h-3.5 text-violet-400" />
+                      <Sliders className="w-3.5 h-3.5 text-zinc-400" />
                       <span className="hidden md:inline">Ne Olur? (Simülatör)</span>
                       <span className="md:hidden">Simülatör</span>
                     </button>
@@ -280,10 +280,10 @@ export const AdvisorResults: React.FC<Props> = ({
                   <button
                     type="button"
                     onClick={() => onToggleShortlist(prog)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border cursor-pointer ${
                       isSaved
-                        ? "bg-emerald-600 border-emerald-500 text-white shadow"
-                        : "bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300 hover:text-white"
+                        ? "bg-emerald-500 border-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
+                        : "bg-zinc-800 hover:bg-zinc-700 border-zinc-700 text-zinc-300 hover:text-white"
                     }`}
                   >
                     {isSaved ? (
@@ -304,7 +304,7 @@ export const AdvisorResults: React.FC<Props> = ({
                       href={prog.official_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition"
+                      className="p-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-400 hover:text-white transition"
                       title="YÖK Atlas Sayfası"
                     >
                       <ExternalLink className="w-4 h-4" />
@@ -417,24 +417,24 @@ export const AdvisorResults: React.FC<Props> = ({
               </div>
 
               {/* Natural Explanation: "Neden önerildi?" */}
-              <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 space-y-2">
+              <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400">
-                    <Sparkles className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Neden önerildi? (Rehberlik Gerekçesi)</span>
                   </div>
                   {onSelectProgramForDetail && (
                     <button
                       type="button"
                       onClick={() => onSelectProgramForDetail(prog.program_code)}
-                      className="text-[11px] font-semibold text-indigo-300 hover:text-white flex items-center gap-1 hover:underline transition self-start sm:self-auto"
+                      className="text-[11px] font-semibold text-emerald-400 hover:text-white flex items-center gap-1 hover:underline transition self-start sm:self-auto cursor-pointer"
                     >
                       <span>Uzman AI Rehberlik Analizini Gör</span>
                       <ArrowRight className="w-3 h-3" />
                     </button>
                   )}
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                <p className="text-xs sm:text-sm text-zinc-200 leading-relaxed">
                   {prog.explanation}
                 </p>
               </div>

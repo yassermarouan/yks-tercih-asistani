@@ -157,9 +157,9 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-black text-white flex flex-col font-sans">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-md border-b border-slate-800">
+      <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo & Brand */}
           <div
@@ -169,8 +169,8 @@ export function App() {
             }}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 group-hover:scale-105 transition">
-              <Compass className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition">
+              <Compass className="w-6 h-6 stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -178,20 +178,20 @@ export function App() {
                   YKS Tercih Asistanı
                 </h1>
               </div>
-              <p className="text-[11px] text-slate-400 hidden sm:block">
+              <p className="text-[11px] text-zinc-400 hidden sm:block">
                 Kişiselleştirilmiş Lisans Tercih Danışmanı
               </p>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto no-scrollbar">
+          <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setActiveTab("advisor")}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 activeTab === "advisor"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
               }`}
             >
               <Compass className="w-4 h-4" />
@@ -200,10 +200,10 @@ export function App() {
 
             <button
               onClick={() => setActiveTab("explorer")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 activeTab === "explorer"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
               }`}
             >
               <BookOpen className="w-4 h-4" />
@@ -212,25 +212,25 @@ export function App() {
 
             <button
               onClick={() => setActiveTab("map")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 activeTab === "map"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
               }`}
             >
-              <MapPin className="w-4 h-4 text-emerald-400" />
+              <MapPin className="w-4 h-4" />
               <span>Türkiye Haritası</span>
             </button>
 
             <button
               onClick={() => setActiveTab("trends")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
                 activeTab === "trends"
-                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
-                  : "text-slate-400 hover:text-white"
+                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
+                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
               }`}
             >
-              <Activity className="w-4 h-4 text-amber-400" />
+              <Activity className="w-4 h-4" />
               <span>YKS Trend Borsası</span>
             </button>
           </div>
@@ -279,11 +279,11 @@ export function App() {
           )
         ) : activeTab === "explorer" ? (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-indigo-950/20 border border-indigo-500/20 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-indigo-300">
-                <SlidersHorizontal className="w-4 h-4" />
+            <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-zinc-300">
+                <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
                 <span>
-                  <strong>Program Rehberi & Yapay Zeka Analiz Paneli:</strong> Tüm Türkiye lisans programlarını inceleyebilir, geçmiş kontenjan trendlerini ve gelecek dönem yapay zeka taban sıralaması projeksiyonlarını keşfedebilirsiniz.
+                  <strong className="text-white">Program Rehberi & Yapay Zeka Analiz Paneli:</strong> Tüm Türkiye lisans programlarını inceleyebilir, geçmiş kontenjan trendlerini ve gelecek dönem yapay zeka taban sıralaması projeksiyonlarını keşfedebilirsiniz.
                 </span>
               </div>
             </div>
@@ -355,10 +355,10 @@ export function App() {
       )}
 
       {/* Footer */}
-      <footer className="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-400">
+      <footer className="border-t border-zinc-900 bg-black py-6 text-center text-xs text-zinc-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p>© 2026 YKS Tercih Asistanı • Resmi YÖK Atlas ve ÖSYM Açık Verileriyle Desteklenmektedir.</p>
-          <p className="text-slate-400">
+          <p className="text-zinc-500">
             Merkezi YKS Lisans Yerleştirme Karar Destek Asistanı
           </p>
         </div>

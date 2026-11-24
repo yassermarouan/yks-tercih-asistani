@@ -58,7 +58,7 @@ export const FilterRelaxationModal: React.FC<Props> = ({
                 <button
                   type="button"
                   onClick={() => onRelax(s.criteria_key)}
-                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20 transition whitespace-nowrap"
+                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition whitespace-nowrap cursor-pointer"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   {s.action_text}
