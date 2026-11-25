@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import type { AdvisorMetadata, StudentPreferencePayload } from "../types";
 import {
-  Sparkles,
-  MapPin,
-  GraduationCap,
-  Languages,
-  DollarSign,
-  Compass,
-  AlertCircle,
+  Search,
   X,
-  Plus,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
 } from "lucide-react";
 
 interface Props {
@@ -25,56 +21,39 @@ export const StudentPreferenceForm: React.FC<Props> = ({
   onSubmit,
   loading,
 }) => {
-  // Required
+  // Required Fields
   const [scoreType, setScoreType] = useState<string>(initialValues?.score_type || "SAY");
   const [rankInput, setRankInput] = useState<string>(
-    initialValues?.rank ? String(initialValues.rank) : ""
+    initialValues?.rank ? Number(initialValues.rank).toLocaleString("tr-TR") : ""
   );
   const [targetPrograms, setTargetPrograms] = useState<string[]>(
     initialValues?.target_programs || []
   );
 
-  // Optional with Strictness (Şart vs Tercih)
+  // Optional Criteria
   const [preferredCities, setPreferredCities] = useState<string[]>(
     initialValues?.preferred_cities || []
   );
-  const [citiesStrict, setCitiesStrict] = useState<boolean>(
-    initialValues?.cities_strict || false
-  );
-
   const [universityType, setUniversityType] = useState<string>(
     initialValues?.university_type || "all"
   );
-  const [universityTypeStrict, setUniversityTypeStrict] = useState<boolean>(
-    initialValues?.university_type_strict || false
-  );
-
   const [teachingLanguage, setTeachingLanguage] = useState<string>(
     initialValues?.teaching_language || "all"
   );
-  const [languageStrict, setLanguageStrict] = useState<boolean>(
-    initialValues?.language_strict || false
-  );
-
   const [scholarship, setScholarship] = useState<string>(
     initialValues?.scholarship || "all"
   );
-  const [scholarshipStrict, setScholarshipStrict] = useState<boolean>(
-    initialValues?.scholarship_strict || false
+
+  // Advanced filters toggle
+  const [showOptionalFilters, setShowOptionalFilters] = useState<boolean>(
+    Boolean(
+      (initialValues?.preferred_cities && initialValues.preferred_cities.length > 0) ||
+      (initialValues?.university_type && initialValues.university_type !== "all") ||
+      (initialValues?.teaching_language && initialValues.teaching_language !== "all")
+    )
   );
 
-  const [maxTuition, setMaxTuition] = useState<string>(
-    initialValues?.max_tuition ? String(initialValues.max_tuition) : ""
-  );
-  const [tuitionStrict, setTuitionStrict] = useState<boolean>(
-    initialValues?.tuition_strict || false
-  );
-
-  const [priority, setPriority] = useState<string>(
-    initialValues?.priority || "rank"
-  );
-
-  // UI Autocomplete state for programs and cities
+  // Autocomplete state
   const [progSearch, setProgSearch] = useState<string>("");
   const [progDropdownOpen, setProgDropdownOpen] = useState<boolean>(false);
   const progRef = useRef<HTMLDivElement>(null);
@@ -99,52 +78,57 @@ export const StudentPreferenceForm: React.FC<Props> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter autocomplete programs
+  // Filtered lists
   const filteredPrograms = metadata.popular_programs
     .filter(
       (p) =>
         p.toLowerCase().includes(progSearch.toLowerCase()) &&
         !targetPrograms.includes(p)
     )
-    .slice(0, 10);
+    .slice(0, 8);
 
-  // Filter autocomplete cities
   const filteredCities = metadata.cities
     .filter(
       (c) =>
         c.toLowerCase().includes(citySearch.toLowerCase()) &&
         !preferredCities.includes(c)
     )
-    .slice(0, 10);
+    .slice(0, 8);
 
-  // Parse formatted rank
+  // Popular program suggestions based on score type
+  const popularSuggestions: Record<string, string[]> = {
+    SAY: ["Bilgisayar Mühendisliği", "Yazılım Mühendisliği", "Tıp", "Elektrik-Elektronik Mühendisliği", "Endüstri Mühendisliği", "Diş Hekimliği"],
+    EA: ["Hukuk", "Yönetim Bilişim Sistemleri", "Psikoloji", "İktisat", "İşletme", "Siyaset Bilimi ve Uluslararası İlişkiler"],
+    SÖZ: ["Özel Eğitim Öğretmenliği", "İlahiyat", "Okul Öncesi Öğretmenliği", "Tarih", "Halkla İlişkiler ve Tanıtım", "Türk Dili ve Edebiyatı"],
+    DİL: ["İngilizce Mütercim ve Tercümanlık", "İngiliz Dili ve Edebiyatı", "İngilizce Öğretmenliği", "Almanca Mütercim ve Tercümanlık"],
+  };
+
+  const currentSuggestions = popularSuggestions[scoreType] || popularSuggestions.SAY;
+
   const cleanRank = rankInput.replace(/\./g, "").replace(/,/g, "").trim();
   const parsedRankNum = parseInt(cleanRank, 10);
   const isValidRank = !isNaN(parsedRankNum) && parsedRankNum > 0;
 
   const handleRankChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    // Allow digits and dots
-    const digitsOnly = raw.replace(/\D/g, "");
+    const digitsOnly = e.target.value.replace(/\D/g, "");
     if (!digitsOnly) {
       setRankInput("");
       return;
     }
-    // Format with dots
     const num = parseInt(digitsOnly, 10);
     setRankInput(num.toLocaleString("tr-TR"));
   };
 
-  const handleAddProgram = (progName: string) => {
-    if (!targetPrograms.includes(progName)) {
-      setTargetPrograms([...targetPrograms, progName]);
+  const handleAddProgram = (name: string) => {
+    if (!targetPrograms.includes(name)) {
+      setTargetPrograms([...targetPrograms, name]);
     }
     setProgSearch("");
     setProgDropdownOpen(false);
   };
 
-  const handleRemoveProgram = (progName: string) => {
-    setTargetPrograms(targetPrograms.filter((p) => p !== progName));
+  const handleRemoveProgram = (name: string) => {
+    setTargetPrograms(targetPrograms.filter((p) => p !== name));
   };
 
   const handleAddCity = (cityName: string) => {
@@ -164,12 +148,12 @@ export const StudentPreferenceForm: React.FC<Props> = ({
     setFormError(null);
 
     if (!isValidRank) {
-      setFormError("Lütfen geçerli bir YKS başarı sırası girin (Örn: 120.000).");
+      setFormError("Lütfen geçerli bir başarı sırası giriniz (Örnek: 45.000).");
       return;
     }
 
     if (targetPrograms.length === 0) {
-      setFormError("Lütfen en az bir bölüm tercihi ekleyin (Örn: Bilgisayar Mühendisliği).");
+      setFormError("Lütfen listelemek istediğiniz en az bir bölüm adı seçiniz.");
       return;
     }
 
@@ -178,474 +162,346 @@ export const StudentPreferenceForm: React.FC<Props> = ({
       rank: parsedRankNum,
       target_programs: targetPrograms,
       preferred_cities: preferredCities,
-      cities_strict: citiesStrict,
       university_type: universityType,
-      university_type_strict: universityTypeStrict,
       teaching_language: teachingLanguage,
-      language_strict: languageStrict,
       scholarship: scholarship,
-      scholarship_strict: scholarshipStrict,
-      max_tuition: maxTuition ? parseFloat(maxTuition.replace(/\./g, "").replace(",", ".")) : null,
-      tuition_strict: tuitionStrict,
-      priority: priority,
+      priority: "rank",
     };
 
     onSubmit(payload);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
-      {/* Hero Header */}
-      <div className="bg-gradient-to-br from-zinc-950 via-zinc-900 to-black border border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div className="relative z-10 space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold uppercase tracking-wider">
-            <Compass className="w-4 h-4 text-emerald-400" />
-            Akıllı Tercih Danışmanı
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            2026 YKS Üniversite Tercih Asistanı
-          </h2>
-          <p className="text-sm text-zinc-300 max-w-2xl leading-relaxed">
-            Puan türünü, başarı sıranı ve ilgilendiğin bölümleri gir; kriterlerini <strong>Şart</strong> veya <strong>Tercih</strong> olarak belirle. Yapay zeka ve geçmiş kabul verileriyle kişiselleştirilmiş öneri listeni oluştur.
-          </p>
-        </div>
+    <div className="max-w-3xl mx-auto py-4 sm:py-8">
+      {/* Page Title & Intro */}
+      <div className="text-center mb-8 sm:mb-10 space-y-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          Üniversite Tercih Danışmanı
+        </h1>
+        <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto leading-relaxed">
+          Puan türünüzü, başarı sıranızı ve ilgilendiğiniz bölümleri belirleyin; geçmiş yerleştirme verilerine dayalı kişiselleştirilmiş üniversite önerilerinizi inceleyin.
+        </p>
       </div>
 
       {formError && (
-        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-sm flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
           <span>{formError}</span>
         </div>
       )}
 
-      {/* Section 1: Required Fields */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-5">
-        <h3 className="text-base font-bold text-white flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          Temel YKS Bilgileri <span className="text-xs text-rose-400 font-normal">(Zorunlu)</span>
-        </h3>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Puan Türü */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
-              1. Puan Türü
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {metadata.score_types.map((st) => (
-                <button
-                  type="button"
-                  key={st.id}
-                  onClick={() => setScoreType(st.id)}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                    scoreType === st.id
-                      ? "bg-emerald-500 border-emerald-500 text-black font-extrabold shadow-lg shadow-emerald-500/20"
-                      : "bg-black border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
-                  }`}
-                >
-                  {st.id}
-                </button>
-              ))}
-            </div>
+      {/* Main Form Card */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white border border-slate-200/90 rounded-2xl shadow-sm p-6 sm:p-8 space-y-8"
+      >
+        {/* Step 1: Score Type & Rank */}
+        <div className="space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-base font-semibold text-slate-900">
+              1. Sınav ve Sıralama Bilgileri
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              YKS puan türünüzü ve başarı sıranızı giriniz.
+            </p>
           </div>
 
-          {/* Başarı Sırası */}
-          <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
-              2. YKS Başarı Sıran
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={rankInput}
-                onChange={handleRankChange}
-                placeholder="Örn: 120.000"
-                className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-xl text-white font-mono text-base placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-              />
-              {isValidRank && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  {parsedRankNum.toLocaleString("tr-TR")}. sıra
-                </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-1">
+            {/* Puan Türü Seçimi */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                Puan Türü
+              </label>
+              <div className="grid grid-cols-4 gap-2">
+                {metadata.score_types.map((st) => (
+                  <button
+                    type="button"
+                    key={st.id}
+                    onClick={() => setScoreType(st.id)}
+                    className={`py-2.5 px-3 rounded-xl text-sm font-semibold transition border text-center cursor-pointer ${
+                      scoreType === st.id
+                        ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                        : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    {st.id}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Başarı Sırası Input */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">
+                Başarı Sıranız
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={rankInput}
+                  onChange={handleRankChange}
+                  placeholder="Örn: 45.000"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-base font-medium placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white transition"
+                />
+                {isValidRank && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                    {parsedRankNum.toLocaleString("tr-TR")}. sıra
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-1.5">
+                Resmi YKS veya tahmini deneme sıralamanızı yazınız.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 2: Target Departments */}
+        <div className="space-y-4">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-base font-semibold text-slate-900">
+              2. İlgilendiğiniz Bölümler
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Tercih listenizde yer almasını istediğiniz lisans programlarını seçiniz.
+            </p>
+          </div>
+
+          <div className="space-y-3 pt-1">
+            {/* Selected Tags */}
+            {targetPrograms.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {targetPrograms.map((progName) => (
+                  <span
+                    key={progName}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium"
+                  >
+                    <span>{progName}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveProgram(progName)}
+                      className="text-blue-600 hover:text-blue-900 transition p-0.5"
+                      title="Kaldır"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Department Search Autocomplete */}
+            <div className="relative" ref={progRef}>
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={progSearch}
+                  onChange={(e) => {
+                    setProgSearch(e.target.value);
+                    setProgDropdownOpen(true);
+                  }}
+                  onFocus={() => setProgDropdownOpen(true)}
+                  placeholder="Bölüm ara ve ekle (Örn: Bilgisayar Mühendisliği)..."
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white transition"
+                />
+              </div>
+
+              {/* Autocomplete Dropdown */}
+              {progDropdownOpen && progSearch.trim().length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg z-20 max-h-56 overflow-y-auto py-1">
+                  {filteredPrograms.length > 0 ? (
+                    filteredPrograms.map((item) => (
+                      <button
+                        type="button"
+                        key={item}
+                        onClick={() => handleAddProgram(item)}
+                        className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition flex items-center justify-between"
+                      >
+                        <span>{item}</span>
+                        <span className="text-xs text-blue-600 font-medium">Ekle</span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-xs text-slate-500">
+                      Eşleşen bölüm bulunamadı.
+                    </div>
+                  )}
+                </div>
               )}
             </div>
-            <p className="text-[11px] text-zinc-400">
-              Gerçek YKS sınav veya deneme sıralamanızı girin.
-            </p>
-          </div>
-        </div>
 
-        {/* Bölüm Tercihleri (Tag Autocomplete) */}
-        <div className="space-y-2 pt-2 border-t border-zinc-800/80" ref={progRef}>
-          <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 block">
-            3. İlgilendiğin Bölümler
-          </label>
-
-          {/* Selected Tags */}
-          <div className="flex flex-wrap gap-2 mb-2">
-            {targetPrograms.map((p) => (
-              <span
-                key={p}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-medium"
-              >
-                {p}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveProgram(p)}
-                  className="hover:text-white"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+            {/* Quick Popular Suggestions */}
+            <div className="pt-1">
+              <span className="text-xs font-medium text-slate-500 block mb-2">
+                Popüler {scoreType} Bölümleri (Hızlı Ekle):
               </span>
-            ))}
-          </div>
-
-          {/* Input & Autocomplete */}
-          <div className="relative">
-            <input
-              type="text"
-              value={progSearch}
-              onChange={(e) => {
-                setProgSearch(e.target.value);
-                setProgDropdownOpen(true);
-              }}
-              onFocus={() => setProgDropdownOpen(true)}
-              placeholder="Bölüm ara ve ekle (Örn: Bilgisayar Mühendisliği, Mimarlık, Tıp, Yazılım...)"
-              className="w-full px-4 py-2.5 bg-black border border-zinc-800 rounded-xl text-white text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition"
-            />
-
-            {progDropdownOpen && filteredPrograms.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-30 max-h-56 overflow-y-auto divide-y divide-zinc-800/60">
-                {filteredPrograms.map((prog) => (
-                  <button
-                    type="button"
-                    key={prog}
-                    onClick={() => handleAddProgram(prog)}
-                    className="w-full text-left px-4 py-2.5 text-xs text-zinc-200 hover:bg-zinc-900 flex items-center justify-between group transition cursor-pointer"
-                  >
-                    <span>{prog}</span>
-                    <Plus className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400" />
-                  </button>
-                ))}
+              <div className="flex flex-wrap gap-1.5">
+                {currentSuggestions.map((sug) => {
+                  const isSelected = targetPrograms.includes(sug);
+                  return (
+                    <button
+                      type="button"
+                      key={sug}
+                      onClick={() => (isSelected ? handleRemoveProgram(sug) : handleAddProgram(sug))}
+                      className={`text-xs px-2.5 py-1 rounded-lg transition border cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-600 border-blue-600 text-white font-medium"
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      }`}
+                    >
+                      {isSelected ? `✓ ${sug}` : `+ ${sug}`}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Step 3: Optional Preferences (City, Uni Type, Language) */}
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setShowOptionalFilters(!showOptionalFilters)}
+            className="w-full flex items-center justify-between py-2 text-left text-sm font-semibold text-slate-700 hover:text-slate-900 transition border-t border-slate-100 pt-4 cursor-pointer"
+          >
+            <span>Şehir ve Üniversite Tercihleri (İsteğe Bağlı)</span>
+            {showOptionalFilters ? (
+              <ChevronUp className="w-4 h-4 text-slate-500" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-slate-500" />
             )}
-          </div>
-          <p className="text-[11px] text-zinc-400">
-            Birden fazla bölüm seçebilirsiniz. Örnek: Bilgisayar Mühendisliği, Yapay Zeka, Yazılım Mühendisliği.
-          </p>
-        </div>
-      </div>
+          </button>
 
-      {/* Section 2: Optional Criteria with Strictness Toggle */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-2xl p-5 sm:p-7 shadow-xl space-y-6">
-        <div>
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
-            Özelleştirilmiş Tercih Kriterleri <span className="text-xs text-slate-400 font-normal">(İsteğe Bağlı)</span>
-          </h3>
-          <p className="text-xs text-slate-400 mt-1">
-            Her kriteri <strong>Şart</strong> (sağlamayan elenir) veya <strong>Tercih</strong> (sıralamayı yukarı taşır) olarak seçebilirsiniz.
-          </p>
-        </div>
+          {showOptionalFilters && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1 bg-slate-50/80 p-5 rounded-xl border border-slate-100">
+              {/* Şehir Seçimi */}
+              <div className="space-y-2" ref={cityRef}>
+                <label className="block text-xs font-semibold text-slate-700">
+                  Şehir Tercihi
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={citySearch}
+                    onChange={(e) => {
+                      setCitySearch(e.target.value);
+                      setCityDropdownOpen(true);
+                    }}
+                    onFocus={() => setCityDropdownOpen(true)}
+                    placeholder="Şehir ekle (Örn: İzmir)..."
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
+                  />
+                  {cityDropdownOpen && citySearch.trim().length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-md z-20 max-h-44 overflow-y-auto py-1">
+                      {filteredCities.map((c) => (
+                        <button
+                          type="button"
+                          key={c}
+                          onClick={() => handleAddCity(c)}
+                          className="w-full text-left px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 transition"
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-        {/* 1. Şehir Tercihi */}
-        <div className="space-y-2 pb-4 border-b border-zinc-850" ref={cityRef}>
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-emerald-400" />
-              Şehir Tercihi
-            </label>
-            <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
-              <button
-                type="button"
-                onClick={() => setCitiesStrict(false)}
-                className={`px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
-                  !citiesStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                Tercih
-              </button>
-              <button
-                type="button"
-                onClick={() => setCitiesStrict(true)}
-                className={`px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer ${
-                  citiesStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400 hover:text-white"
-                }`}
-              >
-                Şart
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-1.5 mb-2">
-            {preferredCities.map((c) => (
-              <span
-                key={c}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs"
-              >
-                {c}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveCity(c)}
-                  className="hover:text-rose-400"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-
-          <div className="relative">
-            <input
-              type="text"
-              value={citySearch}
-              onChange={(e) => {
-                setCitySearch(e.target.value);
-                setCityDropdownOpen(true);
-              }}
-              onFocus={() => setCityDropdownOpen(true)}
-              placeholder="Şehir ara ve ekle (Örn: İstanbul, Ankara, İzmir, Kayseri...)"
-              className="w-full px-3.5 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs placeholder-zinc-500 focus:outline-none focus:border-emerald-500 transition"
-            />
-
-            {cityDropdownOpen && filteredCities.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-zinc-950 border border-zinc-800 rounded-xl shadow-2xl z-30 max-h-48 overflow-y-auto divide-y divide-zinc-800/60">
-                {filteredCities.map((city) => (
-                  <button
-                    type="button"
-                    key={city}
-                    onClick={() => handleAddCity(city)}
-                    className="w-full text-left px-3.5 py-2 text-xs text-zinc-200 hover:bg-zinc-900 flex items-center justify-between group transition cursor-pointer"
-                  >
-                    <span>{city}</span>
-                    <Plus className="w-3.5 h-3.5 text-zinc-500 group-hover:text-emerald-400" />
-                  </button>
-                ))}
+                {/* Selected Cities */}
+                {preferredCities.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {preferredCities.map((c) => (
+                      <span
+                        key={c}
+                        className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700"
+                      >
+                        {c}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCity(c)}
+                          className="text-slate-400 hover:text-slate-700"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-[11px] text-slate-500 block">
+                    Tüm Türkiye şehirleri kapsanır.
+                  </span>
+                )}
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* 2. Üniversite Türü & Öğretim Dili Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-4 border-b border-zinc-850">
-          {/* Üniversite Türü */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
-                <GraduationCap className="w-4 h-4 text-emerald-400" />
-                Üniversite Türü
-              </label>
-              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setUniversityTypeStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    !universityTypeStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
-                  }`}
+              {/* Üniversite Türü */}
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Üniversite Türü
+                </label>
+                <select
+                  value={universityType}
+                  onChange={(e) => setUniversityType(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
                 >
-                  Tercih
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setUniversityTypeStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    universityTypeStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
-                  }`}
+                  <option value="all">Fark etmez (Tüm Üniversiteler)</option>
+                  <option value="Devlet">Yalnızca Devlet Üniversiteleri</option>
+                  <option value="Vakıf">Yalnızca Vakıf Üniversiteleri</option>
+                </select>
+
+                <label className="block text-xs font-semibold text-slate-700 pt-1">
+                  Öğretim Dili
+                </label>
+                <select
+                  value={teachingLanguage}
+                  onChange={(e) => setTeachingLanguage(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
                 >
-                  Şart
-                </button>
+                  <option value="all">Fark etmez (Tüm Diller)</option>
+                  <option value="Türkçe">Yalnızca Türkçe</option>
+                  <option value="İngilizce">Yalnızca İngilizce</option>
+                </select>
+
+                <label className="block text-xs font-semibold text-slate-700 pt-1">
+                  Burs Tercihi
+                </label>
+                <select
+                  value={scholarship}
+                  onChange={(e) => setScholarship(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition"
+                >
+                  <option value="all">Fark etmez</option>
+                  <option value="Ücretsiz">Ücretsiz / Tam Burslu</option>
+                  <option value="%50 İndirimli">%50 İndirimli</option>
+                  <option value="Ücretli">Ücretli</option>
+                </select>
               </div>
             </div>
-
-            <select
-              value={universityType}
-              onChange={(e) => setUniversityType(e.target.value)}
-              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
-            >
-              {metadata.university_types.map((ut) => (
-                <option key={ut.id} value={ut.id}>
-                  {ut.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Öğretim Dili */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
-                <Languages className="w-4 h-4 text-emerald-400" />
-                Öğretim Dili
-              </label>
-              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setLanguageStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    !languageStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
-                  }`}
-                >
-                  Tercih
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguageStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    languageStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
-                  }`}
-                >
-                  Şart
-                </button>
-              </div>
-            </div>
-
-            <select
-              value={teachingLanguage}
-              onChange={(e) => setTeachingLanguage(e.target.value)}
-              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
-            >
-              {metadata.teaching_languages.map((tl) => (
-                <option key={tl.id} value={tl.id}>
-                  {tl.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* 3. Burs ve Maksimum Ücret */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pb-4 border-b border-zinc-850">
-          {/* Burs Durumu */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-                Burs / İndirim Durumu
-              </label>
-              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setScholarshipStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    !scholarshipStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
-                  }`}
-                >
-                  Tercih
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setScholarshipStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    scholarshipStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
-                  }`}
-                >
-                  Şart
-                </button>
-              </div>
-            </div>
-
-            <select
-              value={scholarship}
-              onChange={(e) => setScholarship(e.target.value)}
-              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
-            >
-              {metadata.scholarships.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Maksimum Yıllık Ücret */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
-                <DollarSign className="w-4 h-4 text-emerald-400" />
-                Maksimum Yıllık Ücret (TL)
-              </label>
-              <div className="flex items-center gap-1 bg-black p-1 rounded-lg border border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => setTuitionStrict(false)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    !tuitionStrict ? "bg-emerald-500 text-black font-bold" : "text-zinc-400"
-                  }`}
-                >
-                  Tercih
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTuitionStrict(true)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-semibold transition cursor-pointer ${
-                    tuitionStrict ? "bg-rose-600 text-white font-bold" : "text-zinc-400"
-                  }`}
-                >
-                  Şart
-                </button>
-              </div>
-            </div>
-
-            <input
-              type="number"
-              value={maxTuition}
-              onChange={(e) => setMaxTuition(e.target.value)}
-              placeholder="Örn: 250000"
-              className="w-full px-3 py-2 bg-black border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-emerald-500"
-            />
-            <p className="text-[10px] text-zinc-400">
-              * Not: Yıllık ücret bilgileri resmi kılavuzda doğrulanmadığı takdirde &apos;Şart&apos; seçilirse programlar elenebilir.
-            </p>
-          </div>
-        </div>
-
-        {/* 4. Benim İçin En Önemli Kriter */}
-        <div className="space-y-2">
-          <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            Benim İçin En Önemli Kriter (Öneri Sıralamasını Şekillendirir)
-          </label>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            {metadata.priorities.map((p) => {
-              const isSelected = priority === p.id;
-              return (
-                <button
-                  type="button"
-                  key={p.id}
-                  onClick={() => setPriority(p.id)}
-                  className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-                    isSelected
-                      ? "bg-emerald-500/10 border-emerald-500 text-white font-bold ring-1 ring-emerald-500/30"
-                      : "bg-black border-zinc-800 text-zinc-400 hover:text-white hover:border-zinc-700"
-                  }`}
-                >
-                  <span className="text-xs font-bold block">{p.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Submit Button */}
-      <div className="flex items-center justify-end">
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full sm:w-auto px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-sm shadow-xl shadow-emerald-500/25 transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
-        >
-          {loading ? (
-            <>
-              <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-              <span>Tercih Önerileri Hazırlanıyor...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-5 h-5 text-black" />
-              <span>Kişiselleştirilmiş Tercih Listemi Oluştur</span>
-            </>
           )}
-        </button>
-      </div>
-    </form>
+        </div>
+
+        {/* Submit Button */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3.5 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm sm:text-base shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Öneriler Hazırlanıyor...</span>
+              </>
+            ) : (
+              <>
+                <span>Kişiselleştirilmiş Tercihleri Göster</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

@@ -15,24 +15,19 @@ import { ProgramExplorer } from "./components/ProgramExplorer";
 import { ProgramDetailModal } from "./components/ProgramDetailModal";
 import { WhatIfSimulatorModal } from "./components/WhatIfSimulatorModal";
 import { PreferenceListAuditModal } from "./components/PreferenceListAuditModal";
-import { TurkeyPreferenceMap } from "./components/TurkeyPreferenceMap";
-import { TrendMarketDashboard } from "./components/TrendMarketDashboard";
 import { AiChatMentor } from "./components/AiChatMentor";
 import {
   Compass,
   BookOpen,
-  SlidersHorizontal,
-  MapPin,
-  Activity,
-  Bot,
+  MessageSquare,
+  ListOrdered,
 } from "lucide-react";
 
 const SHORTLIST_STORAGE_KEY = "yks_shortlist_programs";
 const FORM_STORAGE_KEY = "yks_saved_form_payload";
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<"advisor" | "explorer" | "map" | "trends" | "mentor">("advisor");
-  const [cityFilterFromMap, setCityFilterFromMap] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"advisor" | "explorer" | "mentor">("advisor");
 
   // Advisor state
   const [metadata, setMetadata] = useState<AdvisorMetadata | null>(null);
@@ -113,7 +108,7 @@ export function App() {
       });
   };
 
-  // Handle relaxing a hard filter from FilterRelaxationModal
+  // Handle relaxing filter if no matches
   const handleRelaxFilter = (criteriaKey: string) => {
     if (!formPayload) return;
 
@@ -159,10 +154,10 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-30 bg-black/90 backdrop-blur-md border-b border-zinc-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
           {/* Logo & Brand */}
           <div
             onClick={() => {
@@ -171,98 +166,82 @@ export function App() {
             }}
             className="flex items-center gap-3 cursor-pointer group"
           >
-            <div className="w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition">
-              <Compass className="w-6 h-6 stroke-[2.5]" />
+            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs transition group-hover:bg-blue-700">
+              <Compass className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-black text-white tracking-tight">
-                  YKS Tercih Asistanı
-                </h1>
-              </div>
-              <p className="text-[11px] text-zinc-400 hidden sm:block">
-                Kişiselleştirilmiş Lisans Tercih Danışmanı
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
+                YKS Tercih Rehberi
+              </h1>
+              <p className="text-[11px] text-slate-500 hidden sm:block">
+                Üniversite Tercih ve Danışmanlık Platformu
               </p>
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex items-center bg-zinc-950 p-1 rounded-xl border border-zinc-800 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setActiveTab("advisor")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === "advisor"
-                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <Compass className="w-4 h-4" />
+              <Compass className="w-3.5 h-3.5" />
               <span>Tercih Danışmanı</span>
             </button>
 
             <button
               onClick={() => setActiveTab("explorer")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === "explorer"
-                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <BookOpen className="w-4 h-4" />
-              <span>Program Rehberi</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("map")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
-                activeTab === "map"
-                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-              }`}
-            >
-              <MapPin className="w-4 h-4" />
-              <span>Türkiye Haritası</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("trends")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer ${
-                activeTab === "trends"
-                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-              }`}
-            >
-              <Activity className="w-4 h-4" />
-              <span>YKS Trend Borsası</span>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Program Arama</span>
             </button>
 
             <button
               onClick={() => setActiveTab("mentor")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap cursor-pointer relative ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === "mentor"
-                  ? "bg-emerald-500 text-black shadow-md shadow-emerald-500/20"
-                  : "text-zinc-400 hover:text-white hover:bg-zinc-900"
+                  ? "bg-white text-slate-900 shadow-xs"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <Bot className="w-4 h-4" />
-              <span>AI Danışman</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>Rehberlik Danışmanı</span>
             </button>
           </div>
+
+          {/* Shortlist Counter Button in Header */}
+          {shortlist.length > 0 && (
+            <button
+              onClick={() => setAuditModalOpen(true)}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-xs font-semibold transition cursor-pointer"
+            >
+              <ListOrdered className="w-3.5 h-3.5" />
+              <span>Listen ({shortlist.length}/24)</span>
+            </button>
+          )}
         </div>
       </header>
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeTab === "advisor" ? (
           loadingMeta ? (
-            <div className="py-24 text-center text-slate-400">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-3"></div>
-              <p className="text-sm">Tercih danışmanı verileri yükleniyor...</p>
+            <div className="py-24 text-center text-slate-500">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-slate-300 border-t-blue-600 mb-3" />
+              <p className="text-sm">Tercih verileri yükleniyor...</p>
             </div>
           ) : !metadata ? (
-            <div className="py-16 text-center text-rose-400">
-              <p className="text-sm">Tercih verileri yüklenemedi. Lütfen sayfayı yenileyin.</p>
+            <div className="py-16 text-center text-amber-700 bg-amber-50 rounded-2xl p-6 border border-amber-200 max-w-lg mx-auto">
+              <p className="text-sm">Tercih verileri yüklenemedi. Lütfen internet bağlantınızı kontrol edip sayfayı yenileyiniz.</p>
             </div>
           ) : advisorResults?.status === "no_matches" ? (
             <FilterRelaxationModal
@@ -294,34 +273,10 @@ export function App() {
           )
         ) : activeTab === "explorer" ? (
           <div className="space-y-4">
-            <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs text-zinc-300">
-                <SlidersHorizontal className="w-4 h-4 text-emerald-400" />
-                <span>
-                  <strong className="text-white">Program Rehberi & Yapay Zeka Analiz Paneli:</strong> Tüm Türkiye lisans programlarını inceleyebilir, geçmiş kontenjan trendlerini ve gelecek dönem yapay zeka taban sıralaması projeksiyonlarını keşfedebilirsiniz.
-                </span>
-              </div>
-            </div>
             <ProgramExplorer
-              initialQuery={cityFilterFromMap}
               onSelectProgram={(prog) => setSelectedProgram(prog)}
             />
           </div>
-        ) : activeTab === "map" ? (
-          <TurkeyPreferenceMap
-            onSelectCityForSearch={(cityName) => {
-              setCityFilterFromMap(cityName);
-              setActiveTab("explorer");
-            }}
-          />
-        ) : activeTab === "trends" ? (
-          <TrendMarketDashboard
-            onSelectProgram={(code) => {
-              getProgramDetail(code)
-                .then((p) => setSelectedProgram(p))
-                .catch((err) => console.error("Program load error:", err));
-            }}
-          />
         ) : (
           <AiChatMentor
             studentProfile={formPayload}
@@ -341,7 +296,7 @@ export function App() {
         )}
       </main>
 
-      {/* Floating Comparison & 24-List Drawer */}
+      {/* Floating Comparison Bar & Modal */}
       <ComparisonDrawer
         shortlist={shortlist}
         studentRank={advisorResults?.student_rank || (formPayload?.rank ? Number(formPayload?.rank) : undefined)}
@@ -376,7 +331,7 @@ export function App() {
         />
       )}
 
-      {/* What-If Quota Sensitivity Simulator Modal (Highest stacking level) */}
+      {/* What-If Simulator Modal */}
       {simulationProgram && (
         <WhatIfSimulatorModal
           program={simulationProgram}
@@ -385,30 +340,12 @@ export function App() {
         />
       )}
 
-      {/* Floating AI Mentor Quick-Access Trigger */}
-      {activeTab !== "mentor" && (
-        <button
-          onClick={() => setActiveTab("mentor")}
-          className="fixed bottom-6 right-6 z-40 px-4 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold shadow-2xl shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-2.5 cursor-pointer border-2 border-black group"
-          title="AI Tercih Danışmanına Sor"
-        >
-          <div className="relative">
-            <Bot className="w-5 h-5 stroke-[2.4]" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-black rounded-full animate-ping" />
-          </div>
-          <div className="text-left hidden sm:block">
-            <div className="text-xs font-black leading-tight">AI Danışmana Sor</div>
-            <div className="text-[10px] opacity-80 font-medium">Rehberlik & Analiz</div>
-          </div>
-        </button>
-      )}
-
       {/* Footer */}
-      <footer className="border-t border-zinc-900 bg-black py-6 text-center text-xs text-zinc-400">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 YKS Tercih Asistanı • Merkezi Lisans Yerleştirme ve Tercih Rehberi</p>
-          <p className="text-zinc-500">
-            Akıllı YKS Tercih Karar Destek Asistanı
+      <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500 mt-auto">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>© 2026 YKS Tercih Rehberi • Üniversite Tercih ve Danışmanlık Platformu</p>
+          <p className="text-slate-400">
+            Resmi ÖSYM ve YÖK Atlas verileri esas alınarak hazırlanmıştır.
           </p>
         </div>
       </footer>
