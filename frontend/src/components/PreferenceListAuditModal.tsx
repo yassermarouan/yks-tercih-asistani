@@ -3,13 +3,13 @@ import type { RecommendedProgram } from "../types";
 import { formatRank } from "../api";
 import {
   X,
+  FileCheck2,
   Printer,
   ArrowUp,
   ArrowDown,
   Trash2,
   AlertTriangle,
   Wand2,
-  CheckCircle2,
 } from "lucide-react";
 
 interface Props {
@@ -31,9 +31,8 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
   onClear,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<"list" | "audit">("list");
+  const [activeTab, setActiveTab] = useState<"list" | "audit">("audit");
 
-  // Move item up/down
   const handleMove = (index: number, direction: "up" | "down") => {
     const targetIndex = direction === "up" ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= shortlist.length) return;
@@ -45,7 +44,6 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
     onReorder(copy);
   };
 
-  // Auto-sort by strategic placement logic
   const handleAutoSort = () => {
     const copy = [...shortlist];
     copy.sort((a, b) => {
@@ -53,37 +51,32 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
       const catA = order[a.category] || 5;
       const catB = order[b.category] || 5;
       if (catA !== catB) return catA - catB;
-
-      const rankA = a.latest_rank || 9999999;
-      const rankB = b.latest_rank || 9999999;
-      return rankA - rankB;
+      return (a.latest_rank || 9999999) - (b.latest_rank || 9999999);
     });
     onReorder(copy);
   };
 
-  // Audit warnings
-  const auditWarnings: { type: "dead_choice" | "safe_missing" | "excess_reach" | "score_mismatch"; title: string; message: string; indices?: number[] }[] = [];
+  const auditWarnings: {
+    type: "dead_choice" | "safe_missing" | "excess_reach" | "score_mismatch";
+    title: string;
+    message: string;
+    indices?: number[];
+  }[] = [];
 
-  // Dead choice detection
   for (let i = 0; i < shortlist.length - 1; i++) {
     const current = shortlist[i];
     const next = shortlist[i + 1];
 
-    if (current.latest_rank && next.latest_rank) {
-      if (current.latest_rank > next.latest_rank * 1.15) {
-        auditWarnings.push({
-          type: "dead_choice",
-          title: `Sıralama Uyumsuzluğu: ${i + 1}. ve ${i + 2}. Tercihler`,
-          message: `${i + 1}. sıradaki ${current.program_name} (${formatRank(current.latest_rank)} taban sıra), ` +
-            `${i + 2}. sıradaki ${next.program_name} (${formatRank(next.latest_rank)} taban sıra) programından daha geridedir. ` +
-            `ÖSYM merkezi yerleştirmede tercihlere sırayla baktığı için üst sıraya daha çok istediğiniz veya daha rekabetçi bir bölümü koymanız önerilir.`,
-          indices: [i, i + 1],
-        });
-      }
+    if (current.latest_rank && next.latest_rank && current.latest_rank > next.latest_rank * 1.15) {
+      auditWarnings.push({
+        type: "dead_choice",
+        title: `Ölü Tercih Riski: ${i + 1}. ve ${i + 2}. Tercihler`,
+        message: `${i + 1}. sıradaki ${current.program_name} (${formatRank(current.latest_rank)}), ${i + 2}. sıradaki ${next.program_name} (${formatRank(next.latest_rank)}) programından daha geride görünüyor.`,
+        indices: [i, i + 1],
+      });
     }
   }
 
-  // Portfolio Balance Checks
   const countReach = shortlist.filter((it) => it.category === "reach").length;
   const countTarget = shortlist.filter((it) => it.category === "target").length;
   const countSafe = shortlist.filter((it) => it.category === "safe").length;
@@ -91,16 +84,16 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
   if (shortlist.length >= 3 && countSafe === 0) {
     auditWarnings.push({
       type: "safe_missing",
-      title: "Güvenli Tercih Önerisi",
-      message: "Listenizde henüz sıralamanızın altında kalan 'Güvenli Tercih' bulunmuyor. Olası dalgalanmalara karşı listenizin son sıralarına güvenli tercihler eklemeniz tavsiye edilir.",
+      title: "Güvenli Seçenek Eksik",
+      message: "Listenizin son sıralarına yerleşmesi daha kolay olan programlar eklemeniz önerilir.",
     });
   }
 
   if (shortlist.length >= 5 && countReach / shortlist.length > 0.5) {
     auditWarnings.push({
       type: "excess_reach",
-      title: "Yüksek Risk Oranı",
-      message: `Listenizin büyük kısmı sıralamanızın üzerinde kalan hedeflerden oluşuyor. Listenizi dengeli tercihlerle güçlendirmeniz önerilir.`,
+      title: "Yüksek Riskli Tercih Oranı",
+      message: "Listenizin orta kısmını sıralamanıza yakın programlarla dengelemeniz önerilir.",
     });
   }
 
@@ -110,79 +103,69 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
       auditWarnings.push({
         type: "score_mismatch",
         title: "Farklı Puan Türü",
-        message: `Seçtiğiniz ${mismatches.length} program hedef puan türünüzden (${scoreType}) farklıdır (${mismatches.map((m) => m.score_type).join(", ")}).`,
+        message: `Seçtiğiniz ${mismatches.length} program hedef puan türünüzden (${scoreType}) farklıdır.`,
       });
     }
   }
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
-      <div className="relative w-full max-w-4xl bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden my-6 max-h-[90vh] flex flex-col">
-        {/* Modal Header */}
-        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-start justify-between gap-4 bg-white sticky top-0 z-10">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-[#171A12]/40 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+      <div className="relative w-full max-w-3xl bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden my-6 max-h-[92vh] flex flex-col">
+        <div className="sticky top-0 z-20 bg-[#F0F1E9]/95 dark:bg-[#111114]/95 backdrop-blur border-b border-[#D0D5C6] dark:border-zinc-800 px-5 py-4 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-              Tercih Listeniz ({shortlist.length}/24)
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Listenizdeki programları sıralayabilir, sıralama uyumunu kontrol edebilir ve yazdırabilirsiniz.
+            <h3 className="text-base sm:text-lg font-semibold text-[#171A12] dark:text-zinc-100">
+              Tercih Listem ({shortlist.length}/24)
+            </h3>
+            <p className="text-xs text-[#6B7065] dark:text-zinc-400">
+              Tercihlerinizi sıralayın, riskleri kontrol edin ve yazdırın.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={handlePrint}
+              onClick={() => window.print()}
               disabled={shortlist.length === 0}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
-              title="Yazdır veya PDF Kaydet"
+              className="px-3 py-1.5 rounded-lg bg-[#C6F432] hover:bg-[#b5e422] text-[#171A12] font-semibold text-xs font-semibold transition flex items-center gap-1.5 disabled:opacity-40 cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Yazdır / PDF</span>
+              <span className="hidden sm:inline">Yazdır</span>
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+              className="p-2 rounded-lg bg-[#DFE4D5] dark:bg-zinc-900 hover:bg-[#DFE4D5] dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 transition cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Tab Controls & Actions */}
-        <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
+        <div className="px-5 py-3 bg-[#E8EBE0] dark:bg-[#09090b] border-b border-[#D0D5C6] dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setActiveTab("list")}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition cursor-pointer ${
-                activeTab === "list"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+              onClick={() => setActiveTab("audit")}
+              className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                activeTab === "audit"
+                  ? "bg-[#C6F432] text-[#171A12] font-semibold"
+                  : "bg-[#F0F1E9] dark:bg-zinc-900 border border-[#D0D5C6] dark:border-zinc-800 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100"
               }`}
             >
-              Tercih Sıralamam ({shortlist.length})
+              Liste Kontrolü ({auditWarnings.length})
             </button>
 
             <button
               type="button"
-              onClick={() => setActiveTab("audit")}
-              className={`px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                activeTab === "audit"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
+              onClick={() => setActiveTab("list")}
+              className={`px-3 py-1.5 rounded-lg font-medium transition cursor-pointer ${
+                activeTab === "list"
+                  ? "bg-[#C6F432] text-[#171A12] font-semibold"
+                  : "bg-[#F0F1E9] dark:bg-zinc-900 border border-[#D0D5C6] dark:border-zinc-800 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100"
               }`}
             >
-              <span>Uyum ve Kontrol</span>
-              {auditWarnings.length > 0 && (
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
-              )}
+              Sıralama ({shortlist.length})
             </button>
           </div>
 
@@ -191,10 +174,9 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={handleAutoSort}
-                className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 transition cursor-pointer"
-                title="Programları sıralama ve kategori hiyerarşisine göre otomatik dizer"
+                className="px-3 py-1.5 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 text-[#526B19] dark:text-emerald-400 font-medium flex items-center gap-1.5 border border-[#D0D5C6] dark:border-zinc-800 transition cursor-pointer"
               >
-                <Wand2 className="w-3 h-3" />
+                <Wand2 className="w-3.5 h-3.5" />
                 <span>Otomatik Sırala</span>
               </button>
             )}
@@ -203,105 +185,148 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm("Tercih listenizdeki tüm programlar temizlensin mi?")) {
-                    onClear();
-                  }
+                  if (confirm("Tercih listenizdeki tüm programlar temizlensin mi?")) onClear();
                 }}
-                className="text-xs text-slate-400 hover:text-rose-600 cursor-pointer"
+                className="text-xs text-rose-600 dark:text-rose-400 hover:underline cursor-pointer"
               >
-                Listeyi Temizle
+                Temizle
               </button>
             )}
           </div>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto p-5 sm:p-6 space-y-4">
+        <div className="overflow-y-auto p-5 space-y-4">
           {shortlist.length === 0 ? (
-            <div className="py-16 text-center text-slate-500 space-y-2">
-              <p className="font-semibold text-slate-800">Henüz listenize program eklemediniz.</p>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Tercih Danışmanı veya Program Arama ekranından ilgilendiğiniz bölümlerde <strong>&quot;Listeme Ekle&quot;</strong> butonuna basabilirsiniz.
+            <div className="py-16 text-center text-[#6B7065] space-y-2">
+              <FileCheck2 className="w-10 h-10 text-[#6B7065] dark:text-zinc-600 mx-auto" />
+              <h4 className="text-sm font-medium text-[#171A12] dark:text-zinc-200">Listenizde henüz program yok</h4>
+              <p className="text-xs text-[#6B7065] max-w-sm mx-auto">
+                Önerilerden veya program rehberinden beğendiğiniz bölümleri ekleyebilirsiniz.
               </p>
             </div>
-          ) : activeTab === "list" ? (
+          ) : activeTab === "audit" ? (
+            <div className="space-y-4">
+              <div
+                className={`p-4 rounded-xl border flex items-start gap-3 ${
+                  auditWarnings.length === 0
+                    ? "bg-[#E5EDC8] dark:bg-emerald-500/10 border-[#C5D496] dark:border-emerald-500/25"
+                    : "bg-amber-500/12 dark:bg-amber-500/10 border-amber-600/25 dark:border-amber-500/25"
+                }`}
+              >
+                {auditWarnings.length === 0 ? (
+                  <>
+                    <FileCheck2 className="w-5 h-5 text-[#526B19] dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium text-[#171A12] dark:text-zinc-100">
+                        Listenizde kritik bir sorun görünmüyor
+                      </h4>
+                      <p className="text-xs text-[#6B7065] dark:text-zinc-400 mt-0.5">
+                        Tercihleriniz sıralama mantığına uygun görünüyor.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium text-[#171A12] dark:text-zinc-100">
+                        {auditWarnings.length} Dikkat Edilmesi Gereken Nokta
+                      </h4>
+                      <p className="text-xs text-[#6B7065] dark:text-zinc-400 mt-0.5">
+                        Aşağıdaki uyarıları inceleyebilir veya Otomatik Sırala ile düzenleyebilirsiniz.
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {auditWarnings.map((warn, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/80 space-y-1"
+                >
+                  <div className="text-xs font-medium text-amber-600 dark:text-amber-400">{warn.title}</div>
+                  <p className="text-xs text-[#171A12] dark:text-zinc-300 leading-relaxed">{warn.message}</p>
+                </div>
+              ))}
+
+              <div className="grid grid-cols-3 gap-3 text-center text-xs pt-2">
+                <div className="p-3 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/80">
+                  <span className="text-[11px] text-[#6B7065] block">Daha Rekabetçi</span>
+                  <span className="text-base font-mono font-semibold text-amber-600 dark:text-amber-400">
+                    {countReach}
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/80">
+                  <span className="text-[11px] text-[#6B7065] block">Sıralamana Yakın</span>
+                  <span className="text-base font-mono font-semibold text-[#526B19] dark:text-emerald-400">
+                    {countTarget}
+                  </span>
+                </div>
+                <div className="p-3 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/80">
+                  <span className="text-[11px] text-[#6B7065] block">Daha Ulaşılabilir</span>
+                  <span className="text-base font-mono font-semibold text-teal-600 dark:text-teal-400">
+                    {countSafe}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
             <div className="space-y-2.5">
               {shortlist.map((prog, index) => {
-                const isWarning = auditWarnings.some(
+                const isDeadChoice = auditWarnings.some(
                   (w) => w.type === "dead_choice" && w.indices?.includes(index)
                 );
 
                 return (
                   <div
                     key={prog.program_code}
-                    className={`p-3.5 sm:p-4 rounded-xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                      isWarning
-                        ? "bg-amber-50/50 border-amber-200"
-                        : "bg-white border-slate-200 hover:border-slate-300"
+                    className={`p-3.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                      isDeadChoice
+                        ? "bg-amber-500/12 dark:bg-amber-500/10 border-amber-600/35 dark:border-amber-500/30"
+                        : "bg-[#E8EBE0] dark:bg-[#09090b] border-[#D0D5C6] dark:border-zinc-800/80"
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      <span className="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 font-semibold text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <span className="w-6 h-6 rounded-lg bg-[#D0D5C6] dark:bg-zinc-800 text-[#171A12] dark:text-zinc-200 font-mono text-xs font-medium flex items-center justify-center shrink-0 mt-0.5">
                         {index + 1}
                       </span>
-
-                      <div className="space-y-0.5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="text-[11px] font-semibold text-slate-500 uppercase">
-                            {prog.university_name} {prog.city ? `• ${prog.city}` : ""}
-                          </span>
-                          <span className="text-[10px] font-semibold px-2 py-0.2 rounded bg-slate-100 text-slate-600">
-                            {prog.score_type}
-                          </span>
-                          {isWarning && (
-                            <span className="text-[10px] font-semibold px-2 py-0.2 rounded bg-amber-100 text-amber-800">
-                              Sıralama Kontrolü Önerilir
-                            </span>
-                          )}
-                        </div>
-
-                        <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-medium text-[#171A12] dark:text-zinc-100 truncate">
                           {prog.program_name}
-                        </h3>
+                        </h4>
+                        <p className="text-xs text-[#6B7065] dark:text-zinc-400 truncate">
+                          {prog.university_name} {prog.city && `• ${prog.city}`}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-4 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      <div className="text-left sm:text-right">
-                        <span className="text-[10px] text-slate-400 uppercase block font-semibold">
-                          Taban Sıra
-                        </span>
-                        <span className="text-xs font-bold text-slate-800">
-                          {prog.latest_rank ? formatRank(prog.latest_rank) : "Açıklanmadı"}
-                        </span>
-                      </div>
+                    <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                      <span className="text-xs font-mono text-[#171A12] dark:text-zinc-300">
+                        {prog.latest_rank ? formatRank(prog.latest_rank) : "—"}
+                      </span>
 
                       <div className="flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => handleMove(index, "up")}
                           disabled={index === 0}
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 transition cursor-pointer"
-                          title="Yukarı Taşı"
+                          className="p-1.5 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-300 disabled:opacity-25 cursor-pointer"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
                         </button>
-
                         <button
                           type="button"
                           onClick={() => handleMove(index, "down")}
                           disabled={index === shortlist.length - 1}
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 disabled:opacity-30 transition cursor-pointer"
-                          title="Aşağı Taşı"
+                          className="p-1.5 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-300 disabled:opacity-25 cursor-pointer"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
                         </button>
-
                         <button
                           type="button"
                           onClick={() => onRemove(prog.program_code)}
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition ml-1 cursor-pointer"
-                          title="Listeden Çıkar"
+                          className="p-1.5 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-rose-50 dark:hover:bg-rose-500/20 border border-[#D0D5C6] dark:border-zinc-800 text-[#6B7065] hover:text-rose-600 dark:hover:text-rose-300 cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -311,96 +336,19 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
                 );
               })}
             </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Audit Status */}
-              <div
-                className={`p-4 rounded-xl border flex items-start gap-3 ${
-                  auditWarnings.length === 0
-                    ? "bg-emerald-50 border-emerald-200 text-emerald-900"
-                    : "bg-amber-50 border-amber-200 text-amber-900"
-                }`}
-              >
-                {auditWarnings.length === 0 ? (
-                  <>
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-bold">Listenizde Sıralama Hiyerarşisi Düzgün</h4>
-                      <p className="text-xs text-emerald-800 mt-0.5">
-                        Tercihleriniz başarı sıralamasına ve genel yerleştirme mantığına uygun bir dengede dizilmiştir.
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="text-sm font-bold">{auditWarnings.length} Tavsiye Tespit Edildi</h4>
-                      <p className="text-xs text-amber-800 mt-0.5">
-                        Aşağıdaki maddeleri inceleyerek listenizi daha verimli hale getirebilirsiniz.
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Warning Items */}
-              {auditWarnings.map((warn, wIdx) => (
-                <div key={wIdx} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
-                  <span className="text-xs font-semibold text-slate-900 block">
-                    {warn.title}
-                  </span>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {warn.message}
-                  </p>
-                </div>
-              ))}
-
-              {/* Category Counts Breakdown */}
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <span className="text-xs font-semibold text-slate-700 block uppercase">
-                  Liste Dağılımı ({shortlist.length} Tercih)
-                </span>
-                <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
-                    <span className="text-slate-500 block text-[11px]">Hedef Tercihler</span>
-                    <strong className="text-base text-amber-800 block">{countReach}</strong>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
-                    <span className="text-slate-500 block text-[11px]">Dengeli Tercihler</span>
-                    <strong className="text-base text-blue-800 block">{countTarget}</strong>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-white border border-slate-200">
-                    <span className="text-slate-500 block text-[11px]">Güvenli Tercihler</span>
-                    <strong className="text-base text-emerald-800 block">{countSafe}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-          <span>ÖSYM kılavuzuna göre en fazla 24 tercih yapılabilmektedir.</span>
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold cursor-pointer"
-          >
-            Kapat
-          </button>
-        </div>
-
-        {/* PRINTABLE TEMPLATE (Clean A4 for students & parents) */}
-        <div className="hidden print:block fixed inset-0 bg-white text-black p-8 font-sans z-[9999]">
-          <div className="text-center pb-4 border-b border-black space-y-1">
-            <h1 className="text-lg font-bold uppercase">
-              YKS Üniversite Tercih Listesi
+        {/* Printable A4 Form */}
+        <div className="hidden print:block fixed inset-0 bg-white text-black p-8 font-serif z-[9999]">
+          <div className="text-center pb-4 border-b-2 border-black space-y-1">
+            <h1 className="text-xl font-bold uppercase tracking-wider">
+              T.C. Yükseköğretim Kurumları Sınavı (YKS)
             </h1>
+            <h2 className="text-base font-semibold">Aday Tercih Listesi (Taslak)</h2>
             <div className="flex justify-between text-xs pt-2">
               <span>
-                <strong>Aday Başarı Sırası:</strong> {studentRank ? formatRank(studentRank) : "—"} ({scoreType || "SAY"})
+                <strong>Sıralama:</strong> {studentRank ? formatRank(studentRank) : "Belirtilmedi"} ({scoreType || "SAY"})
               </span>
               <span>
                 <strong>Tarih:</strong> {new Date().toLocaleDateString("tr-TR")}
@@ -420,7 +368,7 @@ export const PreferenceListAuditModal: React.FC<Props> = ({
                 <th className="p-1.5 border border-black">Program Adı</th>
                 <th className="p-1.5 border border-black w-16">Şehir</th>
                 <th className="p-1.5 border border-black w-12 text-center">Puan</th>
-                <th className="p-1.5 border border-black w-20 text-right">Son Taban Sıra</th>
+                <th className="p-1.5 border border-black w-20 text-right">Taban Sıra</th>
               </tr>
             </thead>
             <tbody>

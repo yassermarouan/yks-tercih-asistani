@@ -1,1242 +1,540 @@
+# -*- coding: utf-8 -*-
+"""
+Açıklanabilir Yapay Zekâ (XAI) & YKS Tercih Asistanı — 12 Slaytlık Sade Akademik PowerPoint Üreticisi
+"""
 import os
-import sys
 from pptx import Presentation
 from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
+from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
-# ==============================================================================
-# Renk Paleti (Akademik Koyu Slate, Zümrüt Yeşili & Siyanür)
-# ==============================================================================
-COLOR_BG_DARK = RGBColor(7, 12, 22)        # #070C16
-COLOR_CARD_BG = RGBColor(16, 26, 48)       # #101A30
-COLOR_CARD_BORDER = RGBColor(38, 55, 88)   # #263758
-COLOR_EMERALD = RGBColor(16, 185, 129)     # #10B981
-COLOR_CYAN = RGBColor(6, 182, 212)         # #06B6D4
-COLOR_AMBER = RGBColor(245, 158, 11)       # #F59E0B
-COLOR_ROSE = RGBColor(244, 63, 94)         # #F43F5E
-COLOR_TEXT_WHITE = RGBColor(255, 255, 255) # #FFFFFF
-COLOR_TEXT_MUTED = RGBColor(148, 163, 184) # #94A3B8
-COLOR_TEXT_DIM = RGBColor(100, 116, 139)   # #64748B
+# Soft Sage & Electric Lime Academic Palette
+BG_CANVAS = RGBColor(232, 235, 224)       # #E8EBE0
+BG_CARD = RGBColor(240, 241, 233)         # #F0F1E9
+BG_HIGHLIGHT = RGBColor(229, 237, 200)    # #E5EDC8
+BG_SUBTLE = RGBColor(223, 228, 213)       # #DFE4D5
+BORDER_SAGE = RGBColor(208, 213, 198)     # #D0D5C6
 
-FONT_TITLE = "Segoe UI"
-FONT_BODY = "Segoe UI"
-FONT_CODE = "Consolas"
+TEXT_PRIMARY = RGBColor(23, 26, 18)       # #171A12
+TEXT_SECONDARY = RGBColor(107, 112, 101)  # #6B7065
+TEXT_OLIVE = RGBColor(82, 107, 25)        # #526B19
+ACCENT_LIME = RGBColor(198, 244, 50)      # #C6F432
+ACCENT_AMBER = RGBColor(180, 83, 9)       # #B45309
 
-def create_presentation():
+
+def set_bg(slide):
+    bg = slide.background
+    fill = bg.fill
+    fill.solid()
+    fill.fore_color.rgb = BG_CANVAS
+
+
+def add_card(slide, left, top, width, height, bg=BG_CARD, border=BORDER_SAGE):
+    shape = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
+    shape.adjustments[0] = 0.04
+    shape.fill.solid()
+    shape.fill.fore_color.rgb = bg
+    shape.line.color.rgb = border
+    shape.line.width = Pt(1)
+    return shape
+
+
+def add_header(slide, tag, title, subtitle):
+    tb_tag = slide.shapes.add_textbox(Inches(0.8), Inches(0.42), Inches(11.733), Inches(0.3))
+    p = tb_tag.text_frame.paragraphs[0]
+    p.text = tag.upper()
+    p.font.name = "Calibri"
+    p.font.size = Pt(10)
+    p.font.bold = True
+    p.font.color.rgb = TEXT_OLIVE
+
+    tb_t = slide.shapes.add_textbox(Inches(0.8), Inches(0.72), Inches(11.733), Inches(0.5))
+    p_t = tb_t.text_frame.paragraphs[0]
+    p_t.text = title
+    p_t.font.name = "Calibri"
+    p_t.font.size = Pt(24)
+    p_t.font.bold = True
+    p_t.font.color.rgb = TEXT_PRIMARY
+
+    tb_s = slide.shapes.add_textbox(Inches(0.8), Inches(1.22), Inches(11.733), Inches(0.35))
+    p_s = tb_s.text_frame.paragraphs[0]
+    p_s.text = subtitle
+    p_s.font.name = "Calibri"
+    p_s.font.size = Pt(12)
+    p_s.font.color.rgb = TEXT_SECONDARY
+
+
+def add_note_box(slide, note_text):
+    add_card(slide, Inches(0.8), Inches(5.88), Inches(11.733), Inches(1.18), bg=BG_CARD, border=BORDER_SAGE)
+    # Left lime accent strip
+    strip = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(5.88), Inches(0.08), Inches(1.18))
+    strip.fill.solid()
+    strip.fill.fore_color.rgb = TEXT_OLIVE
+    strip.line.fill.background()
+
+    tb = slide.shapes.add_textbox(Inches(1.05), Inches(5.96), Inches(11.35), Inches(1.02))
+    tf = tb.text_frame
+    tf.word_wrap = True
+
+    p1 = tf.paragraphs[0]
+    p1.text = "Not:"
+    p1.font.name = "Calibri"
+    p1.font.size = Pt(8.5)
+    p1.font.bold = True
+    p1.font.color.rgb = TEXT_OLIVE
+    p1.space_after = Pt(3)
+
+    p2 = tf.add_paragraph()
+    p2.text = note_text
+    p2.font.name = "Calibri"
+    p2.font.size = Pt(10.5)
+    p2.font.color.rgb = TEXT_PRIMARY
+
+    # Also put into PowerPoint Presenter Notes
+    slide.notes_slide.notes_text_frame.text = note_text
+
+
+def write_card_content(slide, left, top, width, height, tag, title, body_lines, bg=BG_CARD, border=BORDER_SAGE):
+    add_card(slide, left, top, width, height, bg=bg, border=border)
+    tb = slide.shapes.add_textbox(left + Inches(0.2), top + Inches(0.16), width - Inches(0.4), height - Inches(0.32))
+    tf = tb.text_frame
+    tf.word_wrap = True
+
+    p = tf.paragraphs[0]
+    if tag:
+        p.text = tag
+        p.font.name = "Calibri"
+        p.font.size = Pt(9.5)
+        p.font.bold = True
+        p.font.color.rgb = TEXT_OLIVE
+        p.space_after = Pt(4)
+        p = tf.add_paragraph()
+
+    p.text = title
+    p.font.name = "Calibri"
+    p.font.size = Pt(14)
+    p.font.bold = True
+    p.font.color.rgb = TEXT_PRIMARY
+    p.space_after = Pt(8)
+
+    for line in body_lines:
+        p = tf.add_paragraph()
+        p.text = line
+        p.font.name = "Calibri"
+        p.font.size = Pt(11)
+        p.font.color.rgb = TEXT_SECONDARY
+        p.space_after = Pt(5)
+
+
+def build_presentation():
     prs = Presentation()
     prs.slide_width = Inches(13.333)
     prs.slide_height = Inches(7.5)
-    blank_layout = prs.slide_layouts[6] # completely blank layout
+    blank = prs.slide_layouts[6]
 
-    def apply_slide_background(slide):
-        bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, Inches(13.333), Inches(7.5))
-        bg.fill.solid()
-        bg.fill.fore_color.rgb = COLOR_BG_DARK
-        bg.line.fill.background()
-        return bg
+    # SLAYT 1: KAPAK
+    s1 = prs.slides.add_slide(blank)
+    set_bg(s1)
+    add_card(s1, Inches(0.8), Inches(0.75), Inches(11.733), Inches(4.85), bg=BG_CARD)
 
-    def add_slide_header(slide, section_tag, title_text, subtitle_text=""):
-        # Header container
-        tb = slide.shapes.add_textbox(Inches(0.8), Inches(0.4), Inches(11.733), Inches(1.2))
-        tf = tb.text_frame
-        tf.word_wrap = True
-        tf.margin_left = tf.margin_top = tf.margin_right = tf.margin_bottom = 0
-        
-        # Tag
-        p_tag = tf.paragraphs[0]
-        p_tag.text = section_tag.upper()
-        p_tag.font.name = FONT_TITLE
-        p_tag.font.size = Pt(9.5)
-        p_tag.font.bold = True
-        p_tag.font.color.rgb = COLOR_EMERALD
-        p_tag.space_after = Pt(2)
-        
-        # Title
-        p_title = tf.add_paragraph()
-        p_title.text = title_text
-        p_title.font.name = FONT_TITLE
-        p_title.font.size = Pt(22)
-        p_title.font.bold = True
-        p_title.font.color.rgb = COLOR_TEXT_WHITE
-        p_title.space_after = Pt(2)
-
-        # Subtitle
-        if subtitle_text:
-            p_sub = tf.add_paragraph()
-            p_sub.text = subtitle_text
-            p_sub.font.name = FONT_BODY
-            p_sub.font.size = Pt(11)
-            p_sub.font.color.rgb = COLOR_TEXT_MUTED
-
-    def add_card(slide, left, top, width, height, bg_color=COLOR_CARD_BG, border_color=COLOR_CARD_BORDER):
-        card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
-        card.fill.solid()
-        card.fill.fore_color.rgb = bg_color
-        card.line.color.rgb = border_color
-        card.line.width = Pt(1)
-        return card
-
-    def add_speaker_notes(slide, notes_text):
-        notes_slide = slide.notes_slide
-        text_frame = notes_slide.notes_text_frame
-        text_frame.text = notes_text
-
-    # ==========================================================================
-    # SLAYT 1: Başlık Slaytı (Title Slide)
-    # ==========================================================================
-    s1 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s1)
-
-    # Hero Pill
-    pill = s1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(1.2), Inches(5.8), Inches(0.42))
-    pill.fill.solid()
-    pill.fill.fore_color.rgb = RGBColor(20, 35, 60)
-    pill.line.color.rgb = COLOR_CYAN
-    pill.line.width = Pt(1)
-    tf_pill = pill.text_frame
-    p_pill = tf_pill.paragraphs[0]
-    p_pill.text = "🧠 BİLİŞİM SİSTEMLERİ & MAKİNE ÖĞRENMESİ • AKADEMİK SUNUM"
-    p_pill.font.name = FONT_TITLE
-    p_pill.font.size = Pt(9.5)
-    p_pill.font.bold = True
-    p_pill.font.color.rgb = COLOR_CYAN
-    p_pill.alignment = PP_ALIGN.CENTER
-
-    # Main Title & Subtitle Box
-    tb_title = s1.shapes.add_textbox(Inches(0.8), Inches(1.85), Inches(11.733), Inches(2.2))
-    tf_title = tb_title.text_frame
-    tf_title.word_wrap = True
-    
-    p_t1 = tf_title.paragraphs[0]
-    p_t1.text = "Açıklanabilir Yapay Zekâ"
-    p_t1.font.name = FONT_TITLE
-    p_t1.font.size = Pt(40)
-    p_t1.font.bold = True
-    p_t1.font.color.rgb = COLOR_TEXT_WHITE
-    
-    p_t2 = tf_title.add_paragraph()
-    p_t2.text = "(Explainable AI – XAI)"
-    p_t2.font.name = FONT_TITLE
-    p_t2.font.size = Pt(36)
-    p_t2.font.bold = True
-    p_t2.font.color.rgb = COLOR_EMERALD
-    p_t2.space_after = Pt(14)
-
-    p_sub = tf_title.add_paragraph()
-    p_sub.text = "Kara Kutu Modellerden Şeffaf Karar Destek Sistemlerine: Kuramsal Temeller, Yöntemler ve YKS Yerleştirme Verisi Üzerinde Gerçek Bir Uygulama Örneği"
-    p_sub.font.name = FONT_BODY
-    p_sub.font.size = Pt(14)
-    p_sub.font.color.rgb = COLOR_TEXT_MUTED
-
-    # 4 Meta Cards
-    meta_info = [
-        ("ODAK KONUSU", "XAI & Şeffaf Karar Modelleri"),
-        ("UYGULAMA ALANI", "13.581 Lisans Programı & Karar Desteği"),
-        ("TEMEL YÖNTEMLER", "TreeSHAP, Feature Importance, What-If"),
-        ("SUNUM NİTELİĞİ", "Teori (%70) & Uygulamalı Vaka (%30)")
-    ]
-    card_w = Inches(2.75)
-    gap = Inches(0.24)
-    start_left = Inches(0.8)
-    top_pos = Inches(4.7)
-
-    for i, (m_lbl, m_val) in enumerate(meta_info):
-        c_left = start_left + i * (card_w + gap)
-        add_card(s1, c_left, top_pos, card_w, Inches(1.5))
-        tb_m = s1.shapes.add_textbox(c_left + Inches(0.15), top_pos + Inches(0.15), card_w - Inches(0.3), Inches(1.2))
-        tf_m = tb_m.text_frame
-        tf_m.word_wrap = True
-        
-        p_lbl = tf_m.paragraphs[0]
-        p_lbl.text = m_lbl
-        p_lbl.font.size = Pt(8.5)
-        p_lbl.font.bold = True
-        p_lbl.font.color.rgb = COLOR_TEXT_DIM
-        p_lbl.space_after = Pt(4)
-
-        p_val = tf_m.add_paragraph()
-        p_val.text = m_val
-        p_val.font.size = Pt(11)
-        p_val.font.bold = True
-        p_val.font.color.rgb = COLOR_TEXT_WHITE
-
-    add_speaker_notes(s1, """Sayın jüri üyeleri ve değerli katılımcılar, sunumuma hoş geldiniz. Bugün sizlere Açıklanabilir Yapay Zekâ konusunu ve karar destek sistemlerindeki önemini aktaracağım. Sunumumuz iki ana bölümden oluşmaktadır: İlk bölümde Açıklanabilir Yapay Zekâ'nın teorik temellerini ve yöntemlerini ele alacağız. İkinci bölümde ise geliştirdiğimiz YKS Tercih Karar Destek Sistemi üzerindeki gerçek uygulama sonuçlarını inceleyeceğiz.""")
-
-    # ==========================================================================
-    # SLAYT 2: Kara Kutu Problemi & Güven Krizi
-    # ==========================================================================
-    s2 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s2)
-    add_slide_header(s2, "Kuramsal Çerçeve • 01", "Kara Kutu (Black Box) Problemi & Güven Krizi", 
-                     "Karmaşık yapay zekâ modellerinin içsel karar mekanizmasının insani anlayışa kapalı olması sorunu.")
-
-    # Sol Kart: Kara Kutu Nedir?
-    add_card(s2, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_c1 = s2.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_c1 = tb_c1.text_frame
-    tf_c1.word_wrap = True
-
-    p = tf_c1.paragraphs[0]
-    p.text = "⚠️ Kara Kutu Nasıl Oluşur?"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_AMBER
-    p.space_after = Pt(10)
-
-    p = tf_c1.add_paragraph()
-    p.text = "Geleneksel makine öğrenmesinde model karmaşıklığı arttıkça, tahmin doğruluğu artmakta fakat modelin yorumlanabilirliği dramatik biçimde düşmektedir (Accuracy vs. Interpretability Trade-off)."
-    p.font.size = Pt(10.5)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-    p.space_after = Pt(12)
-
-    bullets = [
-        ("Opak Karar Mekanizması: ", "Milyonlarca parametre ve doğrusal olmayan dallanmalar matematiksel bir labirent yaratır."),
-        ("Gizli Yanlılık (Hidden Bias): ", "Tarihsel verideki önyargılar modelin derinliklerinde fark edilmeden büyür."),
-        ("Kusurlu Güven (Blind Trust): ", "Kullanıcı kararın nedenini göremediğinde hatalı tahminleri tespit edemez.")
-    ]
-    for b_title, b_desc in bullets:
-        p = tf_c1.add_paragraph()
-        p.text = f"• {b_title}"
-        p.font.size = Pt(10)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p.space_after = Pt(2)
-        p2 = tf_c1.add_paragraph()
-        p2.text = f"   {b_desc}"
-        p2.font.size = Pt(9.5)
-        p2.font.color.rgb = COLOR_TEXT_MUTED
-        p2.space_after = Pt(6)
-
-    # Sağ Kart: Accuracy vs Interpretability
-    add_card(s2, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9))
-    tb_c2 = s2.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_c2 = tb_c2.text_frame
-    tf_c2.word_wrap = True
-
-    p = tf_c2.paragraphs[0]
-    p.text = "📊 Doğruluk ve Yorumlanabilirlik İkilemi"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(10)
-
-    items = [
-        ("Doğrusal Regresyon / Karar Ağacı", "Yüksek Yorumlanabilir • Düşük Karmaşıklık", "Açıklanabilirlik: %90"),
-        ("Topluluk Ağaçları (LightGBM, Random Forest)", "Yüksek Doğruluk • XAI ile Şeffaflaştırılabilir", "Açıklanabilirlik: %65 (XAI ile %95)"),
-        ("Derin Öğrenme / Transformatörler", "Çok Yüksek Karmaşıklık • Tam Kara Kutu", "Açıklanabilirlik: %20")
-    ]
-    for title, sub, score in items:
-        p = tf_c2.add_paragraph()
-        p.text = f"▶ {title}"
-        p.font.size = Pt(10.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        
-        p = tf_c2.add_paragraph()
-        p.text = f"    {sub} | {score}"
-        p.font.size = Pt(9)
-        p.font.color.rgb = COLOR_EMERALD if "XAI ile" in score else COLOR_TEXT_MUTED
-        p.space_after = Pt(10)
-
-    p = tf_c2.add_paragraph()
-    p.text = "🎯 XAI'ın Misyonu:"
-    p.font.size = Pt(11)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p = tf_c2.add_paragraph()
-    p.text = "Yüksek performanslı topluluk modellerini doğruluk kaybı yaşamadan şeffaf, hesap verebilir ve güvenilir kılmaktır."
-    p.font.size = Pt(10)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-
-    add_speaker_notes(s2, """Klasik yapay zekâ modelleri çok yüksek doğrulukla tahmin yapsa da kararı nasıl verdiklerini açıklayamazlar. Özellikle eğitim, sağlık ve finans gibi hayati alanlarda sadece bir sonuç almak yetersizdir; sonucun gerekçesini bilmek kritik bir gereksinimdir. Açıklanabilir Yapay Zekâ, modelin yüksek tahmin gücünü korurken karar adımlarını şeffaf ve denetlenebilir hale getirir.""")
-
-    # ==========================================================================
-    # SLAYT 3: XAI Neden Zorunludur?
-    # ==========================================================================
-    s3 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s3)
-    add_slide_header(s3, "Kuramsal Çerçeve • 02", "Açıklanabilir Yapay Zekâ Neden Zorunludur?", 
-                     "Yasal yaptırımlar, etik sorumluluklar ve kritik karar destek alanlarındaki gereksinimler.")
-
-    pillars = [
-        ("01", "Yasal Uyumluluk & GDPR", "Avrupa Birliği Genel Veri Koruma Tüzüğü (GDPR Madde 22) ve AB Yapay Zekâ Yasası (EU AI Act), bireylerin otomatik kararlar karşısında 'Açıklama Hakkı'na (Right to Explanation) sahip olduğunu yasal olarak hükme bağlamıştır."),
-        ("02", "Kritik Karar Desteği", "Tıp, finans, adalet ve üniversite yerleştirme kararları gibi insan hayatını ve geleceğini doğrudan etkileyen yüksek riskli (high-stakes) alanlarda gerekçelendirilmemiş tahminlerin kullanılması kabul edilemez."),
-        ("03", "Hata Ayıklama & Denetim", "Model geliştiricileri yalnızca test doğruluğuna (accuracy/MAE) bakarak modelin doğru nedenlerle mi yoksa sahte korelasyonlarla (spurious correlation) mı doğru sonuç verdiğini anlayamazlar. XAI modeli denetleme aracıdır."),
-        ("04", "İnsan-YZ Güven Ortaklığı", "Yapay zekâ karar vericinin yerini alan bir otonom hükümdar değil; kararı zenginleştiren bir danışmandır (Human-in-the-loop). Kararın arkasındaki dinamikler anlaşıldığında insanın YZ ile işbirliği kalitesi artar.")
-    ]
-
-    p_w = Inches(2.75)
-    p_gap = Inches(0.24)
-    for i, (num, h_text, b_text) in enumerate(pillars):
-        p_left = Inches(0.8) + i * (p_w + p_gap)
-        add_card(s3, p_left, Inches(1.8), p_w, Inches(3.8))
-        tb_p = s3.shapes.add_textbox(p_left + Inches(0.15), Inches(1.95), p_w - Inches(0.3), Inches(3.5))
-        tf_p = tb_p.text_frame
-        tf_p.word_wrap = True
-
-        p = tf_p.paragraphs[0]
-        p.text = num
-        p.font.name = FONT_CODE
-        p.font.size = Pt(20)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_DIM
-        p.space_after = Pt(4)
-
-        p = tf_p.add_paragraph()
-        p.text = h_text
-        p.font.size = Pt(11)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p.space_after = Pt(8)
-
-        p = tf_p.add_paragraph()
-        p.text = b_text
-        p.font.size = Pt(9.2)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-
-    # Alt Alıntı Kartı
-    add_card(s3, Inches(0.8), Inches(5.8), Inches(11.733), Inches(0.9), bg_color=RGBColor(12, 22, 42), border_color=COLOR_EMERALD)
-    tb_q = s3.shapes.add_textbox(Inches(1.0), Inches(5.85), Inches(11.333), Inches(0.8))
-    tf_q = tb_q.text_frame
-    tf_q.word_wrap = True
-    p = tf_q.paragraphs[0]
-    p.text = "“Sadece çıktıyı bilmek bir kehanettir; karara giden yolu ve dayanaklarını bilmek ise bilimdir.”"
-    p.font.size = Pt(11.5)
-    p.font.italic = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p = tf_q.add_paragraph()
-    p.text = "— XAI Akademik Literatür Prensibi (EU High-Level Expert Group on AI)"
-    p.font.size = Pt(9)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-
-    add_speaker_notes(s3, """Açıklanabilirlik artık sadece akademik bir tercih değil, yasal bir zorunluluktur. Avrupa Birliği Yapay Zekâ Yasası ve GDPR, bireylere otomatik kararlar karşısında açıklama hakkı tanımaktadır. Üniversite tercihi gibi hayatı etkileyen kararlarda gerekçesiz bir tahmine güvenmek mümkün değildir. Öğrenciye kararın dayanakları sunulduğunda, yapay zekâ güvenilir bir danışman haline gelir.""")
-
-    # ==========================================================================
-    # SLAYT 4: Geleneksel YZ vs. Açıklanabilir YZ
-    # ==========================================================================
-    s4 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s4)
-    add_slide_header(s4, "Kuramsal Çerçeve • 03", "Geleneksel YZ vs. Açıklanabilir YZ (XAI)", 
-                     "Sadece tahmin üretmekten, matematiksel gerekçesi doğrulanmış karar sunmaya geçiş.")
-
-    # Sol: Geleneksel
-    add_card(s4, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_t = s4.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_t = tb_t.text_frame
-    tf_t.word_wrap = True
-
-    p = tf_t.paragraphs[0]
-    p.text = "🔴 GELENEKSEL KARA KUTU YZ"
+    tb = s1.shapes.add_textbox(Inches(1.2), Inches(1.05), Inches(10.9), Inches(2.2))
+    tf = tb.text_frame
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = "AKADEMİK SUNUM"
     p.font.size = Pt(10)
     p.font.bold = True
-    p.font.color.rgb = COLOR_ROSE
-    p.space_after = Pt(2)
+    p.font.color.rgb = TEXT_OLIVE
+    p.space_after = Pt(8)
 
-    p = tf_t.add_paragraph()
-    p.text = "Sadece Tahmin Odaklı: y = f(X)"
+    p = tf.add_paragraph()
+    p.text = "Açıklanabilir Yapay Zekâ (XAI)"
+    p.font.size = Pt(36)
+    p.font.bold = True
+    p.font.color.rgb = TEXT_PRIMARY
+    p.space_after = Pt(8)
+
+    p = tf.add_paragraph()
+    p.text = "Yapay zekâ kararlarının nasıl anlaşılır hale getirildiği ve geliştirdiğim Üniversite Tercih Asistanı projesi üzerindeki gerçek uygulaması."
     p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p.space_after = Pt(10)
+    p.font.color.rgb = TEXT_SECONDARY
 
-    p = tf_t.add_paragraph()
-    p.text = "Akış: Girdi (X) ➔ [KAPALI KUTU f(X)] ➔ Çıktı (y_tahmin)"
-    p.font.name = FONT_CODE
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_ROSE
-    p.space_after = Pt(12)
+    write_card_content(
+        s1, Inches(1.2), Inches(3.55), Inches(5.25), Inches(1.65),
+        "1. BÖLÜM", "Açıklanabilir Yapay Zekâ",
+        ["Temel kavramlar, neden ihtiyaç duyulduğu, çalışma mantığı ve başlıca yöntemler."],
+        bg=BG_CANVAS,
+    )
+    write_card_content(
+        s1, Inches(6.85), Inches(3.55), Inches(5.25), Inches(1.65),
+        "2. BÖLÜM", "Geliştirdiğim Proje",
+        ["YKS üniversite tercih ve sıralama tahmin sisteminde XAI'ın gerçek dünya uygulaması."],
+        bg=BG_HIGHLIGHT,
+    )
+    add_note_box(
+        s1,
+        "Merhaba, bugün sizlere Açıklanabilir Yapay Zekâ konusunu ve geliştirdiğim üniversite tercih sistemini anlatacağım. "
+        "İlk bölümde yapay zekânın kararlarını neden ve nasıl açıkladığını günlük hayattan basit örneklerle inceleyeceğiz. "
+        "İkinci bölümde ise bu yaklaşımı 13.581 lisans programını kapsayan kendi projemde nasıl uyguladığımı göstereceğim."
+    )
 
-    t_points = [
-        ("Temel Soru: ", "'Sonuç nedir?' (Sadece sayısal değer)"),
-        ("Kullanıcı Rolü: ", "Pasif alıcı veya körü körüne reddedici"),
-        ("Hata Tespiti: ", "Yalnızca sonuç gerçek dünyada başarısız olunca anlaşılır"),
-        ("Açıklama: ", "Yok ('Model böyle hesapladı')"),
-        ("Güven Temeli: ", "Körü körüne inanç")
+    # SLAYT 2: XAI NEDİR?
+    s2 = prs.slides.add_slide(blank)
+    set_bg(s2)
+    add_header(s2, "1. Bölüm • Temel Kavram", "Açıklanabilir Yapay Zekâ Nedir?",
+               "Yapay zekânın yalnızca sonuç üretmesini değil, o sonuca nasıl ulaştığını da göstermesidir.")
+    write_card_content(
+        s2, Inches(0.8), Inches(1.8), Inches(5.65), Inches(3.8),
+        "SORUN", "Kara Kutu (Black Box) Problemi",
+        [
+            "Klasik yapay zekâ modelleri veriyi alır ve karmaşık hesaplamalar yaparak bir tahmin üretir; ancak içeride ne olduğunu göstermez.",
+            "Basit Örnek: Bir kredi sistemi sadece 'Başvurunuz reddedildi' der, ama sebebini söylemez."
+        ]
+    )
+    write_card_content(
+        s2, Inches(6.85), Inches(1.8), Inches(5.68), Inches(3.8),
+        "ÇÖZÜM", "Açıklanabilir Yapay Zekâ (XAI)",
+        [
+            "Modelin verdiği kararın arkasındaki nedenleri sade, şeffaf ve insanların anlayabileceği biçimde ortaya koyar.",
+            "XAI ile Örnek: 'Düzenli gelir düşük ve mevcut borç oranı yüksek olduğu için başvurunuz reddedildi.'"
+        ],
+        bg=BG_HIGHLIGHT,
+    )
+    add_note_box(
+        s2,
+        "Geleneksel yapay zekâ sistemleri çoğu zaman içi görünmeyen bir kara kutu gibi çalışır; bir sonuç verir ama o sonuca nasıl ulaştığını söylemez. "
+        "Açıklanabilir Yapay Zekâ ise modelin verdiği kararın nedenlerini insanların anlayabileceği şekilde ortaya koyar. "
+        "Örneğin bir banka sadece başvurunuz reddedildi demek yerine, bunun gelir veya borç durumundan kaynaklandığını açıkladığında karar anlaşılır hale gelir."
+    )
+
+    # SLAYT 3: NEDEN İHTİYAÇ DUYULUR?
+    s3 = prs.slides.add_slide(blank)
+    set_bg(s3)
+    add_header(s3, "1. Bölüm • Gereksinim", "Neden İhtiyaç Duyulur?",
+               "Doğru tahmin kadar, o tahminin güvenilir ve denetlenebilir olması da önemlidir.")
+    reasons = [
+        ("01", "Güven", ["İnsanlar nedenini anladıkları bir öneriye daha kolay güvenir ve sistemi rahatça kullanır."]),
+        ("02", "Hata Kontrolü", ["Model bazen doğru cevabı yanlış sebeple bulabilir. Açıklamalar bu hataları erken gösterir."]),
+        ("03", "Kritik Kararlar", ["Sağlık, finans ve üniversite seçimi gibi hayati konularda gerekçesiz tahmine güvenilemez."]),
+        ("04", "Yasal Haklar", ["Veri koruma yasaları, kişilerin otomatik sistem kararları için açıklama isteme hakkını korur."]),
     ]
-    for lbl, desc in t_points:
-        p = tf_t.add_paragraph()
-        p.text = f"• {lbl}{desc}"
-        p.font.size = Pt(9.5)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(6)
+    for i, (num, title, lines) in enumerate(reasons):
+        write_card_content(s3, Inches(0.8 + i * 2.98), Inches(1.8), Inches(2.78), Inches(2.85), num, title, lines)
+    write_card_content(
+        s3, Inches(0.8), Inches(4.85), Inches(11.733), Inches(0.8),
+        None, "Günlük Hayattan Örnek: Bir doktor 'risk var' uyarısını gördüğünde, hangi tahlil değerlerinin bu uyarıyı tetiklediğini bilmek ister.",
+        [], bg=BG_HIGHLIGHT
+    )
+    add_note_box(
+        s3,
+        "Bir yapay zekâ insan hayatını etkileyen eğitim, sağlık veya finans gibi alanlarda kullanılıyorsa tek başına tahmin yapmak yeterli değildir. "
+        "Kullanıcılar ve uzmanlar, sistemin doğru nedenlerle mi yoksa tesadüfi bir hatayla mı karar verdiğini görmek ister. "
+        "Kararın dayanağı bilindiğinde sisteme duyulan güven artar ve olası hatalar erken fark edilir."
+    )
 
-    # Sağ: XAI
-    add_card(s4, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9), border_color=COLOR_EMERALD)
-    tb_x = s4.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_x = tb_x.text_frame
-    tf_x.word_wrap = True
-
-    p = tf_x.paragraphs[0]
-    p.text = "🟢 AÇIKLANABİLİR YAPAY ZEKÂ (XAI)"
-    p.font.size = Pt(10)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(2)
-
-    p = tf_x.add_paragraph()
-    p.text = "Gerekçe & Kanıt Odaklı: <y, Φ> = f_XAI(X)"
-    p.font.size = Pt(14)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p.space_after = Pt(10)
-
-    p = tf_x.add_paragraph()
-    p.text = "Akış: Girdi (X) ➔ [ŞEFFAF MODEL & Φ] ➔ Tahmin + Gerekçe + Koridor"
-    p.font.name = FONT_CODE
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(12)
-
-    x_points = [
-        ("Temel Soru: ", "'Neden bu sonuç çıktı?' ve 'Girdi değişseydi ne olurdu?'"),
-        ("Kullanıcı Rolü: ", "Kararı denetleyen, senaryoları simüle eden aktif uzman"),
-        ("Hata Tespiti: ", "Mantıksız etki veya anomali anında grafiklerle görünür"),
-        ("Açıklama: ", "Shapley katkıları, öznitelik ağırlıkları, karşı-olgusal kanıt"),
-        ("Güven Temeli: ", "Matematiksel ve nedensel kanıta dayalı güven")
+    # SLAYT 4: NASIL ÇALIŞIR?
+    s4 = prs.slides.add_slide(blank)
+    set_bg(s4)
+    add_header(s4, "1. Bölüm • Çalışma Mantığı", "Açıklanabilir Yapay Zekâ Nasıl Çalışır?",
+               "Tahmin üretildikten sonra, her bilginin sonuca katkısı ölçülerek kullanıcıya sunulur.")
+    steps4 = [
+        ("1. ADIM", "Girdi Verileri", ["Karar için gerekli bilgiler modele verilir."], BG_CARD),
+        ("2. ADIM", "Tahmin Modeli", ["Geçmiş verilerden öğrendiği desenle tahmin hesaplar."], BG_CARD),
+        ("3. ADIM", "Açıklayıcı Katman", ["Her bilginin sonucu ne kadar etkilediğini ölçer."], BG_HIGHLIGHT),
+        ("4. ADIM", "Sonuç ve Gerekçe", ["Tahmin ile birlikte sade nedenler gösterilir."], BG_HIGHLIGHT),
     ]
-    for lbl, desc in x_points:
-        p = tf_x.add_paragraph()
-        p.text = f"• {lbl}{desc}"
-        p.font.size = Pt(9.5)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(6)
+    for i, (tag, title, lines, bg) in enumerate(steps4):
+        write_card_content(s4, Inches(0.8 + i * 2.98), Inches(1.8), Inches(2.78), Inches(1.85), tag, title, lines, bg=bg)
+    write_card_content(
+        s4, Inches(0.8), Inches(3.85), Inches(11.733), Inches(1.8),
+        "BASİT ÖRNEK", "Ev Fiyatı Tahmini Nasıl Açıklanır?",
+        [
+            "• Genişlik (120 m²): +1.200.000 TL   |   • Merkezi Konum: +650.000 TL   |   • Bina Yaşı (25 yıl): -300.000 TL",
+            "Kullanıcı yalnızca toplam fiyatı değil, her özelliğin fiyata olan etkisini net bir şekilde görür."
+        ]
+    )
+    add_note_box(
+        s4,
+        "Açıklanabilir yapay zekâda veriler önce tahmin modeline girer ve bir sonuç üretilir. "
+        "Ardından açıklayıcı analiz devreye girerek hangi bilginin sonucu ne yönde ve ne kadar etkilediğini ölçer. "
+        "Örneğin bir evin fiyatını tahmin ederken sistem sadece toplam fiyatı değil, metrekarenin, konumun ve bina yaşının fiyata katkısını da açıkça gösterir."
+    )
 
-    add_speaker_notes(s4, """Bu slaytta iki paradigmanın temel farkını görüyoruz. Geleneksel yapay zekâda sisteme girdi verilir ve kapalı bir kutudan sadece tekil bir tahmin alınır. Açıklanabilir sistemde ise tahminin yanında kararı oluşturan tüm etkenler ve güven aralığı birlikte sunulur. Böylece kullanıcı pasif bir izleyici olmak yerine, kararı denetleyen ve anlayan aktif bir karar verici olur.""")
-
-    # ==========================================================================
-    # SLAYT 5: XAI Yöntemlerinin Taksonomisi
-    # ==========================================================================
-    s5 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s5)
-    add_slide_header(s5, "Metodoloji • 01", "Açıklanabilir Yapay Zekâ Yöntemlerinin Taksonomisi", 
-                     "Literatürde XAI tekniklerinin zamanlama, kapsam ve model bağımlılığına göre 3 eksenli sınıflandırılması.")
-
-    tax_dims = [
-        ("1. EKSEN: ZAMANLAMA", "Intrinsic vs. Post-hoc", [
-            ("Doğal (Intrinsic / Ante-hoc):", "Model doğası gereği basittir ve kendini eğitirken açıklar (Doğrusal Regresyon, Tek Karar Ağacı)."),
-            ("Model Sonrası (Post-hoc):", "Karmaşık model eğitildikten sonra harici bir açıklayıcı algoritma (SHAP, LIME) devreye girer.")
-        ]),
-        ("2. EKSEN: KAPSAM", "Global vs. Local", [
-            ("Küresel (Global Interpretability):", "Modelin genel veri setindeki genel davranışını ve öznitelik önem hiyerarşisini gösterir."),
-            ("Yerel (Local Explainability):", "Tekil bir veri örneği için (Örn: Ege Bilgisayar) kararın nedenlerini açıklar.")
-        ]),
-        ("3. EKSEN: MODEL BAĞIMLILIĞI", "Model-Agnostic vs. Specific", [
-            ("Modele Bağımsız (Model-Agnostic):", "Herhangi bir kara kutu modele uygulanabilen genel yöntemler (KernelSHAP, LIME)."),
-            ("Modele Özgü (Model-Specific):", "Belirli mimarilerin iç yapısını kullanarak çok hızlı hesaplama yapan yöntemler (TreeSHAP).")
-        ])
+    # SLAYT 5: GELENEKSEL VS XAI
+    s5 = prs.slides.add_slide(blank)
+    set_bg(s5)
+    add_header(s5, "1. Bölüm • Karşılaştırma", "Geleneksel Yapay Zekâ ile Farkları",
+               "Aynı veriyi kullansalar da kullanıcıya sundukları şeffaflık tamamen farklıdır.")
+    tbl = s5.shapes.add_table(6, 3, Inches(0.8), Inches(1.85), Inches(11.733), Inches(3.65)).table
+    tbl.columns[0].width = Inches(2.6)
+    tbl.columns[1].width = Inches(4.5)
+    tbl.columns[2].width = Inches(4.633)
+    rows = [
+        ("Özellik", "Geleneksel Yapay Zekâ", "Açıklanabilir Yapay Zekâ (XAI)"),
+        ("Temel Çıktı", "Yalnızca tek bir sayı veya karar verir.", "Tahmin ile birlikte kararın nedenlerini de verir."),
+        ("Cevapladığı Soru", "Sonuç nedir?", "Sonuç nedir ve neden böyle çıktı?"),
+        ("Şeffaflık", "İçi kapalı bir kutudur, süreç görülmez.", "Hangi faktörün ne kadar etkili olduğu görülür."),
+        ("Hata Tespiti", "Yanlış bir durum yaşanana kadar fark edilmez.", "Mantıksız bir etki hemen denetlenip düzeltilebilir."),
+        ("Kullanıcı Deneyimi", "Sonucu sorgulamadan kabul etmek gerekir.", "Kullanıcı kararı anlar ve bilinçli seçim yapar."),
     ]
-
-    t_w = Inches(3.7)
-    t_gap = Inches(0.26)
-    for i, (dim_tag, dim_title, items) in enumerate(tax_dims):
-        t_left = Inches(0.8) + i * (t_w + t_gap)
-        add_card(s5, t_left, Inches(1.8), t_w, Inches(3.8))
-        tb_t = s5.shapes.add_textbox(t_left + Inches(0.15), Inches(1.95), t_w - Inches(0.3), Inches(3.5))
-        tf_t = tb_t.text_frame
-        tf_t.word_wrap = True
-
-        p = tf_t.paragraphs[0]
-        p.text = dim_tag
-        p.font.size = Pt(8.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_CYAN
-        p.space_after = Pt(2)
-
-        p = tf_t.add_paragraph()
-        p.text = dim_title
-        p.font.size = Pt(13)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p.space_after = Pt(10)
-
-        for h, d in items:
-            p = tf_t.add_paragraph()
-            p.text = f"▶ {h}"
-            p.font.size = Pt(10)
-            p.font.bold = True
-            p.font.color.rgb = COLOR_EMERALD if "Post-hoc" in h or "Yerel" in h or "Özgü" in h else COLOR_TEXT_WHITE
-            p.space_after = Pt(2)
-            p = tf_t.add_paragraph()
-            p.text = f"   {d}"
-            p.font.size = Pt(9)
-            p.font.color.rgb = COLOR_TEXT_MUTED
-            p.space_after = Pt(8)
-
-    # Alt Karar Şeridi
-    add_card(s5, Inches(0.8), Inches(5.8), Inches(11.733), Inches(0.9), bg_color=RGBColor(12, 25, 45), border_color=COLOR_EMERALD)
-    tb_c = s5.shapes.add_textbox(Inches(1.0), Inches(5.9), Inches(11.333), Inches(0.7))
-    tf_c = tb_c.text_frame
-    tf_c.word_wrap = True
-    p = tf_c.paragraphs[0]
-    p.text = "🎯 Projemizin Metodolojik Tercihi: Post-Hoc + Yerel (Local) + Küresel (Global) + Modele Özgü Hızlı Ağaç Çözümleyicisi (TreeSHAP)"
-    p.font.size = Pt(11)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p = tf_c.add_paragraph()
-    p.text = "Yüksek tahmin doğruluğuna sahip LightGBM modellerini korurken, milisaniyeler içinde tekil öğrenci kararlarını açıklama gücü sağlanmıştır."
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-
-    add_speaker_notes(s5, """Literatürde açıklama yöntemleri; açıklamanın ne zaman yapıldığına, kapsamına ve modele bağımlılığına göre üç eksende sınıflandırılır. Projemizde tabüler veriler ve karar ağaçları için altın standart kabul edilen TreeSHAP yöntemini seçtik. TreeSHAP, karmaşık modellerin performansını korurken saniyeler içinde kesin matematiksel açıklamalar üretebilmektedir.""")
-
-    # ==========================================================================
-    # SLAYT 6: Özellik Önemi (Feature Importance)
-    # ==========================================================================
-    s6 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s6)
-    add_slide_header(s6, "Kullanılan Yöntemler • 01", "Özellik Önemi (Feature Importance) & Hiyerarşi", 
-                     "Modelin tahmin gücünü oluşturan 4 temel özniteliğin küresel ve yerel etki ağırlıkları.")
-
-    # Sol: 4 Özellik Kutusu
-    add_card(s6, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_f = s6.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_f = tb_f.text_frame
-    tf_f.word_wrap = True
-
-    p = tf_f.paragraphs[0]
-    p.text = "Modelimizde Kullanılan 4 Ana Öznitelik"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p.space_after = Pt(10)
-
-    feats = [
-        ("1. previous_closing_rank", "Son Yıl Taban Sıralaması (~%78)", "Programın geçmiş yıldaki taban sırası. Üniversitenin marka değeri, şehir çekiciliği ve akademik prestijinin birikimli göstergesidir."),
-        ("2. published_quota", "Kontenjan Hacmi (~%12)", "Bölümün kabul ettiği toplam öğrenci adedi. Yüksek kontenjanlı bölümler dalgalanmalara karşı daha istikrarlıdır."),
-        ("3. quota_change_pct", "Kontenjan Değişim Yüzdesi (~%6)", "Kontenjandaki ani artış veya daralmanın yarattığı esneme/rekabet baskısı (Laplace yumuşatması k=10 uygulanmıştır)."),
-        ("4. rank_momentum_ratio", "Sıralama Trend İvmesi (~%4)", "Bölümün son 3 yıldaki popülarite artışı veya gevşeme ivmesi (Rank_t-1 / Rank_t-2).")
-    ]
-    for code, title, desc in feats:
-        p = tf_f.add_paragraph()
-        p.text = f"{code} — {title}"
-        p.font.size = Pt(10)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_EMERALD if "%78" in title else COLOR_CYAN
-        p = tf_f.add_paragraph()
-        p.text = desc
-        p.font.size = Pt(8.8)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(6)
-
-    # Sağ: Bar Dağılımı ve Bulgular
-    add_card(s6, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9))
-    tb_fb = s6.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_fb = tb_fb.text_frame
-    tf_fb.word_wrap = True
-
-    p = tf_fb.paragraphs[0]
-    p.text = "Küresel Öznitelik Önemi (Feature Gain Dağılımı)"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(14)
-
-    bars = [
-        ("Geçmiş Taban Sıralaması", "78.4%", "████████████████████████████████████████"),
-        ("Kontenjan Büyüklüğü", "11.8%", "██████"),
-        ("Kontenjan Değişim Oranı (Δ%)", "5.9%", "███"),
-        ("Sıralama Trend İvmesi (Momentum)", "3.9%", "██")
-    ]
-    for b_lbl, b_pct, b_bar in bars:
-        p = tf_fb.add_paragraph()
-        p.text = f"{b_lbl} ({b_pct})"
-        p.font.size = Pt(10)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p = tf_fb.add_paragraph()
-        p.text = b_bar
-        p.font.name = FONT_CODE
-        p.font.size = Pt(9.5)
-        p.font.color.rgb = COLOR_EMERALD if "78.4" in b_pct else COLOR_CYAN
-        p.space_after = Pt(8)
-
-    p = tf_fb.add_paragraph()
-    p.text = "💡 Akademik Bulgumuz:"
-    p.font.size = Pt(11)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(4)
-    p = tf_fb.add_paragraph()
-    p.text = "Taban sıralaması ana omurgayı belirlerken (%78), kontenjan değişimleri ve ivme özellikleri özellikle sınırda olan öğrencilerin kazanma olasılığını belirleyen kritik kırılma noktalarını oluşturmaktadır."
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-
-    add_speaker_notes(s6, """Modelimizde rastgele değişkenler yerine alan uzmanlığına dayalı dört temel faktör kullandık. Kararların yaklaşık yüzde 78'i programın geçmiş taban sıralamasına ve yerleşik talebine dayanmaktadır. Kontenjan değişimleri ve son üç yıllık talep trendi ise sıralamanın öne veya geriye kaymasını belirleyen kritik unsurlardır.""")
-
-    # ==========================================================================
-    # SLAYT 7: TreeSHAP & Waterfall
-    # ==========================================================================
-    s7 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s7)
-    add_slide_header(s7, "Kullanılan Yöntemler • 02", "TreeSHAP: Oyun Teorisi & Kesin Toplamsallık", 
-                     "Shapley Additive exPlanations teorisi ve model tahminlerinin nedensel bileşenlerine ayrıştırılması.")
-
-    # Sol: Matematiksel Zemin
-    add_card(s7, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_sh = s7.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_sh = tb_sh.text_frame
-    tf_sh.word_wrap = True
-
-    p = tf_sh.paragraphs[0]
-    p.text = "Matematiksel Zemin: Shapley Formülasyonu"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p.space_after = Pt(8)
-
-    p = tf_sh.add_paragraph()
-    p.text = "Lloyd Shapley (1953 Nobel Ödülü) formülasyonu, her özniteliğin model tahminine yaptığı marjinal katkıyı adil biçimde hesaplar:"
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-    p.space_after = Pt(8)
-
-    p = tf_sh.add_paragraph()
-    p.text = "φ_i(x) = Σ [|S|!(|F| - |S| - 1)! / |F|!] * [f(S ∪ {i}) - f(S)]"
-    p.font.name = FONT_CODE
-    p.font.size = Pt(10)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_AMBER
-    p.space_after = Pt(12)
-
-    p = tf_sh.add_paragraph()
-    p.text = "Aksiyomatik Garantiler (TreeSHAP Neden Üstündür?):"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(4)
-
-    sh_axioms = [
-        ("1. Kesin Toplamsallık (Additivity):", "Baz değer ile öznitelik katkılarının toplamı kesinlikle nihai tahmini verir: ŷ = φ_0 + Σ φ_i"),
-        ("2. Tutarlılık (Consistency):", "Bir özniteliğin marjinal etkisi artarsa, Shapley değeri asla düşemez."),
-        ("3. Polinomiyal Hız:", "Lundberg et al. (2020) TreeSHAP algoritması üssel süreyi O(TLD²) polinomiyal hızına indirir.")
-    ]
-    for ah, ad in sh_axioms:
-        p = tf_sh.add_paragraph()
-        p.text = f"• {ah}"
-        p.font.size = Pt(9.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p = tf_sh.add_paragraph()
-        p.text = f"   {ad}"
-        p.font.size = Pt(9)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(4)
-
-    # Sağ: Doğrulanmış Waterfall Ayrıştırması
-    add_card(s7, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9), border_color=COLOR_EMERALD)
-    tb_wf = s7.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_wf = tb_wf.text_frame
-    tf_wf.word_wrap = True
-
-    p = tf_wf.paragraphs[0]
-    p.text = "Doğrulanmış SHAP Waterfall (Şelale) Ayrıştırması"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(6)
-
-    p = tf_wf.add_paragraph()
-    p.text = "Örnek Program: Ege Üniversitesi Bilgisayar Mühendisliği (İngilizce - SAY)"
-    p.font.size = Pt(9)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-    p.space_after = Pt(10)
-
-    steps = [
-        ("Başlangıç Referans Değeri (φ_0) [SAY Ortalaması]", "97.450 sıra", COLOR_TEXT_WHITE),
-        ("Geçmiş Taban Sırası Katkısı (φ_1 - Yerleşik Talep)", "-58.210 sıra öne", COLOR_EMERALD),
-        ("Kontenjan Hacmi Katkısı (φ_2 - Kapasite)", "+1.420 sıra geri", COLOR_ROSE),
-        ("Sıralama Trend İvmesi Katkısı (φ_3 - İlgi Artışı)", "-1.709 sıra öne", COLOR_EMERALD),
-        ("2026 Model Projeksiyon Taban Sırası (ŷ)", "38.951 sıra", COLOR_CYAN)
-    ]
-    for s_lbl, s_val, s_col in steps:
-        p = tf_wf.add_paragraph()
-        p.text = f"▶ {s_lbl}"
-        p.font.size = Pt(9.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p = tf_wf.add_paragraph()
-        p.text = f"    {s_val}"
-        p.font.name = FONT_CODE
-        p.font.size = Pt(10.5)
-        p.font.bold = True
-        p.font.color.rgb = s_col
-        p.space_after = Pt(4)
-
-    p = tf_wf.add_paragraph()
-    p.text = "✓ Matematiksel Doğrulama (Hata = 0.00):"
-    p.font.size = Pt(9.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p = tf_wf.add_paragraph()
-    p.text = "97.450 - 58.210 + 1.420 - 1.709 = 38.951 (Toplamsallık Kuralı Doğrulandı)"
-    p.font.name = FONT_CODE
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_TEXT_WHITE
-
-    add_speaker_notes(s7, """TreeSHAP kooperatif oyun teorisine dayanır ve en büyük gücü matematiksel toplamsallık ilkesidir. Sağdaki şelale grafiğinde gördüğümüz gibi, başlangıç ortalama değerine her faktörün artı veya eksi etkisi eklenir ve tam olarak tahmin edilen sıralamaya ulaşılır. Sistemde gizli bir kural yoktur; her sayının hesabı ve dayanağı tamamen açıktır.""")
-
-    # ==========================================================================
-    # SLAYT 8: Karşı-Olgusal Açıklamalar & What-If
-    # ==========================================================================
-    s8 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s8)
-    add_slide_header(s8, "Kullanılan Yöntemler • 03", "Karşı-Olgusal Açıklamalar (Counterfactuals) & What-If", 
-                     "'Girdi şöyle olsaydı sonuç nasıl değişirdi?' sorusuna yanıt veren eyleme dönük XAI yöntemi.")
-
-    # Sol: Karşı-Olgusal Teori
-    add_card(s8, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_cf = s8.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_cf = tb_cf.text_frame
-    tf_cf.word_wrap = True
-
-    p = tf_cf.paragraphs[0]
-    p.text = "🔮 Karşı-Olgusal Düşünme Nedir?"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(8)
-
-    p = tf_cf.add_paragraph()
-    p.text = "Wachter et al. (2017) tarafından literatüre kazandırılan Karşı-Olgusal Açıklamalar; modelin iç yapısını bilmeye gerek kalmadan, sonucu istenen hedefe (y*) ulaştırmak için girdide yapılması gereken minimum değişikliği (x ➔ x*) tanımlar:"
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-    p.space_after = Pt(8)
-
-    p = tf_cf.add_paragraph()
-    p.text = "arg min_{x*} D(x, x*)   koşul: f(x*) = y*"
-    p.font.name = FONT_CODE
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_AMBER
-    p.space_after = Pt(12)
-
-    cf_points = [
-        ("Eyleme Dönük İçgörü (Actionable Recourse): ", "Kullanıcıya sadece mevcut durumu değil, kararın nasıl tersine çevrilebileceğini gösterir."),
-        ("Duyarlılık Testi: ", "Tahminin hangi parametreye ne kadar hassas olduğunu kanıtlar."),
-        ("Karar Sınırları: ", "'İdeal Hedef', 'Riskli' ve 'Güvenli Liman' arasındaki sınır çizgilerini şeffaf kılar.")
-    ]
-    for ch, cd in cf_points:
-        p = tf_cf.add_paragraph()
-        p.text = f"• {ch}{cd}"
-        p.font.size = Pt(9.2)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(6)
-
-    # Sağ: Projedeki What-If Uygulaması
-    add_card(s8, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9))
-    tb_cs = s8.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_cs = tb_cs.text_frame
-    tf_cs.word_wrap = True
-
-    p = tf_cs.paragraphs[0]
-    p.text = "⚡ Projedeki Uygulama: Kontenjan Simülatörü"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(10)
-
-    sim_scenarios = [
-        ("Senaryo A (Baz Durum - 60 Kişi):", "Tahmin: 38.951 | 42.000 sıralamalı aday için: İDEAL HEDEF"),
-        ("Senaryo B (Kontenjan +30 Artarsa - 90 Kişi):", "Tahmin: 47.201 (+8.250 sıra esneme) | Aday için: GÜVENLİ LİMAN (Daha Kolay Giriş)"),
-        ("Senaryo C (Kontenjan -20 Azalırsa - 40 Kişi):", "Tahmin: 33.151 (-5.800 sıra öne çekme) | Aday için: DAHA REKABETÇİ (Riskli / Hayal)")
-    ]
-    for s_title, s_res in sim_scenarios:
-        p = tf_cs.add_paragraph()
-        p.text = s_title
-        p.font.size = Pt(10)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p = tf_cs.add_paragraph()
-        p.text = s_res
-        p.font.size = Pt(9.2)
-        p.font.color.rgb = COLOR_EMERALD if "GÜVENLİ" in s_res else (COLOR_ROSE if "REKABETÇİ" in s_res else COLOR_CYAN)
-        p.space_after = Pt(8)
-
-    p = tf_cs.add_paragraph()
-    p.text = "💡 Simülasyon Çıkarımı:"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_AMBER
-    p = tf_cs.add_paragraph()
-    p.text = "Aday kontenjan değişiminin sıralamayı nasıl etkileyeceğini anında simüle ederek tercih listesini olası YÖK kontenjan güncellemelerine karşı güvene alır."
-    p.font.size = Pt(9.2)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-
-    add_speaker_notes(s8, """Karşı-olgusal açıklamalar, "Girdi şöyle değişseydi sonuç ne olurdu?" sorusuna yanıt verir. Projemizdeki simülatör sayesinde kontenjan değiştirildiğinde, sıralama tahmininin ve adayın risk durumunun anında nasıl değiştiği test edilebilmektedir. Böylece aday farklı senaryoları önceden görerek doğru tercih stratejisini kurar.""")
-
-    # ==========================================================================
-    # SLAYT 9: Karşılaştırmalı Yöntem Analizi (XAI Benchmark)
-    # ==========================================================================
-    s9 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s9)
-    add_slide_header(s9, "Metodolojik Analiz • 04", "XAI Yöntemlerinin Karşılaştırmalı Değerlendirmesi", 
-                     "Literatürdeki başlıca açıklanabilirlik teknikleri ve projemizdeki seçim gerekçeleri.")
-
-    # Tablo Ekleme
-    rows, cols = 6, 6
-    tbl_shape = s9.shapes.add_table(rows, cols, Inches(0.8), Inches(1.8), Inches(11.733), Inches(3.2))
-    tbl = tbl_shape.table
-
-    tbl.columns[0].width = Inches(2.3)
-    tbl.columns[1].width = Inches(1.8)
-    tbl.columns[2].width = Inches(2.2)
-    tbl.columns[3].width = Inches(1.8)
-    tbl.columns[4].width = Inches(1.8)
-    tbl.columns[5].width = Inches(1.833)
-
-    headers = ["Yöntem", "Veri Türü", "Teorik Dayanak", "Toplamsallık", "Hesaplama Hızı", "Projede Durumu"]
-    for j, h in enumerate(headers):
-        cell = tbl.cell(0, j)
-        cell.text = h
-        cell.fill.solid()
-        cell.fill.fore_color.rgb = RGBColor(15, 23, 42)
-        p = cell.text_frame.paragraphs[0]
-        p.font.size = Pt(9.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-
-    table_data = [
-        ("TreeSHAP", "Tabüler / Ağaç", "İşbirlikçi Oyun Teorisi", "✓ Kesin (Exact)", "Çok Hızlı O(TLD²)", "✅ BİRİNCİL MOTOR"),
-        ("Counterfactual (What-If)", "Tabüler / Çoklu", "Nedensel Optimizasyon", "Uygulanamaz", "Anlık (Milisaniye)", "✅ SİMÜLATÖR"),
-        ("LIME", "Tabüler, Metin, Görsel", "Yerel Perturbasyon", "✗ Yok (Rassal)", "Orta (Örnekleme)", "❌ ELENDİ"),
-        ("Partial Dep. (PDP)", "Tabüler / Sürekli", "Marjinal Beklenti", "Uygulanamaz", "Yavaş (Tüm Veri)", "❌ ELENDİ"),
-        ("Grad-CAM", "Görsel (CNN / Vision)", "Gradyan Aktivasyon", "Uygulanamaz", "Hızlı", "❌ KAPSAM DIŞI")
-    ]
-    for i, row in enumerate(table_data):
-        for j, val in enumerate(row):
-            cell = tbl.cell(i + 1, j)
+    for r_i, row in enumerate(rows):
+        for c_i, val in enumerate(row):
+            cell = tbl.cell(r_i, c_i)
             cell.text = val
             cell.fill.solid()
-            cell.fill.fore_color.rgb = RGBColor(16, 26, 48) if "BİRİNCİL" in row[5] or "SİMÜLATÖR" in row[5] else RGBColor(10, 16, 30)
-            p = cell.text_frame.paragraphs[0]
-            p.font.size = Pt(9)
-            if j == 0:
-                p.font.bold = True
-                p.font.color.rgb = COLOR_TEXT_WHITE
-            elif "BİRİNCİL" in val or "SİMÜLATÖR" in val:
-                p.font.bold = True
-                p.font.color.rgb = COLOR_EMERALD
-            elif "ELENDİ" in val or "KAPSAM" in val:
-                p.font.color.rgb = COLOR_ROSE
+            if r_i == 0:
+                cell.fill.fore_color.rgb = BG_SUBTLE
+            elif c_i == 2:
+                cell.fill.fore_color.rgb = BG_HIGHLIGHT
             else:
-                p.font.color.rgb = COLOR_TEXT_MUTED
+                cell.fill.fore_color.rgb = BG_CARD
+            p = cell.text_frame.paragraphs[0]
+            p.font.name = "Calibri"
+            p.font.size = Pt(11 if r_i > 0 else 11.5)
+            p.font.bold = (r_i == 0 or c_i == 0 or c_i == 2)
+            p.font.color.rgb = TEXT_PRIMARY if (r_i == 0 or c_i != 1) else TEXT_SECONDARY
+    add_note_box(
+        s5,
+        "İki yaklaşım arasındaki temel fark şeffaflıktır. Geleneksel yapay zekâ yalnızca sonuç nedir sorusuna yanıt verirken, "
+        "açıklanabilir yapay zekâ sonucun neden böyle çıktığını da gösterir. Bu sayede kullanıcı öneriyi sorgulamadan kabul etmek yerine "
+        "mantığını görerek daha bilinçli bir karar verebilir."
+    )
 
-    # Alt Gerekçe Kutuları
-    rationale = [
-        ("Neden LIME Değil TreeSHAP?", "LIME her çalıştığında rassal yapay veri ürettiği için aynı veri noktasına farklı açıklamalar üretebilir (Non-deterministic). TreeSHAP ise deterministiktir ve matematiksel kesin toplamsallık sunar."),
-        ("Neden Grad-CAM Kullanılmadı?", "Grad-CAM görüntü piksellerindeki evrişim katmanlarını analiz eder. Üniversite tercih verisi sayısal/tabüler nitelikte olduğu için teorik olarak Grad-CAM bu probleme uygulanamaz."),
-        ("Neden PDP Yerine What-If?", "PDP sadece ortalama genel eğilimi verir ve tekil adayın özgül koşullarını kaçırır. What-If simülatörü adayın tek bir program üzerindeki karar sınırını test etmesine imkan tanır.")
+    # SLAYT 6: XAI YÖNTEMLERİ
+    s6 = prs.slides.add_slide(blank)
+    set_bg(s6)
+    add_header(s6, "1. Bölüm • Yöntemler", "Açıklanabilir Yapay Zekâ Yöntemleri",
+               "Farklı sorulara yanıt veren üç temel açıklama yaklaşımı vardır.")
+    methods = [
+        ("1. YÖNTEM", "Özellik Önemi (Feature Importance)", [
+            "Modelin genel olarak en çok hangi bilgilere baktığını gösterir.",
+            "Örnek: Ev fiyatlarında en belirleyici unsur %65 ile konum, %25 ile büyüklüktür."
+        ], BG_CARD),
+        ("2. YÖNTEM", "Yerel Katkı Analizi (SHAP / LIME)", [
+            "Tek bir örnek için her özelliğin sonuca artı veya eksi etkisini hesaplar.",
+            "Örnek: Bu bölümün sırası, kontenjan sabit kaldığı için 1.800 sıra öne çekildi."
+        ], BG_HIGHLIGHT),
+        ("3. YÖNTEM", "Karşı-Olgusal (Ne Olur?) Analizi", [
+            "Bir girdi değiştiğinde sonucun nasıl değişeceğini test eder.",
+            "Örnek: Kontenjan 10 kişi artsaydı beklenen sıralama 4.000 sıra gerilerdi."
+        ], BG_CARD),
     ]
-    r_w = Inches(3.7)
-    r_gap = Inches(0.26)
-    for i, (r_title, r_desc) in enumerate(rationale):
-        r_left = Inches(0.8) + i * (r_w + r_gap)
-        add_card(s9, r_left, Inches(5.3), r_w, Inches(1.7))
-        tb_r = s9.shapes.add_textbox(r_left + Inches(0.12), Inches(5.35), r_w - Inches(0.24), Inches(1.5))
-        tf_r = tb_r.text_frame
-        tf_r.word_wrap = True
+    for i, (tag, title, lines, bg) in enumerate(methods):
+        write_card_content(s6, Inches(0.8 + i * 3.98), Inches(1.8), Inches(3.77), Inches(3.8), tag, title, lines, bg=bg)
+    add_note_box(
+        s6,
+        "Açıklama yöntemleri, sormak istediğimiz soruya göre değişir. Özellik önemi modelin genel olarak en çok hangi bilgilere güvendiğini gösterirken, "
+        "SHAP ve LIME tek bir tahminin arkasındaki etkileri hesaplar. Karşı-olgusal analiz ise bir şart değişseydi sonucun nasıl değişeceğini göstererek kullanıcıya yol gösterir."
+    )
 
-        p = tf_r.paragraphs[0]
-        p.text = r_title
-        p.font.size = Pt(9.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_CYAN
-        p.space_after = Pt(2)
+    # SLAYT 7: AVANTAJLAR VE KULLANIM ALANLARI
+    s7 = prs.slides.add_slide(blank)
+    set_bg(s7)
+    add_header(s7, "1. Bölüm • Etki ve Alanlar", "Avantajları ve Kullanım Alanları",
+               "Açıklanabilirlik, yapay zekâyı gerçek hayatta güvenle kullanılabilir hale getirir.")
+    write_card_content(
+        s7, Inches(0.8), Inches(1.8), Inches(5.65), Inches(3.8),
+        "FAYDALAR", "Temel Avantajlar",
+        [
+            "• Yüksek Güven: Kullanıcı kararın nedenini görerek sisteme güvenir.",
+            "• Kolay Hata Ayıklama: Modelin yanlış veriye odaklandığı hızla anlaşılır.",
+            "• Adil Kararlar: Önyargılı veya tutarsız sonuçlar engellenebilir.",
+            "• Eyleme Dönük Bilgi: Sonucu iyileştirmek için ne yapılacağı görülür."
+        ]
+    )
+    write_card_content(
+        s7, Inches(6.85), Inches(1.8), Inches(5.68), Inches(3.8),
+        "ALANLAR", "Başlıca Kullanım Alanları",
+        [
+            "• Sağlık: Hastalık risk tahminlerinde doktorlara bulgu gerekçesi sunma.",
+            "• Finans: Kredi ve risk değerlendirmelerinde şeffaf onay süreçleri.",
+            "• Hukuk ve Sigorta: Kararların gerekçeli ve denetlenebilir olması.",
+            "• Eğitim ve Rehberlik: Öğrencilere üniversite tercihlerinde yol gösterme."
+        ],
+        bg=BG_HIGHLIGHT,
+    )
+    add_note_box(
+        s7,
+        "Açıklanabilir yapay zekâ hataları azaltır, kararlara olan güveni artırır ve sistemlerin denetlenmesini kolaylaştırır. "
+        "Bu nedenle doktorların teşhis destek sistemlerinde, bankaların kredi değerlendirmelerinde ve eğitim rehberliğinde yaygın olarak kullanılır. "
+        "Şimdi bu yaklaşımı kendi geliştirdiğim üniversite tercih projesi üzerinde gerçek bir uygulama olarak inceleyelim."
+    )
 
-        p = tf_r.add_paragraph()
-        p.text = r_desc
-        p.font.size = Pt(8.5)
-        p.font.color.rgb = COLOR_TEXT_MUTED
+    # SLAYT 8: PROJENİN AMACI
+    s8 = prs.slides.add_slide(blank)
+    set_bg(s8)
+    add_header(s8, "2. Bölüm • Uygulama Örneği", "Geliştirdiğim Proje: YKS Tercih Asistanı",
+               "Üniversite adayları için şeffaf sıralama tahmini ve akıllı tercih rehberliği platformu.")
+    write_card_content(
+        s8, Inches(0.8), Inches(1.8), Inches(5.65), Inches(3.8),
+        "ÇÖZÜLEN PROBLEM", "Tercih Dönemindeki Belirsizlik",
+        [
+            "• Çok Fazla Seçenek: Türkiye genelinde 13.581 lisans programı bulunuyor.",
+            "• Değişken Koşullar: Kontenjan artışları ve bölüm popülerliği sıralamaları her yıl değiştiriyor.",
+            "• Eksik Rehberlik: Yalnızca geçen yılın taban sırasına bakmak hatalı tercihlere yol açabiliyor."
+        ]
+    )
+    write_card_content(
+        s8, Inches(6.85), Inches(1.8), Inches(5.68), Inches(3.8),
+        "PROJENİN AMACI", "Güvenli ve Açıklamalı Öneri",
+        [
+            "• Yeni Dönem Tahmini: 2026 yılı beklenen taban sıralamasını öngörmek.",
+            "• Güvenli Aralık: Tek sayı yerine %80 güvenli tercih koridoru sunmak.",
+            "• Şeffaf Açıklama: Her tahminin ve önerinin nedenini sade bir dille göstermek."
+        ],
+        bg=BG_HIGHLIGHT,
+    )
+    add_note_box(
+        s8,
+        "Geliştirdiğim proje, üniversite adaylarının tercih yaparken karşılaştığı belirsizliği azaltmayı amaçlayan akıllı bir rehberlik sistemidir. "
+        "Türkiye'de on binlerce program arasından yalnızca geçen yılın sırasına bakmak, kontenjan ve talep değişimleri nedeniyle hatalı tercihlere yol açabilmektedir. "
+        "Sistemim hem yeni dönem sıralamasını tahmin eder hem de her önerinin arkasındaki nedenleri öğrenciye açıkça sunar."
+    )
 
-    add_speaker_notes(s9, """Bu tabloda literatürdeki başlıca açıklanabilirlik yöntemlerini ve seçim nedenlerimizi görüyoruz. LIME rastgele örnekleme yaptığı için aynı veriye farklı açıklamalar üretebilir. Grad-CAM ise görüntü modellerine özeldir. Bu doğrultuda çalışmamızda tutarlı ve deterministik olan TreeSHAP ile senaryo analizi sağlayan What-If simülatörü tercih edilmiştir.""")
-
-    # ==========================================================================
-    # SLAYT 10: Uygulama Örneği: YKS Tercih Asistanı
-    # ==========================================================================
-    s10 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s10)
-    add_slide_header(s10, "Uygulama Örneği • 01", "Gerçek Dünya Uygulaması: YKS Tercih Asistanı", 
-                     "Açıklanabilir yapay zekânın merkezi üniversite yerleştirmelerinde bir karar destek sistemi olarak hayata geçirilmesi.")
-
-    # Sol: Problem & Çözüm
-    add_card(s10, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_u = s10.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_u = tb_u.text_frame
-    tf_u.word_wrap = True
-
-    p = tf_u.paragraphs[0]
-    p.text = "🎯 Projenin Amacı ve Çözülen Problem"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p.space_after = Pt(6)
-
-    p = tf_u.add_paragraph()
-    p.text = "Türkiye'de her yıl 3 milyondan fazla aday YKS sınavına girmekte ve merkezi sistemde 24 tercih hakkını kullanarak geleceğini şekillendirmektedir."
-    p.font.size = Pt(9.5)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-    p.space_after = Pt(10)
-
-    p = tf_u.add_paragraph()
-    p.text = "Mevcut Durumdaki Kritik Sorunlar:"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_ROSE
-    p.space_after = Pt(2)
-
-    u_probs = [
-        "13.581 Lisans Programı: Devasa veri havuzunda adayların kaybolması ve bilgi asimetrisi.",
-        "Dinamik Kontenjan & Talep Dalgalanmaları: Sadece geçen yılın puanına bakarak tercih yapmanın yarattığı açıkta kalma veya ölü tercih riski.",
-        "Kara Kutu Danışmanlık: 'Burası gelir' diyen ama hiçbir nedensel dayanak sunamayan klasik yapay zekâ botlarının güvensizliği."
-    ]
-    for up in u_probs:
-        p = tf_u.add_paragraph()
-        p.text = f"• {up}"
-        p.font.size = Pt(8.8)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(4)
-
-    p = tf_u.add_paragraph()
-    p.text = "Geliştirilen XAI Çözümü:"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(2)
-
-    p = tf_u.add_paragraph()
-    p.text = "Öğrencinin puanına ve profiline göre 13.581 programı tarayan, 2026 taban sıralamasını öngören, arkasındaki nedenleri TreeSHAP ile ayrıştıran, %80 güven koridoru sunan şeffaf platform."
-    p.font.size = Pt(9)
-    p.font.color.rgb = COLOR_TEXT_WHITE
-
-    # Sağ: Sistem Kapsamı & İstatistikler
-    add_card(s10, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9))
-    tb_us = s10.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_us = tb_us.text_frame
-    tf_us.word_wrap = True
-
-    p = tf_us.paragraphs[0]
-    p.text = "Sistem Kapsamı ve Veri Altyapısı"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(12)
-
+    # SLAYT 9: VERİ SETİ VE TEKNOLOJİLER
+    s9 = prs.slides.add_slide(blank)
+    set_bg(s9)
+    add_header(s9, "2. Bölüm • Altyapı", "Kullanılan Veri Seti ve Teknolojiler",
+               "Sistemin veri kaynağı ve geliştirilmesinde kullanılan gerçek yazılım araçları.")
     stats = [
-        ("13.581 Program", "Türkiye geneli tüm devlet, vakıf ve KKTC lisans programları"),
-        ("81 İl + KKTC", "Bölgesel yaşam maliyeti ve yurt kapasitesi entegrasyonu"),
-        ("4 Puan Türü", "SAY, EA, SÖZ, DİL için 4 bağımsız eğitilmiş model"),
-        ("3 Yıllık Trend", "2023, 2024 ve 2025 resmi ÖSYM yerleştirme verileri")
+        ("13.581 Program", "2023–2025 ÖSYM/YÖK Atlas verileri (34.197 kayıt)"),
+        ("11.863 Katalog", "Üniversite, puan türü ve kontenjan detayları"),
+        ("81 İl + KKTC", "Şehir bazlı üniversite ve yaşam maliyeti analizi"),
     ]
-    for s_num, s_sub in stats:
-        p = tf_us.add_paragraph()
-        p.text = f"▶ {s_num}"
-        p.font.size = Pt(11)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_EMERALD
-        p = tf_us.add_paragraph()
-        p.text = f"    {s_sub}"
-        p.font.size = Pt(9)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(6)
+    for i, (val, lbl) in enumerate(stats):
+        write_card_content(s9, Inches(0.8 + i * 3.98), Inches(1.78), Inches(3.77), Inches(1.12), None, val, [lbl], bg=BG_HIGHLIGHT)
 
-    p = tf_us.add_paragraph()
-    p.text = "🛡️ Etik XAI Prensibi:"
-    p.font.size = Pt(10.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_AMBER
-    p = tf_us.add_paragraph()
-    p.text = "Sistem asla öğrenciden gizli kural yürütmez. Her tahmin; Geçmiş Taban İstikrarı, Kontenjan Değişimi ve Talep İvmesi olmak üzere üç şeffaf faktör üzerinden açıklanır."
-    p.font.size = Pt(9)
-    p.font.color.rgb = COLOR_TEXT_MUTED
+    write_card_content(
+        s9, Inches(0.8), Inches(3.1), Inches(5.65), Inches(2.55),
+        "YAPAY ZEKÂ VE VERİ", "Modelleme ve Açıklanabilirlik",
+        [
+            "• LightGBM: Taban sıralaması ve güvenli aralık tahmin modelleri.",
+            "• SHAP (TreeSHAP): Tahmin gerekçelerini ve özellik etkilerini hesaplama.",
+            "• Pandas, NumPy, Scikit-learn, Joblib: Veri işleme ve model doğrulama.",
+            "• OpenAI API (gpt-4o-mini): Veriye dayalı doğal dil rehberlik sohbeti."
+        ]
+    )
+    write_card_content(
+        s9, Inches(6.85), Inches(3.1), Inches(5.68), Inches(2.55),
+        "UYGULAMA MİMARİSİ", "Arka Uç ve Kullanıcı Arayüzü",
+        [
+            "• FastAPI ve Uvicorn (Python): Tahmin, öneri, harita ve sohbet API servisleri.",
+            "• React ve TypeScript: Hızlı ve etkileşimli tek sayfa web arayüzü.",
+            "• Vite ve Tailwind CSS: Açık/Koyu tema destekli sade kullanıcı tasarımı."
+        ]
+    )
+    add_note_box(
+        s9,
+        "Projede 2023 ile 2025 yılları arasındaki resmi ÖSYM ve YÖK Atlas verilerinden oluşan 13.581 programlık bir veri seti kullandım. "
+        "Tahmin modellerini Python ve LightGBM ile geliştirip, kararların nedenlerini TreeSHAP ve OpenAI dil modeli desteğiyle açıkladım. "
+        "Kullanıcı arayüzünü ise öğrencilerin rahatça gezinebileceği React ve FastAPI tabanlı bir web uygulaması olarak tasarladım."
+    )
 
-    add_speaker_notes(s10, """Sunumumuzun ikinci bölümünde geliştirdiğimiz YKS Tercih Asistanı projesini ele alıyoruz. Türkiye'de 3 milyondan fazla aday, 13 binden fazla lisans programı arasından tercih yapmaktadır. Geliştirdiğimiz sistem, yalnızca yeni dönemin taban sıralamasını öngörmekle kalmaz; arkasındaki gerekçeleri ve güven koridorunu şeffaf bir şekilde kullanıcıya sunar.""")
+    # SLAYT 10: ALGORİTMALARIN ÇALIŞMA MANTIĞI
+    s10 = prs.slides.add_slide(blank)
+    set_bg(s10)
+    add_header(s10, "2. Bölüm • Algoritmalar", "Algoritmalar ve Çalışma Mantığı",
+               "Modeller geçmiş verilerden örüntü öğrenir, açıklayıcı katman ise her faktörün payını ayırır.")
+    write_card_content(
+        s10, Inches(0.8), Inches(1.8), Inches(3.77), Inches(3.8),
+        "TAHMİN", "LightGBM Regresyonu",
+        [
+            "Yüzlerce küçük karar ağacı sırayla eğitilir; her yeni ağaç bir öncekinin hatasını düzeltir.",
+            "• SAY, EA, SÖZ, DİL için 4 ayrı model eğitilmiştir.",
+            "• Quantile Regresyon (%10 ve %90) ile %80 güvenli tercih koridoru üretilir."
+        ]
+    )
+    write_card_content(
+        s10, Inches(4.78), Inches(1.8), Inches(3.77), Inches(3.8),
+        "GİRDİLER", "Kullanılan 4 Temel Özellik",
+        [
+            "• Son Taban Sırası: Önceki yılın kapanış sırası.",
+            "• Kontenjan Sayısı: Bölümün öğrenci kapasitesi.",
+            "• Kontenjan Değişimi: Kapasite artış/azalış oranı (%).",
+            "• Sıralama İvmesi: Son yıllardaki talep yükselme veya gevşeme eğilimi."
+        ]
+    )
+    write_card_content(
+        s10, Inches(8.76), Inches(1.8), Inches(3.77), Inches(3.8),
+        "AÇIKLAMA", "TreeSHAP ve Simülatör",
+        [
+            "TreeSHAP, puan türünün ortalama sırasından başlayarak bu 4 özelliğin kaç sıra eklediğini veya düşürdüğünü hesaplar.",
+            "Ne Olur? Simülatörü ise kontenjan değiştirildiğinde yeni sonucu anlık yeniden hesaplar."
+        ],
+        bg=BG_HIGHLIGHT,
+    )
+    add_note_box(
+        s10,
+        "Tahmin için tablo verilerinde çok hızlı ve başarılı çalışan LightGBM karar ağaçlarını kullandım ve her puan türü için ayrı bir model eğittim. "
+        "Sistem yalnızca tek bir tahmin vermek yerine, Quantile Regresyon sayesinde öğrenciye güvenli bir alt ve üst sınır aralığı da sunar. "
+        "Ardından TreeSHAP yöntemi, geçmiş sıra, kontenjan ve talep ivmesinin bu tahmine kaç sıra etki ettiğini tek tek hesaplar. "
+        "Böylece hem neden bu sıranın beklendiği görülür hem de kontenjan değişirse ne olacağı anında test edilebilir."
+    )
 
-    # ==========================================================================
-    # SLAYT 11: Sistem Mimarisi & Uçtan Uca XAI Hattı
-    # ==========================================================================
-    s11 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s11)
-    add_slide_header(s11, "Uygulama Örneği • 02", "Sistem Mimarisi & Uçtan Uca XAI Hattı", 
-                     "Veri yüklemeden model çıkarımına, SHAP hesaplamasından akıllı rehberlik üretimine çok katmanlı mimari.")
-
-    arch_layers = [
-        ("KATMAN 1: VERİ & İNDEKSLEME", "13.581 Lisans Programı (ÖSYM Açık Verisi) • 2023-2025 Taban Sıraları & Kontenjanlar • 81 İl Yaşam Maliyeti"),
-        ("KATMAN 2: TAHMİN & ÇIKARIM", "LightGBM Medyan Regresyonu (L1) • Quantile Regresyon (%10 & %90 Sınırları) • SAY, EA, SÖZ, DİL Bağımsız Modelleri"),
-        ("KATMAN 3: AÇIKLANABİLİRLİK (XAI)", "TreeSHAP Decomposition (4 Özellik) • Toplamsallık Doğrulama (ŷ = φ_0 + Σ φ_i) • What-If Kontenjan Simülatörü"),
-        ("KATMAN 4: ARAYÜZ & REHBERLİK", "İnteraktif React UI (Harita, Trend Borsası, Simülatör) • Açılır Gerekçe Çekmecesi • Akıllı Rehberlik Danışmanı (GPT-4o-mini)")
+    # SLAYT 11: SİSTEMİN ÇALIŞMA AŞAMALARI
+    s11 = prs.slides.add_slide(blank)
+    set_bg(s11)
+    add_header(s11, "2. Bölüm • Sistem Akışı", "Sistemin Çalışma Aşamaları",
+               "Öğrencinin bilgi girmesinden anlaşılır rehberlik sonucuna kadar 4 aşamalı süreç.")
+    flow11 = [
+        ("1. AŞAMA", "Öğrenci Girdisi", ["Puan türü, sıralama ve şehir/bölüm tercihleri alınır."], BG_CARD),
+        ("2. AŞAMA", "Filtreleme ve Tahmin", ["LightGBM 2026 sırası ve güvenli aralığı hesaplar."], BG_CARD),
+        ("3. AŞAMA", "Nedenlerin Çıkarılması", ["TreeSHAP her faktörün etki payını belirler."], BG_HIGHLIGHT),
+        ("4. AŞAMA", "Anlaşılır Sunum", ["Karar kartları, grafik ve sohbet ile sunulur."], BG_HIGHLIGHT),
     ]
+    for i, (tag, title, lines, bg) in enumerate(flow11):
+        write_card_content(s11, Inches(0.8 + i * 2.98), Inches(1.8), Inches(2.78), Inches(1.95), tag, title, lines, bg=bg)
 
-    for i, (l_title, l_desc) in enumerate(arch_layers):
-        l_top = Inches(1.8) + i * Inches(1.25)
-        is_highlight = "KATMAN 3" in l_title
-        add_card(s11, Inches(0.8), l_top, Inches(11.733), Inches(1.05),
-                 bg_color=RGBColor(16, 32, 55) if is_highlight else COLOR_CARD_BG,
-                 border_color=COLOR_EMERALD if is_highlight else COLOR_CARD_BORDER)
-        
-        tb_l = s11.shapes.add_textbox(Inches(1.0), l_top + Inches(0.12), Inches(11.333), Inches(0.8))
-        tf_l = tb_l.text_frame
-        tf_l.word_wrap = True
-
-        p = tf_l.paragraphs[0]
-        p.text = l_title
-        p.font.size = Pt(11)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_EMERALD if is_highlight else COLOR_CYAN
-        p.space_after = Pt(2)
-
-        p = tf_l.add_paragraph()
-        p.text = l_desc
-        p.font.size = Pt(9.5)
-        p.font.color.rgb = COLOR_TEXT_WHITE if is_highlight else COLOR_TEXT_MUTED
-
-    add_speaker_notes(s11, """Sistem mimarimiz veri katmanından kullanıcı deneyimine kadar dört aşamadan oluşur. İkinci katmanda makine öğrenmesi modellerimiz tahmin ve güven aralıklarını hesaplar; üçüncü katmanda ise TreeSHAP motoru devreye girerek gerekçeleri ayrıştırır. Dördüncü katmanda tüm bu analizler karar kartları ve akıllı rehber danışman aracılığıyla sunulur.""")
-
-    # ==========================================================================
-    # SLAYT 12: Arayüz Entegrasyonu & Ekran Çıktıları
-    # ==========================================================================
-    s12 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s12)
-    add_slide_header(s12, "Uygulama Örneği • 03", "Arayüz Entegrasyonu & Karar Destek Ekranları", 
-                     "Adaylar ve danışmanlar için geliştirilen şeffaf karar kartları, gerekçe analizi ve akıllı rehberlik sistemi.")
-
-    components = [
-        ("BİLEŞEN 1", "Program Karar Kartı", [
-            ("Üniversite / Bölüm:", "Ege Üniversitesi - Bilgisayar Müh. (İng.)"),
-            ("2025 Son Taban Sırası:", "40.120"),
-            ("2026 Beklenen Sıralama:", "38.951"),
-            ("Güvenli Tercih Aralığı:", "35.800 – 42.100 (±%8.1)"),
-            ("Aday Durumu:", "Sıralamana Yakın / İdeal Hedef"),
-            ("Belirleyici Neden:", "Bölümün Yerleşik Talebi & Taban Gücü")
-        ]),
-        ("BİLEŞEN 2", "Gerekçe Analizi (Çekmece)", [
-            ("Yerleşik Talep:", "Geçmiş yıl 40.120 taban sırası en baskın belirleyicidir."),
-            ("Kontenjan Baskısı:", "Kontenjanda değişim olmaması sıralama istikrarını korur."),
-            ("Talep İvmesi:", "Son 3 yıllık ilgi artışı sıralamayı 1.200 sıra öne itmektedir."),
-            ("Gerekçe Analizi:", "Modelin hesapladığı tüm faktörler şeffaf ve doğrulanabilir gerekçelerle sunulur.")
-        ]),
-        ("BİLEŞEN 3", "Akıllı Rehberlik Danışmanı", [
-            ("Öğrenci Sorusu:", "'Sayısal 45.000 ile Ege Bilgisayar gelir mi?'"),
-            ("AI Danışman Yanıtı:", "'2026 beklentisi 38.951'dir (Aralık: 35.800-42.100). Üst hedef olarak ilk sıralara yazabilirsin; ancak listeni riske atmamak için Marmara ve Başkent ile desteklemelisin.'"),
-            ("Kişisel Strateji:", "Model verilerini adayın sıralamasına göre kişisel tercih stratejisine dönüştürür.")
-        ])
+    mods = [
+        ("Tercih Danışmanı", ["Programları 'Daha Rekabetçi', 'Sıralamana Yakın' ve 'Daha Ulaşılabilir' olarak dengeli sıralar."]),
+        ("Ölü Tercih Kontrolü", ["24'lü tercih listesinde sıralama hatalarını tespit eder ve otomatik düzenleme önerir."]),
+        ("Sohbet Danışmanı", ["Model tahminlerini ve SHAP gerekçelerini bağlam olarak alıp öğrenciyle doğal Türkçe konuşur."]),
     ]
+    for i, (title, lines) in enumerate(mods):
+        write_card_content(s11, Inches(0.8 + i * 3.98), Inches(3.95), Inches(3.77), Inches(1.7), None, title, lines)
 
-    c_w = Inches(3.7)
-    c_gap = Inches(0.26)
-    for i, (b_tag, b_title, b_items) in enumerate(components):
-        c_left = Inches(0.8) + i * (c_w + c_gap)
-        add_card(s12, c_left, Inches(1.8), c_w, Inches(4.9))
-        tb_c = s12.shapes.add_textbox(c_left + Inches(0.12), Inches(1.95), c_w - Inches(0.24), Inches(4.5))
-        tf_c = tb_c.text_frame
-        tf_c.word_wrap = True
+    add_note_box(
+        s11,
+        "Öğrenci sıralamasını ve kriterlerini girdiğinde sistem önce 13.581 program arasından uygun bölümleri filtreleyip puanlar. "
+        "Ardından LightGBM modeli gelecek dönem sırasını ve güvenli aralığı hesaplar, TreeSHAP ise tahmini oluşturan faktörleri ayırır. "
+        "Son aşamada bu veriler sade karar kartlarına, ölü tercih denetimine ve sohbet danışmanına aktarılarak öğrencinin kolayca anlayacağı şekilde sunulur."
+    )
 
-        p = tf_c.paragraphs[0]
-        p.text = b_tag
-        p.font.size = Pt(8.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_CYAN
-        p.space_after = Pt(2)
+    # SLAYT 12: GERÇEK SONUÇ ÖRNEĞİ VE KAPANIŞ
+    s12 = prs.slides.add_slide(blank)
+    set_bg(s12)
+    add_header(s12, "2. Bölüm • Gerçek Sonuç ve Değerlendirme", "Gerçek Uygulama Sonucu ve Performans",
+               "Sistemin gerçek bir lisans programı üzerindeki TreeSHAP çıktısı ve 2025 doğrulama sonuçları.")
+    write_card_content(
+        s12, Inches(0.8), Inches(1.8), Inches(5.65), Inches(3.8),
+        "GERÇEK ÖRNEK • KOD: 106510014", "Abdullah Gül Üni. — Mimarlık (İngilizce)",
+        [
+            "2025 Taban: 156.190  |  Kontenjan: 50 kişi  |  İvme: 0.88x",
+            "• Başlangıç Ortalaması (SAY): 263.783",
+            "• Geçmiş Taban Sırası Etkisi: -99.870 (Öne çeken ana güç)",
+            "• Kontenjan Değişimi (%0) ve Hacim: -1.630",
+            "▶ 2026 Beklenen Sıralama: 162.283 (Güvenli Aralık: 146.484 – 212.102)"
+        ],
+        bg=BG_HIGHLIGHT,
+    )
+    write_card_content(
+        s12, Inches(6.85), Inches(1.8), Inches(5.68), Inches(3.8),
+        "2025 KÖR TEST SONUÇLARI (7.811 PROGRAM)", "Tahmin Doğruluğu Karşılaştırması",
+        [
+            "• Genel Ortalama Hata (MAE): Basit yöntemde 94.942 iken, modelimizde 80.361 (%15,4 daha düşük hata).",
+            "• Eşit Ağırlık (2.726 prog.): 158.817 → 125.072 (%21,2 iyileşme).",
+            "• Sözel (1.391 prog.): 79.005 → 61.767 (%21,8 iyileşme).",
+            "• Yabancı Dil (489 prog.): 10.621 → 9.241 (%13,0 iyileşme)."
+        ]
+    )
+    add_note_box(
+        s12,
+        "Ekranda sistemimin Abdullah Gül Üniversitesi Mimarlık bölümü için ürettiği gerçek sonucu ve açıklamasını görüyorsunuz. "
+        "Model 2026 yılı için 162.283 sıralamasını öngörmüş ve bu sonucun temel nedeninin geçen yılki 156.190 taban gücü olduğunu TreeSHAP ile göstermiştir. "
+        "Ayrıca 7.811 program üzerindeki gerçek testlerde sistemimiz, sadece geçen yılı temel alan yönteme kıyasla hatayı yüzde 15,4 azaltmıştır; dinlediğiniz için teşekkür ederim."
+    )
 
-        p = tf_c.add_paragraph()
-        p.text = b_title
-        p.font.size = Pt(12)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p.space_after = Pt(8)
-
-        for kh, kd in b_items:
-            p = tf_c.add_paragraph()
-            p.text = kh
-            p.font.size = Pt(9)
-            p.font.bold = True
-            p.font.color.rgb = COLOR_EMERALD if "2026" in kh or "AI Danışman" in kh else COLOR_TEXT_WHITE
-            p = tf_c.add_paragraph()
-            p.text = kd
-            p.font.size = Pt(8.5)
-            p.font.color.rgb = COLOR_TEXT_MUTED
-            p.space_after = Pt(4)
-
-    add_speaker_notes(s12, """Burada geliştirdiğimiz arayüzün üç temel bileşenini görüyoruz. İlk bileşende adayın son yıl tabanını, beklenen sıralamayı ve güven aralığını gördüğü karar kartı yer alır. İkinci bileşende açılır çekmece ile kararı etkileyen faktörler listelenir. Üçüncü bileşende ise adayın sıralamasına göre kişiselleştirilmiş tercih stratejisi sunan rehber danışman bulunur.""")
-
-    # ==========================================================================
-    # SLAYT 13: Ampirik Model Doğrulaması & Performans Bulguları
-    # ==========================================================================
-    s13 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s13)
-    add_slide_header(s13, "Uygulama Örneği • 04", "Ampirik Model Doğrulaması & Performans Bulguları", 
-                     "7.811 aktif lisans programı üzerinde kör test ile ölçülen gerçek akademik doğruluk metrikleri.")
-
-    # Sol: Doğrulama Tablosu
-    add_card(s13, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_ev = s13.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_ev = tb_ev.text_frame
-    tf_ev.word_wrap = True
-
-    p = tf_ev.paragraphs[0]
-    p.text = "Puan Türlerine Göre Model Başarı Metrikleri (MAE)"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_TEXT_WHITE
-    p.space_after = Pt(6)
-
-    p = tf_ev.add_paragraph()
-    p.text = "2024 verileriyle eğitilen modeller, 2025 resmi sonuçları üzerinde kör teste tabi tutulmuştur:"
-    p.font.size = Pt(9)
-    p.font.color.rgb = COLOR_TEXT_MUTED
-    p.space_after = Pt(10)
-
-    eval_rows = [
-        ("SAY (Sayısal - 3.205 Prog.)", "Geçmiş MAE: 60.396 | Model: 61.253", "Dengeli Taban İstikrarı (~%0)"),
-        ("EA (Eşit Ağırlık - 2.726 Prog.)", "Geçmiş MAE: 158.817 | Model: 125.072", "+%21,25 HATA AZALMASI"),
-        ("SÖZ (Sözel - 1.391 Prog.)", "Geçmiş MAE: 79.005 | Model: 61.767", "+%21,82 HATA AZALMASI"),
-        ("DİL (Yabancı Dil - 489 Prog.)", "Geçmiş MAE: 10.621 | Model: 9.241", "+%13,00 HATA AZALMASI")
-    ]
-    for st_title, st_mae, st_gain in eval_rows:
-        p = tf_ev.add_paragraph()
-        p.text = f"▶ {st_title}"
-        p.font.size = Pt(9.5)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p = tf_ev.add_paragraph()
-        p.text = f"    {st_mae}"
-        p.font.size = Pt(8.5)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p = tf_ev.add_paragraph()
-        p.text = f"    Kazanç: {st_gain}"
-        p.font.size = Pt(9)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_EMERALD if "%21" in st_gain or "%13" in st_gain else COLOR_TEXT_DIM
-        p.space_after = Pt(6)
-
-    p = tf_ev.add_paragraph()
-    p.text = "Genel Toplam (7.811 Program): Baseline MAE = 94.942 ➔ Model MAE = 80.361 (%15,36 Hata Azalması)"
-    p.font.size = Pt(9.5)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-
-    # Sağ: Akademik Çıkarımlar
-    add_card(s13, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9))
-    tb_ei = s13.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_ei = tb_ei.text_frame
-    tf_ei.word_wrap = True
-
-    p = tf_ei.paragraphs[0]
-    p.text = "Akademik Çıkarımlar & Değerlendirme"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(10)
-
-    eval_insights = [
-        ("EA ve SÖZ Alanlarında %21'i Aşan Başarı: ", "Eşit Ağırlık ve Sözelde kontenjan dalgalanmaları çok şiddetli olduğu için geleneksel geçmiş yıl yöntemi 158 bin sıra hata yaparken, modelimiz bu hatayı 125 bine indirmiştir."),
-        ("Sayısal Alanda Yüksek Taban İstikrarı: ", "Tıp ve köklü mühendisliklerde taban sıraları çok oturmuş olduğundan model aşırı tahmin üretmeyerek geçmiş taban istikrarını korumuştur."),
-        ("Quantile Güven Aralığı Güvenilirliği: ", "Modellerimizin ürettiği %10 - %90 güven koridorları, gerçekleşen 2025 sınav sonuçlarının ortalama %55-60'ını doğrudan başarı bandı içerisine almıştır.")
-    ]
-    for eh, ed in eval_insights:
-        p = tf_ei.add_paragraph()
-        p.text = f"• {eh}"
-        p.font.size = Pt(10)
-        p.font.bold = True
-        p.font.color.rgb = COLOR_TEXT_WHITE
-        p = tf_ei.add_paragraph()
-        p.text = f"   {ed}"
-        p.font.size = Pt(9.2)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(8)
-
-    add_speaker_notes(s13, """Modellerimiz 7.811 aktif lisans programı ve 2025 yılı gerçek yerleştirme sonuçları üzerinde test edilmiştir. Sistemimiz geçmiş yıl tabanına kıyasla ortalama yüzde 15.36 hata azalması sağlamıştır. Özellikle Eşit Ağırlık ve Sözel alanlarında hata payı yüzde 21'in üzerinde düşürülerek öğrencilerin açıkta kalma riski belirgin şekilde azaltılmıştır.""")
-
-    # ==========================================================================
-    # SLAYT 14: Sonuç, Tartışma, Sınırlılıklar & Bilimsel Kaynakça
-    # ==========================================================================
-    s14 = prs.slides.add_slide(blank_layout)
-    apply_slide_background(s14)
-    add_slide_header(s14, "Kapanış • 01", "Sonuç, Tartışma, Sınırlılıklar & Bilimsel Kaynakça", 
-                     "Araştırmanın genel sentezi, gelecek çalışmalar ve akademik referanslar.")
-
-    # Sol: Katkılar ve Sınırlılıklar
-    add_card(s14, Inches(0.8), Inches(1.8), Inches(5.6), Inches(4.9))
-    tb_concl = s14.shapes.add_textbox(Inches(1.0), Inches(2.0), Inches(5.2), Inches(4.5))
-    tf_concl = tb_concl.text_frame
-    tf_concl.word_wrap = True
-
-    p = tf_concl.paragraphs[0]
-    p.text = "🎯 Temel Katkılar ve Sonuçlar"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-    p.space_after = Pt(6)
-
-    c_points = [
-        ("Şeffaflık ile Doğruluk Birleşti: ", "LightGBM'in yüksek tahmin gücü (%15.36 hata azalması) TreeSHAP ile matematiksel olarak şeffaflaştırıldı."),
-        ("Eyleme Dönük Karar Desteği: ", "What-If simülatörü adayın pasif bir izleyici yerine senaryo test eden bir karar verici olmasını sağladı."),
-        ("Eyleme Dönük Rehberlik: ", "Hem detaylı faktör dökümleri hem de kişiselleştirilmiş tercih stratejileri sunuldu.")
-    ]
-    for ch, cd in c_points:
-        p = tf_concl.add_paragraph()
-        p.text = f"• {ch}{cd}"
-        p.font.size = Pt(8.8)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(4)
-
-    p = tf_concl.add_paragraph()
-    p.text = "⚠️ Sınırlılıklar & Gelecek Çalışmalar"
-    p.font.size = Pt(12)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_AMBER
-    p.space_after = Pt(4)
-
-    l_points = [
-        ("Sosyal Medya Trendleri: ", "Ani popülarite patlamaları geçmiş veride iz bırakmadan gerçekleşebilmektedir; gelecekte sosyal medya duygu analizi eklenebilir."),
-        ("Uç Sıralama Varyansı: ", "500.000'den sonraki sıralamalarda yerleşme motivasyonu düzensizleştiği için hata payı büyümektedir.")
-    ]
-    for lh, ld in l_points:
-        p = tf_concl.add_paragraph()
-        p.text = f"• {lh}{ld}"
-        p.font.size = Pt(8.8)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(4)
-
-    # Sağ: Bilimsel Kaynakça
-    add_card(s14, Inches(6.8), Inches(1.8), Inches(5.7), Inches(4.9))
-    tb_bib = s14.shapes.add_textbox(Inches(7.0), Inches(2.0), Inches(5.3), Inches(4.5))
-    tf_bib = tb_bib.text_frame
-    tf_bib.word_wrap = True
-
-    p = tf_bib.paragraphs[0]
-    p.text = "📚 Bilimsel Kaynakça (Selected References)"
-    p.font.size = Pt(13)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_CYAN
-    p.space_after = Pt(8)
-
-    references = [
-        "Lundberg, S. M., & Lee, S.-I. (2017). A Unified Approach to Interpreting Model Predictions. NeurIPS 30.",
-        "Lundberg, S. M. et al. (2020). From local explanations to global understanding with explainable AI for trees. Nature Machine Intelligence, 2(1), 56-67.",
-        "Molnar, C. (2022). Interpretable Machine Learning: A Guide for Making Black Box Models Explainable. 2nd Edition.",
-        "Wachter, S., Mittelstadt, B., & Russell, C. (2017). Counterfactual Explanations Without Opening the Black Box. Harvard Journal of Law & Technology.",
-        "Ke, G. et al. (2017). LightGBM: A Highly Efficient Gradient Boosting Decision Tree. NeurIPS 30.",
-        "Ribeiro, M. T., Singh, S., & Guestrin, C. (2016). 'Why Should I Trust You?': Explaining the Predictions of Any Classifier. ACM SIGKDD."
-    ]
-    for ref in references:
-        p = tf_bib.add_paragraph()
-        p.text = f"[{references.index(ref) + 1}] {ref}"
-        p.font.size = Pt(8.5)
-        p.font.color.rgb = COLOR_TEXT_MUTED
-        p.space_after = Pt(6)
-
-    p = tf_bib.add_paragraph()
-    p.text = "Dinlediğiniz için teşekkür ederim. Sorularınızı yanıtlamaktan memnuniyet duyarım."
-    p.font.size = Pt(10)
-    p.font.bold = True
-    p.font.color.rgb = COLOR_EMERALD
-
-    add_speaker_notes(s14, """Özetle; bu çalışmada Açıklanabilir Yapay Zekâ ilkelerini gerçek bir karar destek probleminde başarıyla uyguladık. Yüksek tahmin doğruluğunu şeffaf gerekçeler ve senaryo simülasyonlarıyla birleştirdik. Dinlediğiniz için teşekkür ederim, sorularınızı yanıtlamaktan memnuniyet duyarım.""")
-
-    # Kaydetme
     out_path = os.path.join("presentation", "Aciklanabilir_Yapay_Zeka_XAI_Sunumu.pptx")
     try:
         prs.save(out_path)
@@ -1244,7 +542,8 @@ def create_presentation():
     except PermissionError:
         alt_path = os.path.join("presentation", "Aciklanabilir_Yapay_Zeka_XAI_Sunumu_Guncel.pptx")
         prs.save(alt_path)
-        print(f"Orijinal PPTX açık olduğu için güncel sürüm alternatif olarak kaydedildi: {alt_path} ({len(prs.slides)} Slayt)")
+        print(f"Orijinal dosya açık olduğu için sunum şuraya kaydedildi: {alt_path} ({len(prs.slides)} Slayt)")
+
 
 if __name__ == "__main__":
-    create_presentation()
+    build_presentation()

@@ -6,7 +6,17 @@ import type {
   AdvisorResponse,
   RecommendedProgram,
 } from "./types";
-import { getAdvisorMetadata, recommendPrograms, getProgramDetail } from "./api";
+import { getAdvisorMetadata, recommendPrograms, getProgramDetail, formatRank } from "./api";
+import { Sidebar, type NavTab } from "./components/Sidebar";
+
+const TAB_TITLES: Record<NavTab, string> = {
+  advisor: "Tercih Danışmanı",
+  explorer: "Program Rehberi",
+  map: "Şehir Haritası",
+  trends: "Bölüm Trendleri",
+  mentor: "AI Danışman",
+};
+
 import { StudentPreferenceForm } from "./components/StudentPreferenceForm";
 import { AdvisorResults } from "./components/AdvisorResults";
 import { FilterRelaxationModal } from "./components/FilterRelaxationModal";
@@ -15,36 +25,54 @@ import { ProgramExplorer } from "./components/ProgramExplorer";
 import { ProgramDetailModal } from "./components/ProgramDetailModal";
 import { WhatIfSimulatorModal } from "./components/WhatIfSimulatorModal";
 import { PreferenceListAuditModal } from "./components/PreferenceListAuditModal";
+import { TurkeyPreferenceMap } from "./components/TurkeyPreferenceMap";
+import { TrendMarketDashboard } from "./components/TrendMarketDashboard";
 import { AiChatMentor } from "./components/AiChatMentor";
 import {
-  Compass,
-  BookOpen,
+  Menu,
+  BookmarkCheck,
+  Scale,
   MessageSquare,
-  ListOrdered,
+  Sun,
+  Moon,
 } from "lucide-react";
 
 const SHORTLIST_STORAGE_KEY = "yks_shortlist_programs";
-const FORM_STORAGE_KEY = "yks_saved_form_payload";
+const THEME_STORAGE_KEY = "yks_theme";
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<"advisor" | "explorer" | "mentor">("advisor");
-
-  // Advisor state
-  const [metadata, setMetadata] = useState<AdvisorMetadata | null>(null);
-  const [loadingMeta, setLoadingMeta] = useState<boolean>(true);
-  const [formPayload, setFormPayload] = useState<StudentPreferencePayload | null>(() => {
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
     try {
-      const saved = sessionStorage.getItem(FORM_STORAGE_KEY);
-      return saved ? JSON.parse(saved) : null;
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      return saved === "light" || saved === "dark" ? saved : "dark";
     } catch {
-      return null;
+      return "dark";
     }
   });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+
+  const [activeTab, setActiveTab] = useState<NavTab>("advisor");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [cityFilterFromMap, setCityFilterFromMap] = useState<string>("");
+
+  const [metadata, setMetadata] = useState<AdvisorMetadata | null>(null);
+  const [loadingMeta, setLoadingMeta] = useState<boolean>(true);
+  const [formPayload, setFormPayload] = useState<StudentPreferencePayload | null>(null);
 
   const [advisorResults, setAdvisorResults] = useState<AdvisorResponse | null>(null);
   const [loadingAdvisor, setLoadingAdvisor] = useState<boolean>(false);
 
-  // Shortlist state (up to 24 programs)
   const [shortlist, setShortlist] = useState<RecommendedProgram[]>(() => {
     try {
       const saved = localStorage.getItem(SHORTLIST_STORAGE_KEY);
@@ -57,11 +85,9 @@ export function App() {
   const [comparisonModalOpen, setComparisonModalOpen] = useState<boolean>(false);
   const [auditModalOpen, setAuditModalOpen] = useState<boolean>(false);
 
-  // Modal states
   const [selectedProgram, setSelectedProgram] = useState<Program | null>(null);
   const [simulationProgram, setSimulationProgram] = useState<Program | RecommendedProgram | null>(null);
 
-  // Load advisor metadata on startup
   useEffect(() => {
     getAdvisorMetadata()
       .then((data) => {
@@ -74,7 +100,6 @@ export function App() {
       });
   }, []);
 
-  // Save shortlist to localStorage
   useEffect(() => {
     try {
       localStorage.setItem(SHORTLIST_STORAGE_KEY, JSON.stringify(shortlist));
@@ -83,15 +108,9 @@ export function App() {
     }
   }, [shortlist]);
 
-  // Handle preference form submit
   const handlePreferenceSubmit = (payload: StudentPreferencePayload) => {
     setLoadingAdvisor(true);
     setFormPayload(payload);
-    try {
-      sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(payload));
-    } catch {
-      // ignore
-    }
 
     recommendPrograms(payload)
       .then((res) => {
@@ -108,7 +127,11 @@ export function App() {
       });
   };
 
-  // Handle relaxing filter if no matches
+  const handleResetForm = () => {
+    setFormPayload(null);
+    setAdvisorResults(null);
+  };
+
   const handleRelaxFilter = (criteriaKey: string) => {
     if (!formPayload) return;
 
@@ -132,7 +155,6 @@ export function App() {
     handlePreferenceSubmit(updated);
   };
 
-  // Shortlist management
   const handleToggleShortlist = (prog: RecommendedProgram) => {
     if (shortlist.some((p) => p.program_code === prog.program_code)) {
       setShortlist(shortlist.filter((p) => p.program_code !== prog.program_code));
@@ -153,153 +175,192 @@ export function App() {
     setShortlist([]);
   };
 
+  const activeRank =
+    advisorResults?.student_rank ||
+    (formPayload?.rank ? Number(formPayload.rank) : undefined);
+
+  const activeScoreType =
+    advisorResults?.score_type || formPayload?.score_type || undefined;
+
+  const studentSummary =
+    activeRank && activeScoreType
+      ? `${activeScoreType} • ${formatRank(activeRank)}`
+      : null;
+
+  const pageTitle = TAB_TITLES[activeTab] || "Tercih Danışmanı";
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/90 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-          {/* Logo & Brand */}
-          <div
-            onClick={() => {
-              setActiveTab("advisor");
-              setAdvisorResults(null);
-            }}
-            className="flex items-center gap-3 cursor-pointer group"
-          >
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs transition group-hover:bg-blue-700">
-              <Compass className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight leading-tight">
-                YKS Tercih Rehberi
-              </h1>
-              <p className="text-[11px] text-slate-500 hidden sm:block">
-                Üniversite Tercih ve Danışmanlık Platformu
-              </p>
-            </div>
+    <div className="min-h-screen bg-[#E8EBE0] dark:bg-[#09090b] text-[#171A12] dark:text-zinc-100 flex font-sans transition-colors duration-200">
+      <Sidebar
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          if (tab !== "explorer") setCityFilterFromMap("");
+        }}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+        mobileOpen={mobileMenuOpen}
+        onCloseMobile={() => setMobileMenuOpen(false)}
+        shortlistCount={shortlist.length}
+        onOpenAuditModal={() => setAuditModalOpen(true)}
+        onOpenCompareModal={() => setComparisonModalOpen(true)}
+        studentSummary={studentSummary}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0 flex flex-col min-h-screen">
+        {/* Minimal Header Bar */}
+        <header className="h-14 sticky top-0 z-30 bg-[#E8EBE0]/90 dark:bg-[#09090b]/90 backdrop-blur-md border-b border-[#D0D5C6] dark:border-zinc-800/80 px-4 sm:px-6 flex items-center justify-between gap-3 transition-colors duration-200">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-1.5 rounded-lg text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 hover:bg-[#DFE4D5] dark:hover:bg-zinc-800/60 transition cursor-pointer"
+              aria-label="Menüyü aç"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-sm sm:text-base font-semibold text-[#171A12] dark:text-zinc-100 truncate">
+              {pageTitle}
+            </h1>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-            <button
-              onClick={() => setActiveTab("advisor")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                activeTab === "advisor"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Tercih Danışmanı</span>
-            </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {shortlist.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setComparisonModalOpen(true)}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8] dark:hover:bg-zinc-800 text-[#171A12] dark:text-zinc-200 border border-[#D0D5C6] dark:border-zinc-800 transition cursor-pointer shadow-xs dark:shadow-none"
+              >
+                <Scale className="w-3.5 h-3.5 text-[#526B19] dark:text-zinc-400" />
+                <span>Karşılaştır</span>
+              </button>
+            )}
+
+            {shortlist.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setAuditModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold dark:font-medium bg-[#E5EDC8] dark:bg-emerald-500/15 hover:bg-[#dbe6b8] dark:hover:bg-emerald-500/20 text-[#526B19] dark:text-emerald-400 border border-[#CBD6A4] dark:border-emerald-500/25 transition cursor-pointer"
+              >
+                <BookmarkCheck className="w-3.5 h-3.5" />
+                <span>Listem ({shortlist.length}/24)</span>
+              </button>
+            )}
+
+            {activeTab !== "mentor" && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("mentor")}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8] dark:hover:bg-zinc-800 text-[#171A12] dark:text-zinc-300 border border-[#D0D5C6] dark:border-zinc-800 transition cursor-pointer shadow-xs dark:shadow-none"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-[#526B19] dark:text-emerald-400" />
+                <span className="hidden sm:inline">Danışmana Sor</span>
+              </button>
+            )}
 
             <button
-              onClick={() => setActiveTab("explorer")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                activeTab === "explorer"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              type="button"
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8] dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#526B19] dark:text-zinc-300 transition cursor-pointer shadow-xs dark:shadow-none"
+              title={theme === "dark" ? "Açık Tema" : "Koyu Tema"}
+              aria-label={theme === "dark" ? "Açık Temaya Geç" : "Koyu Temaya Geç"}
             >
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>Program Arama</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("mentor")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-                activeTab === "mentor"
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>Rehberlik Danışmanı</span>
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-[#526B19]" />
+              )}
             </button>
           </div>
+        </header>
 
-          {/* Shortlist Counter Button in Header */}
-          {shortlist.length > 0 && (
-            <button
-              onClick={() => setAuditModalOpen(true)}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-xs font-semibold transition cursor-pointer"
-            >
-              <ListOrdered className="w-3.5 h-3.5" />
-              <span>Listen ({shortlist.length}/24)</span>
-            </button>
-          )}
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {activeTab === "advisor" ? (
-          loadingMeta ? (
-            <div className="py-24 text-center text-slate-500">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-slate-300 border-t-blue-600 mb-3" />
-              <p className="text-sm">Tercih verileri yükleniyor...</p>
-            </div>
-          ) : !metadata ? (
-            <div className="py-16 text-center text-amber-700 bg-amber-50 rounded-2xl p-6 border border-amber-200 max-w-lg mx-auto">
-              <p className="text-sm">Tercih verileri yüklenemedi. Lütfen internet bağlantınızı kontrol edip sayfayı yenileyiniz.</p>
-            </div>
-          ) : advisorResults?.status === "no_matches" ? (
-            <FilterRelaxationModal
-              message={advisorResults.message}
-              suggestions={advisorResults.relaxation_suggestions || []}
-              onRelax={handleRelaxFilter}
-              onBackToForm={() => setAdvisorResults(null)}
+        {/* Page Container */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          {activeTab === "advisor" ? (
+            loadingMeta ? (
+              <div className="py-24 text-center text-[#6B7065] dark:text-zinc-400">
+                <div className="inline-block animate-spin rounded-full h-7 w-7 border-b-2 border-[#526B19] dark:border-emerald-500 mb-3" />
+                <p className="text-sm">Tercih verileri yükleniyor...</p>
+              </div>
+            ) : !metadata ? (
+              <div className="py-16 text-center text-rose-700 dark:text-rose-400">
+                <p className="text-sm">Tercih verileri yüklenemedi. Lütfen sayfayı yenileyin.</p>
+              </div>
+            ) : advisorResults?.status === "no_matches" ? (
+              <FilterRelaxationModal
+                message={advisorResults.message}
+                suggestions={advisorResults.relaxation_suggestions || []}
+                onRelax={handleRelaxFilter}
+                onBackToForm={() => setAdvisorResults(null)}
+              />
+            ) : advisorResults?.status === "success" ? (
+              <AdvisorResults
+                results={advisorResults}
+                onBackToForm={() => setAdvisorResults(null)}
+                shortlist={shortlist}
+                onToggleShortlist={handleToggleShortlist}
+                onSelectProgramForDetail={(code) => {
+                  getProgramDetail(code)
+                    .then((p) => setSelectedProgram(p))
+                    .catch((err) => console.error("Program load error:", err));
+                }}
+                onOpenSimulator={(prog) => setSimulationProgram(prog)}
+              />
+            ) : (
+              <StudentPreferenceForm
+                metadata={metadata}
+                initialValues={formPayload}
+                onSubmit={handlePreferenceSubmit}
+                onReset={handleResetForm}
+                loading={loadingAdvisor}
+              />
+            )
+          ) : activeTab === "explorer" ? (
+            <ProgramExplorer
+              initialQuery={cityFilterFromMap}
+              onSelectProgram={(prog) => setSelectedProgram(prog)}
             />
-          ) : advisorResults?.status === "success" ? (
-            <AdvisorResults
-              results={advisorResults}
-              onBackToForm={() => setAdvisorResults(null)}
-              shortlist={shortlist}
-              onToggleShortlist={handleToggleShortlist}
-              onSelectProgramForDetail={(code) => {
+          ) : activeTab === "map" ? (
+            <TurkeyPreferenceMap
+              onSelectCityForSearch={(cityName) => {
+                setCityFilterFromMap(cityName);
+                setActiveTab("explorer");
+              }}
+            />
+          ) : activeTab === "trends" ? (
+            <TrendMarketDashboard
+              onSelectProgram={(code) => {
                 getProgramDetail(code)
                   .then((p) => setSelectedProgram(p))
                   .catch((err) => console.error("Program load error:", err));
               }}
-              onOpenSimulator={(prog) => setSimulationProgram(prog)}
             />
           ) : (
-            <StudentPreferenceForm
-              metadata={metadata}
-              initialValues={formPayload}
-              onSubmit={handlePreferenceSubmit}
-              loading={loadingAdvisor}
+            <AiChatMentor
+              studentProfile={formPayload}
+              shortlist={shortlist}
+              onAddToShortlist={handleToggleShortlist}
+              onOpenDetailModal={(code) => {
+                getProgramDetail(code)
+                  .then((p) => setSelectedProgram(p))
+                  .catch((err) => console.error("Program load error:", err));
+              }}
+              onOpenSimulationModal={(code) => {
+                getProgramDetail(code)
+                  .then((p) => setSimulationProgram(p))
+                  .catch((err) => console.error("Simulation load error:", err));
+              }}
             />
-          )
-        ) : activeTab === "explorer" ? (
-          <div className="space-y-4">
-            <ProgramExplorer
-              onSelectProgram={(prog) => setSelectedProgram(prog)}
-            />
-          </div>
-        ) : (
-          <AiChatMentor
-            studentProfile={formPayload}
-            shortlist={shortlist}
-            onAddToShortlist={handleToggleShortlist}
-            onOpenDetailModal={(code) => {
-              getProgramDetail(code)
-                .then((p) => setSelectedProgram(p))
-                .catch((err) => console.error("Program load error:", err));
-            }}
-            onOpenSimulationModal={(code) => {
-              getProgramDetail(code)
-                .then((p) => setSimulationProgram(p))
-                .catch((err) => console.error("Simulation load error:", err));
-            }}
-          />
-        )}
-      </main>
+          )}
+        </main>
+      </div>
 
-      {/* Floating Comparison Bar & Modal */}
       <ComparisonDrawer
         shortlist={shortlist}
-        studentRank={advisorResults?.student_rank || (formPayload?.rank ? Number(formPayload?.rank) : undefined)}
+        studentRank={activeRank}
         onRemove={handleRemoveFromShortlist}
         onClear={handleClearShortlist}
         isOpen={comparisonModalOpen}
@@ -308,12 +369,11 @@ export function App() {
         onOpenAuditModal={() => setAuditModalOpen(true)}
       />
 
-      {/* 24-Choice Preference List Audit & PDF Modal */}
       {auditModalOpen && (
         <PreferenceListAuditModal
           shortlist={shortlist}
-          studentRank={advisorResults?.student_rank || (formPayload?.rank ? Number(formPayload?.rank) : undefined)}
-          scoreType={advisorResults?.score_type || formPayload?.score_type || "SAY"}
+          studentRank={activeRank}
+          scoreType={activeScoreType || "SAY"}
           onReorder={(newList) => setShortlist(newList)}
           onRemove={handleRemoveFromShortlist}
           onClear={handleClearShortlist}
@@ -321,34 +381,22 @@ export function App() {
         />
       )}
 
-      {/* Program Detail Modal */}
       {selectedProgram && (
         <ProgramDetailModal
           program={selectedProgram}
-          studentRank={advisorResults?.student_rank || (formPayload?.rank ? Number(formPayload?.rank) : undefined)}
+          studentRank={activeRank}
           onClose={() => setSelectedProgram(null)}
           onOpenSimulator={(prog) => setSimulationProgram(prog)}
         />
       )}
 
-      {/* What-If Simulator Modal */}
       {simulationProgram && (
         <WhatIfSimulatorModal
           program={simulationProgram}
-          studentRank={advisorResults?.student_rank || (formPayload?.rank ? Number(formPayload?.rank) : undefined)}
+          studentRank={activeRank}
           onClose={() => setSimulationProgram(null)}
         />
       )}
-
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500 mt-auto">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 YKS Tercih Rehberi • Üniversite Tercih ve Danışmanlık Platformu</p>
-          <p className="text-slate-400">
-            Resmi ÖSYM ve YÖK Atlas verileri esas alınarak hazırlanmıştır.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

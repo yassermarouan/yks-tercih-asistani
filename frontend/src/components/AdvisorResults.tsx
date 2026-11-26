@@ -1,14 +1,20 @@
 import React, { useState } from "react";
 import type { RecommendedProgram, AdvisorResponse } from "../types";
-import { formatRank, simulateProgramQuota } from "../api";
+import { formatRank } from "../api";
+import { PreferencePortfolioChart } from "./PreferencePortfolioChart";
+import { RankComparisonChart } from "./RankComparisonChart";
 import {
   ArrowLeft,
   BookmarkPlus,
   BookmarkCheck,
+  ExternalLink,
+  CheckCircle2,
+  AlertTriangle,
+  Sliders,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
-  Sliders,
+  BarChart3,
+  Eye,
 } from "lucide-react";
 
 interface Props {
@@ -25,16 +31,16 @@ export const AdvisorResults: React.FC<Props> = ({
   onBackToForm,
   shortlist,
   onToggleShortlist,
+  onSelectProgramForDetail,
+  onOpenSimulator,
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [expandedPrograms, setExpandedPrograms] = useState<Record<string, boolean>>({});
-  const [simQuotas, setSimQuotas] = useState<Record<string, number>>({});
-  const [simResults, setSimResults] = useState<Record<string, { rank: number; delta: number; loading: boolean }>>({});
+  const [showCharts, setShowCharts] = useState<boolean>(false);
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
 
   const items = results.items || [];
   const studentRank = results.student_rank || 0;
 
-  // Filter items by category
   const filteredItems =
     selectedCategory === "all"
       ? items
@@ -42,445 +48,340 @@ export const AdvisorResults: React.FC<Props> = ({
 
   const isShortlisted = (code: string) => shortlist.some((p) => p.program_code === code);
 
-  // Category counts
+  const toggleExpand = (code: string) => {
+    setExpandedCards((prev) => ({ ...prev, [code]: !prev[code] }));
+  };
+
   const countReach = items.filter((i) => i.category === "reach").length;
   const countTarget = items.filter((i) => i.category === "target").length;
   const countSafe = items.filter((i) => i.category === "safe").length;
 
-  const toggleExpand = (code: string) => {
-    setExpandedPrograms((prev) => ({
-      ...prev,
-      [code]: !prev[code],
-    }));
-  };
-
-  const handleInlineQuotaChange = async (programCode: string, newQuota: number) => {
-    setSimQuotas((prev) => ({ ...prev, [programCode]: newQuota }));
-    setSimResults((prev) => ({
-      ...prev,
-      [programCode]: { rank: prev[programCode]?.rank || 0, delta: 0, loading: true },
-    }));
-
-    try {
-      const res = await simulateProgramQuota(programCode, newQuota, studentRank);
-      if (res.simulated_predicted_rank) {
-        setSimResults((prev) => ({
-          ...prev,
-          [programCode]: {
-            rank: res.simulated_predicted_rank || 0,
-            delta: res.rank_delta || 0,
-            loading: false,
-          },
-        }));
-      }
-    } catch {
-      setSimResults((prev) => ({
-        ...prev,
-        [programCode]: { rank: 0, delta: 0, loading: false },
-      }));
-    }
-  };
-
   return (
-    <div className="space-y-6 max-w-4xl mx-auto pb-24">
-      {/* Top Navigation & Summary */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-7 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 max-w-4xl mx-auto pb-12">
+      {/* Summary Header Card */}
+      <div className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-2xl p-5 space-y-4 shadow-[0_2px_10px_rgba(23,26,18,0.04)] dark:shadow-none">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <button
             type="button"
             onClick={onBackToForm}
-            className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 transition py-1 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#E8EBE0] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-200 text-xs font-medium transition cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Kriterleri Düzenle</span>
           </button>
 
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-700 font-semibold">
-              Puan Türü: {results.score_type}
+            <span className="px-2.5 py-1 rounded-lg bg-[#E5EDC8] dark:bg-emerald-500/12 border border-[#C5D496] dark:border-emerald-500/25 text-[#526B19] dark:text-emerald-400 font-medium">
+              {results.score_type} • {formatRank(studentRank)}. sıra
             </span>
-            <span className="px-3 py-1 rounded-lg bg-blue-50 text-blue-700 font-semibold">
-              Başarı Sıranız: {formatRank(studentRank)}
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-100 text-slate-600">
-              Toplam {items.length} Öneri
+            <span className="px-2.5 py-1 rounded-lg bg-[#E8EBE0] dark:bg-zinc-900 border border-[#D0D5C6] dark:border-zinc-800 text-[#6B7065] dark:text-zinc-300">
+              {items.length} program bulundu
             </span>
           </div>
         </div>
 
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Kişiselleştirilmiş Tercih Önerileri
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-            Bu liste, girdiğiniz başarı sırası ve ilgi duyduğunuz bölümler doğrultusunda hazırlanmıştır. Tercih listenizde yerleşme güvenliğini artırmak için önerileri üç farklı kategoride değerlendirebilirsiniz.
-          </p>
-        </div>
+        {/* Category Filter Tabs & Charts Toggle */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#D0D5C6] dark:border-zinc-800/80">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("all")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                selectedCategory === "all"
+                  ? "bg-[#171A12] dark:bg-zinc-100 text-[#F0F1E9] dark:text-zinc-950"
+                  : "bg-[#E8EBE0] dark:bg-zinc-900 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 border border-[#D0D5C6] dark:border-zinc-800"
+              }`}
+            >
+              Tümü ({items.length})
+            </button>
 
-        {/* Category Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory("all")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-              selectedCategory === "all"
-                ? "bg-slate-900 text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            Tüm Öneriler ({items.length})
-          </button>
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("target")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                selectedCategory === "target"
+                  ? "bg-[#C6F432] text-[#171A12] font-semibold"
+                  : "bg-[#E8EBE0] dark:bg-zinc-900 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 border border-[#D0D5C6] dark:border-zinc-800"
+              }`}
+            >
+              Sıralamana Yakın ({countTarget})
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setSelectedCategory("target")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-              selectedCategory === "target"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-blue-50 text-blue-700 hover:bg-blue-100"
-            }`}
-          >
-            Dengeli Tercihler ({countTarget})
-          </button>
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("reach")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                selectedCategory === "reach"
+                  ? "bg-amber-500 text-black font-semibold"
+                  : "bg-[#E8EBE0] dark:bg-zinc-900 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 border border-[#D0D5C6] dark:border-zinc-800"
+              }`}
+            >
+              Daha Rekabetçi ({countReach})
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setSelectedCategory("reach")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-              selectedCategory === "reach"
-                ? "bg-amber-600 text-white shadow-sm"
-                : "bg-amber-50 text-amber-800 hover:bg-amber-100"
-            }`}
-          >
-            Hedef Tercihler ({countReach})
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSelectedCategory("safe")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
-              selectedCategory === "safe"
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
-            }`}
-          >
-            Güvenli Tercihler ({countSafe})
-          </button>
-        </div>
-
-        {/* Understandable Category Explanation Guide */}
-        <div className="text-xs text-slate-500 bg-slate-50 rounded-xl p-3 border border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div>
-            <strong className="text-blue-700 block">Dengeli Tercih:</strong>
-            Başarı sıranızla en uyumlu olan ve listenizin merkezini oluşturması önerilen programlar.
+            <button
+              type="button"
+              onClick={() => setSelectedCategory("safe")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                selectedCategory === "safe"
+                  ? "bg-teal-600 dark:bg-teal-500 text-[#F0F1E9] dark:text-black font-semibold"
+                  : "bg-[#E8EBE0] dark:bg-zinc-900 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 border border-[#D0D5C6] dark:border-zinc-800"
+              }`}
+            >
+              Daha Ulaşılabilir ({countSafe})
+            </button>
           </div>
-          <div>
-            <strong className="text-amber-700 block">Hedef Tercih:</strong>
-            Sıralamanızın biraz üzerinde kalan, listenizin ilk sıralarında değerlendirebileceğiniz alternatifler.
-          </div>
-          <div>
-            <strong className="text-emerald-700 block">Güvenli Tercih:</strong>
-            Sıralamanızın altında kalarak açıkta kalma riskini düşüren programlar.
-          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowCharts((v) => !v)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[#E8EBE0] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 text-[#171A12] dark:text-zinc-300 border border-[#D0D5C6] dark:border-zinc-800 transition cursor-pointer"
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-[#526B19] dark:text-emerald-400" />
+            <span>{showCharts ? "Grafikleri Gizle" : "Dağılım ve Grafikler"}</span>
+            {showCharts ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
         </div>
       </div>
 
-      {/* Program Cards Header */}
-      <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          {filteredItems.length} Program Listeleniyor
-        </span>
-        <span className="text-xs text-slate-500">
-          Sıralama Uyumuna Göre Sıralandı
-        </span>
-      </div>
+      {/* Collapsible Charts */}
+      {showCharts && (
+        <div className="space-y-4">
+          <PreferencePortfolioChart
+            totalCount={items.length}
+            countReach={countReach}
+            countTarget={countTarget}
+            countSafe={countSafe}
+            selectedCategory={selectedCategory}
+            onSelectCategory={(cat) => setSelectedCategory(cat)}
+          />
+          <RankComparisonChart
+            studentRank={studentRank}
+            items={items}
+            onSelectProgram={onSelectProgramForDetail}
+          />
+        </div>
+      )}
 
-      {/* Cards List */}
-      <div className="space-y-4">
-        {filteredItems.map((prog) => {
+      {/* Program Cards */}
+      <div className="space-y-3">
+        {filteredItems.map((prog, index) => {
           const isSaved = isShortlisted(prog.program_code);
-          const isAhead = (prog.rank_distance ?? 0) < 0;
-          const isExpanded = Boolean(expandedPrograms[prog.program_code]);
-          const currentSimQuota = simQuotas[prog.program_code] ?? (prog.latest_quota || 50);
-          const currentSimResult = simResults[prog.program_code];
-
-          // Clean Turkish category label
-          const categoryBadge =
-            prog.category === "reach"
-              ? { text: "Hedef Tercih", color: "bg-amber-50 text-amber-800 border-amber-200" }
-              : prog.category === "safe"
-              ? { text: "Güvenli Tercih", color: "bg-emerald-50 text-emerald-800 border-emerald-200" }
-              : { text: "Dengeli Tercih", color: "bg-blue-50 text-blue-800 border-blue-200" };
+          const isPositiveAhead = (prog.rank_distance ?? 0) < 0;
+          const isExpanded = Boolean(expandedCards[prog.program_code]);
 
           return (
             <div
               key={prog.program_code}
-              className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm hover:border-slate-300 transition space-y-4"
+              className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 hover:border-[#B6BEA9] dark:hover:border-zinc-700/80 rounded-2xl p-4 sm:p-5 transition shadow-[0_2px_10px_rgba(23,26,18,0.04)] dark:shadow-none"
             >
-              {/* Card Header: University, Department, Category & List Button */}
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
-                <div className="space-y-1">
+                <div className="space-y-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                      {prog.university_name} {prog.city ? `• ${prog.city}` : ""}
-                    </span>
+                    <span className="text-xs font-mono text-[#6B7065] dark:text-zinc-500">#{index + 1}</span>
                     <span
-                      className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${categoryBadge.color}`}
+                      className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${
+                        prog.category === "reach"
+                          ? "bg-amber-500/12 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-600/25 dark:border-amber-500/20"
+                          : prog.category === "target"
+                          ? "bg-[#E5EDC8] dark:bg-emerald-500/10 text-[#526B19] dark:text-emerald-300 border-[#C5D496] dark:border-emerald-500/20"
+                          : prog.category === "safe"
+                          ? "bg-teal-500/12 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 border-teal-600/25 dark:border-teal-500/20"
+                          : "bg-[#DFE4D5] dark:bg-zinc-800 text-[#6B7065] dark:text-zinc-400 border-[#D0D5C6] dark:border-zinc-700"
+                      }`}
                     >
-                      {categoryBadge.text}
+                      {prog.category_label}
+                    </span>
+                    <span className="text-[11px] font-mono text-[#6B7065] dark:text-zinc-500">
+                      {prog.program_code}
                     </span>
                   </div>
 
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                  <h3 className="text-base sm:text-lg font-semibold text-[#171A12] dark:text-zinc-100 leading-snug">
                     {prog.program_name}
-                  </h2>
+                  </h3>
 
-                  {prog.faculty && (
-                    <p className="text-xs text-slate-500">
-                      {prog.faculty}
-                    </p>
-                  )}
+                  <p className="text-xs text-[#6B7065] dark:text-zinc-400">
+                    {prog.university_name}
+                    {prog.city && ` • ${prog.city}`}
+                    {prog.teaching_language && ` • ${prog.teaching_language}`}
+                  </p>
                 </div>
 
-                {/* List Button */}
-                <div className="flex items-center gap-2 self-start flex-shrink-0 pt-1 sm:pt-0">
+                <div className="flex items-center gap-2 shrink-0">
+                  {onSelectProgramForDetail && (
+                    <button
+                      type="button"
+                      onClick={() => onSelectProgramForDetail(prog.program_code)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#E8EBE0] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-200 transition flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-[#526B19] dark:text-emerald-400" />
+                      <span>İncele</span>
+                    </button>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => onToggleShortlist(prog)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 border cursor-pointer ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 border cursor-pointer ${
                       isSaved
-                        ? "bg-blue-600 border-blue-600 text-white shadow-sm"
-                        : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700"
+                        ? "bg-[#C6F432] border-[#C6F432] text-[#171A12] font-semibold"
+                        : "bg-[#E8EBE0] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-200"
                     }`}
                   >
                     {isSaved ? (
                       <>
                         <BookmarkCheck className="w-3.5 h-3.5" />
-                        <span>Listende (24)</span>
+                        <span>Listede</span>
                       </>
                     ) : (
                       <>
                         <BookmarkPlus className="w-3.5 h-3.5" />
-                        <span>Listeme Ekle</span>
+                        <span>Listeye Ekle</span>
                       </>
                     )}
                   </button>
-
-                  {prog.official_url && (
-                    <a
-                      href={prog.official_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 transition"
-                      title="YÖK Atlas Sayfasını Aç"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
                 </div>
               </div>
 
-              {/* Essential Metrics: 4 Clean Columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-100">
+              {/* Essential Numbers */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 p-3 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/70">
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                    2026 Tahmini Sıralama
+                  <span className="text-[11px] text-[#6B7065] block">
+                    {prog.latest_rank_year || 2025} Taban Sıra
                   </span>
-                  <span className="text-base font-bold text-slate-900 block mt-0.5">
-                    {prog.latest_rank ? formatRank(Math.round(prog.latest_rank * 0.98)) : "—"}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block">
-                    Beklenen Başarı Aralığı
+                  <span className="text-sm font-mono font-semibold text-[#171A12] dark:text-zinc-100 mt-0.5 block">
+                    {prog.latest_rank ? formatRank(prog.latest_rank) : "Dolmadı"}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                    2025 Taban Sırası
-                  </span>
-                  <span className="text-base font-bold text-slate-700 block mt-0.5">
-                    {prog.latest_rank ? formatRank(prog.latest_rank) : "Açıklanmadı"}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block">
-                    Son Yerleştirme Sonucu
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                    Sıralama Durumunuz
-                  </span>
+                  <span className="text-[11px] text-[#6B7065] block">Sıra Farkı</span>
                   {prog.rank_distance !== null && prog.rank_distance !== undefined ? (
                     <span
-                      className={`text-base font-bold block mt-0.5 ${
-                        isAhead ? "text-emerald-700" : "text-slate-800"
+                      className={`text-sm font-mono font-semibold mt-0.5 block ${
+                        isPositiveAhead
+                          ? "text-[#526B19] dark:text-emerald-400"
+                          : "text-amber-600 dark:text-amber-400"
                       }`}
                     >
-                      {isAhead ? "+" : ""}
+                      {isPositiveAhead ? "+" : ""}
                       {formatRank(-prog.rank_distance)}
-                      <span className="text-xs font-normal text-slate-500 ml-1">
-                        ({isAhead ? "öndesiniz" : "geridesiniz"})
-                      </span>
                     </span>
                   ) : (
-                    <span className="text-base font-bold text-slate-500 block mt-0.5">—</span>
+                    <span className="text-sm text-[#6B7065] mt-0.5 block">—</span>
                   )}
-                  <span className="text-[10px] text-slate-400 block">
-                    Başarı Sıranıza Göre
+                </div>
+
+                <div>
+                  <span className="text-[11px] text-[#6B7065] block">Kontenjan</span>
+                  <span className="text-sm font-mono font-semibold text-[#171A12] dark:text-zinc-200 mt-0.5 block">
+                    {prog.latest_quota ? `${formatRank(prog.latest_quota)} kişi` : "—"}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                    Kontenjan
-                  </span>
-                  <span className="text-base font-bold text-slate-700 block mt-0.5">
-                    {prog.latest_quota ? `${formatRank(prog.latest_quota)} kişi` : "—"}
-                  </span>
-                  <span className="text-[10px] text-slate-400 block">
-                    {prog.teaching_language || "Türkçe"}
+                  <span className="text-[11px] text-[#6B7065] block">Uyum Puanı</span>
+                  <span className="text-sm font-mono font-semibold text-[#526B19] dark:text-emerald-400 mt-0.5 block">
+                    %{Math.round(prog.total_score)}
                   </span>
                 </div>
               </div>
 
-              {/* Natural Guidance Explanation (2-3 Short Sentences) */}
-              <div className="bg-blue-50/40 border border-blue-100/60 rounded-xl p-3.5 text-xs sm:text-sm text-slate-700 leading-relaxed">
-                <span className="font-semibold text-blue-900 block mb-0.5">
-                  Neden Bu Bölüm Önerildi?
-                </span>
-                <p>
-                  {prog.explanation}
-                </p>
-              </div>
-
-              {/* Expandable "Detayları Gör" Toggle */}
-              <div className="pt-1">
+              {/* Expand Toggle */}
+              <div className="mt-3 pt-2.5 border-t border-[#D0D5C6] dark:border-zinc-800/60 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => toggleExpand(prog.program_code)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition py-1 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#526B19] dark:text-emerald-400 hover:text-[#526B19] dark:hover:text-emerald-300 transition cursor-pointer"
                 >
-                  <span>{isExpanded ? "Detayları Gizle" : "Detayları Gör"}</span>
-                  {isExpanded ? (
-                    <ChevronUp className="w-3.5 h-3.5 text-slate-500" />
-                  ) : (
-                    <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
-                  )}
+                  <span>{isExpanded ? "Detayları Gizle" : "Neden önerildi?"}</span>
+                  {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
 
-                {/* Inline Expanded Details */}
-                {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 space-y-4 text-xs text-slate-600 animate-in fade-in duration-200">
-                    {/* Past Years Table */}
+                {prog.strategic_tier && (
+                  <span className="text-[11px] text-[#6B7065]">{prog.strategic_tier}</span>
+                )}
+              </div>
+
+              {/* Expandable Details */}
+              {isExpanded && (
+                <div className="mt-3 pt-3 border-t border-[#D0D5C6] dark:border-zinc-800/60 space-y-3 text-xs">
+                  <p className="text-[#171A12] dark:text-zinc-300 leading-relaxed">{prog.explanation}</p>
+
+                  <div className="flex flex-wrap gap-1.5">
+                    {(prog.matches_notes && prog.matches_notes.length > 0
+                      ? prog.matches_notes
+                      : ["Hedef Bölüm Eşleşmesi"]
+                    ).map((note, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#E5EDC8] dark:bg-emerald-500/10 text-[#526B19] dark:text-emerald-300 border border-[#C5D496] dark:border-emerald-500/20 text-[11px]"
+                      >
+                        <CheckCircle2 className="w-3 h-3" />
+                        {note}
+                      </span>
+                    ))}
+
+                    {prog.trade_offs?.map((trade, idx) => (
+                      <span
+                        key={idx}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/12 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-600/25 dark:border-amber-500/20 text-[11px]"
+                      >
+                        <AlertTriangle className="w-3 h-3" />
+                        {trade}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#D0D5C6] dark:border-zinc-800/60">
                     {prog.history && prog.history.length > 0 && (
-                      <div>
-                        <span className="font-semibold text-slate-800 block mb-2">
-                          Geçmiş Yılların Taban Sıralama Geçmişi
-                        </span>
-                        <div className="overflow-x-auto">
-                          <table className="w-full text-left border-collapse">
-                            <thead>
-                              <tr className="border-b border-slate-200 text-slate-500 font-medium">
-                                <th className="py-1.5 px-2">Yıl</th>
-                                <th className="py-1.5 px-2">Kontenjan</th>
-                                <th className="py-1.5 px-2">Gerçekleşen Taban Sıra</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 text-slate-700">
-                              {prog.history.map((h) => (
-                                <tr key={h.year}>
-                                  <td className="py-1.5 px-2 font-semibold text-slate-900">{h.year}</td>
-                                  <td className="py-1.5 px-2">
-                                    {h.published_quota ? `${h.published_quota} kişi` : "—"}
-                                  </td>
-                                  <td className="py-1.5 px-2 font-medium">
-                                    {h.closing_rank ? formatRank(h.closing_rank) : "Açıklanmadı"}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                      <div className="flex flex-wrap items-center gap-3 text-[11px] text-[#6B7065] dark:text-zinc-400">
+                        <span>Geçmiş:</span>
+                        {prog.history.map((h) => (
+                          <span key={h.year} className="font-mono">
+                            <strong className="text-[#171A12] dark:text-zinc-300">{h.year}:</strong>{" "}
+                            {h.closing_rank ? formatRank(h.closing_rank) : "—"}
+                          </span>
+                        ))}
                       </div>
                     )}
 
-                    {/* Program Information Tags */}
-                    <div className="flex flex-wrap items-center gap-3 pt-1">
-                      <span className="text-slate-700">
-                        <strong>Öğretim Dili:</strong> {prog.teaching_language || "Türkçe"}
-                      </span>
-                      {prog.scholarship && (
-                        <span className="text-slate-700">
-                          <strong>Burs Durumu:</strong> {prog.scholarship}
-                        </span>
+                    <div className="flex items-center gap-2">
+                      {onOpenSimulator && (
+                        <button
+                          type="button"
+                          onClick={() => onOpenSimulator(prog)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#E8EBE0] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-300 text-[11px] font-medium transition cursor-pointer"
+                        >
+                          <Sliders className="w-3 h-3" />
+                          <span>Kontenjan Simülatörü</span>
+                        </button>
                       )}
-                      <span className="text-slate-700">
-                        <strong>Program Kodu:</strong> {prog.program_code}
-                      </span>
-                    </div>
 
-                    {/* Interactive Quota Simulator (What-If) */}
-                    <div className="bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold text-slate-800 flex items-center gap-1.5">
-                          <Sliders className="w-3.5 h-3.5 text-slate-500" />
-                          Kontenjan Değişimi Simülatörü
-                        </span>
-                        <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-                          {currentSimQuota} Kişi
-                        </span>
-                      </div>
-
-                      <p className="text-[11px] text-slate-500">
-                        Kontenjan artırıldığında veya azaltıldığında taban sıralamasının nasıl değişebileceğini test edin:
-                      </p>
-
-                      <div className="flex items-center gap-3">
-                        <span className="text-[11px] text-slate-400">Daha Az</span>
-                        <input
-                          type="range"
-                          min={Math.max(10, (prog.latest_quota || 50) - 30)}
-                          max={(prog.latest_quota || 50) + 40}
-                          step={5}
-                          value={currentSimQuota}
-                          onChange={(e) => handleInlineQuotaChange(prog.program_code, Number(e.target.value))}
-                          className="w-full accent-blue-600 cursor-pointer"
-                        />
-                        <span className="text-[11px] text-slate-400">Daha Fazla</span>
-                      </div>
-
-                      {currentSimResult && (
-                        <div className="text-xs pt-1 flex items-center justify-between text-slate-700">
-                          <span>
-                            {currentSimQuota === prog.latest_quota ? (
-                              "Mevcut kontenjan baz alındı."
-                            ) : (
-                              <>
-                                Yeni Tahmini Sıralama:{" "}
-                                <strong className="text-blue-700 font-bold">
-                                  {formatRank(currentSimResult.rank)}
-                                </strong>{" "}
-                                ({currentSimResult.delta < 0 ? "yaklaşık " + formatRank(Math.abs(currentSimResult.delta)) + " sıra öne çekebilir" : "yaklaşık " + formatRank(currentSimResult.delta) + " sıra gerileyebilir"})
-                              </>
-                            )}
-                          </span>
-                        </div>
+                      {prog.official_url && (
+                        <a
+                          href={prog.official_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#E8EBE0] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-300 text-[11px] font-medium transition"
+                        >
+                          <span>YÖK Atlas</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
                       )}
                     </div>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Reassuring Disclaimer */}
-      <div className="p-4 rounded-xl bg-slate-100/70 text-center text-xs text-slate-500 space-y-1">
-        <p>
-          Bilgilendirme: Bu sıralama tahminleri ve öneriler, geçmiş yerleştirme istatistikleri doğrultusunda hazırlanmış karar destek tavsiyeleridir. Kesin yerleşme taahhüdü içermez; nihai tercih listenizi bir rehberlik uzmanı eşliğinde oluşturmanız önerilir.
-        </p>
-      </div>
+      <p className="text-[11px] text-[#6B7065] text-center pt-2">
+        Bu öneriler geçmiş yerleştirme verileri ve eğilimler üzerinden bilgilendirme amacıyla sunulmaktadır; kesin yerleşme garantisi vermez.
+      </p>
     </div>
   );
 };

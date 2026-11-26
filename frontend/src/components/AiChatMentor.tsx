@@ -1,17 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
 import type {
   ChatMessage,
+  ChatReferencedProgram,
   StudentPreferencePayload,
   RecommendedProgram,
 } from "../types";
-import { sendChatMessage, formatRank } from "../api";
+import { sendChatMessage, formatRank, getProgramDetail } from "../api";
 import {
+  Bot,
   Send,
   User,
   Trash2,
+  Eye,
+  Plus,
+  Check,
+  SlidersHorizontal,
   ChevronDown,
   ChevronUp,
-  MessageSquare,
 } from "lucide-react";
 
 interface Props {
@@ -23,10 +28,9 @@ interface Props {
 }
 
 const DEFAULT_SUGGESTIONS = [
-  "24 tercihimi nasıl dengeli dağıtmalıyım?",
-  "Sayısal 45.000 ile hangi bölümler uygun?",
-  "Ölü tercih yapmamak için nelere dikkat etmeliyim?",
-  "Eşit Ağırlıkta 80.000 sıralamayla Hukuk mu YBS mi?",
+  "24 tercihimi nasıl dağıtmalıyım?",
+  "Sayısal 45.000 ile hangi Bilgisayar Mühendislikleri gelir?",
+  "Ölü tercih nedir ve nasıl önlenir?",
 ];
 
 export const AiChatMentor: React.FC<Props> = ({
@@ -34,44 +38,36 @@ export const AiChatMentor: React.FC<Props> = ({
   shortlist,
   onAddToShortlist,
   onOpenDetailModal,
+  onOpenSimulationModal,
 }) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    return [
-      {
-        id: "welcome-1",
-        role: "assistant",
-        content: `Merhaba! Ben **YKS Rehberlik Danışmanınız**. 
-
-Başarı sıranıza, hedeflediğiniz bölümlere ve şehirlerinize göre tercih listenizi en doğru ve dengeli şekilde oluşturmanıza yardımcı oluyorum.
-
-Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 tercihinizi nasıl planlamanız gerektiğini sorabilirsiniz.`,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        suggestions: DEFAULT_SUGGESTIONS,
-      },
-    ];
-  });
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    {
+      id: "welcome-1",
+      role: "assistant",
+      content:
+        "Merhaba! Ben **YKS Tercih Danışmanın**.\n\nBaşarı sıranı, aklındaki bölümleri, şehir tercihlerini ya da 24 tercihi nasıl sıralaman gerektiğini bana sorabilirsin.",
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      suggestions: DEFAULT_SUGGESTIONS,
+    },
+  ]);
 
   const [inputMessage, setInputMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [expandedReasonCode, setExpandedReasonCode] = useState<string | null>(null);
+  const [expandedXaiCode, setExpandedXaiCode] = useState<string | null>(null);
   const [studentRank, setStudentRank] = useState<number | null>(
     studentProfile?.rank ? Number(studentProfile.rank) : null
   );
   const [scoreType, setScoreType] = useState<string>(studentProfile?.score_type || "SAY");
+  const [profileExpanded, setProfileExpanded] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Sync profile if prop changes
   useEffect(() => {
-    if (studentProfile?.rank) {
-      setStudentRank(Number(studentProfile.rank));
-    }
-    if (studentProfile?.score_type) {
-      setScoreType(studentProfile.score_type);
-    }
+    if (studentProfile?.rank) setStudentRank(Number(studentProfile.rank));
+    if (studentProfile?.score_type) setScoreType(studentProfile.score_type);
   }, [studentProfile]);
 
-  // Auto scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
@@ -80,9 +76,8 @@ Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 terci
     const text = (textToSend || inputMessage).trim();
     if (!text || loading) return;
 
-    const userMsgId = `user-${Date.now()}`;
     const userMessage: ChatMessage = {
-      id: userMsgId,
+      id: `user-${Date.now()}`,
       role: "user",
       content: text,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
@@ -115,6 +110,8 @@ Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 terci
         role: "assistant",
         content: res.reply,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        source: res.source,
+        model: res.model,
         referenced_programs: res.referenced_programs,
         suggestions: res.suggestions,
       };
@@ -122,14 +119,48 @@ Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 terci
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: any) {
       const errorMsg: ChatMessage = {
-        id: `assistant-err-${Date.now()}`,
+        id: `err-${Date.now()}`,
         role: "assistant",
-        content: "Üzgünüm, yanıt hazırlanırken geçici bir hata oluştu. Lütfen tekrar deneyiniz.",
+        content: `Bir bağlantı sorunu oluştu: ${err.message || "Lütfen sorunuzu tekrar iletin."}`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        suggestions: ["24 tercihi nasıl dağıtmalıyım?", "Ölü tercih nedir?"],
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
       setLoading(false);
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleAddReferencedToShortlist = async (p: ChatReferencedProgram) => {
+    try {
+      const fullProg = await getProgramDetail(p.program_code);
+      const recProg: RecommendedProgram = {
+        ...fullProg,
+        latest_rank: p.latest_rank,
+        latest_quota: null,
+        rank_distance: studentRank && p.latest_rank ? studentRank - p.latest_rank : 0,
+        category: p.category,
+        category_label: p.category_label,
+        category_description: "",
+        strategic_tier: p.category_label,
+        preference_fit_score: 85,
+        rank_fit_score: 85,
+        total_score: 85,
+        matches_notes: ["Danışman Tavsiyesi"],
+        trade_offs: [],
+        explanation: `${p.university_name} ${p.program_name} programı tercih danışmanı tarafından önerildi.`,
+      };
+      onAddToShortlist(recProg);
+    } catch (e) {
+      console.error("Program detayı alınamadı:", e);
     }
   };
 
@@ -138,29 +169,37 @@ Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 terci
       {
         id: "welcome-reset",
         role: "assistant",
-        content: "Sohbet sıfırlandı. Tercihleriniz hakkında dilediğiniz soruyu sorabilirsiniz.",
+        content: "Sohbet sıfırlandı. Yeni bir soruyla başlayabilirsin.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         suggestions: DEFAULT_SUGGESTIONS,
       },
     ]);
   };
 
-  // Helper to render formatted Markdown text
+  const formatInline = (text: string) => {
+    let res = text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#171A12] dark:text-zinc-100 font-semibold">$1</strong>');
+    res = res.replace(
+      /`([^`]+)`/g,
+      '<code class="px-1.5 py-0.5 rounded bg-[#DFE4D5] dark:bg-zinc-800 text-[#526B19] dark:text-emerald-300 font-mono text-[11px]">$1</code>'
+    );
+    return res;
+  };
+
   const renderFormattedContent = (content: string) => {
     const lines = content.split("\n");
     return (
-      <div className="space-y-1.5 text-xs sm:text-sm leading-relaxed">
+      <div className="space-y-1.5 text-sm leading-relaxed">
         {lines.map((line, idx) => {
           if (line.startsWith("### ")) {
             return (
-              <h4 key={idx} className="text-sm font-bold text-slate-900 pt-2 pb-0.5">
+              <h4 key={idx} className="text-sm font-semibold text-[#171A12] dark:text-zinc-100 pt-2 border-b border-[#D0D5C6] dark:border-zinc-800 pb-1">
                 {line.replace("### ", "")}
               </h4>
             );
           }
           if (line.startsWith("## ")) {
             return (
-              <h3 key={idx} className="text-base font-bold text-slate-900 pt-2">
+              <h3 key={idx} className="text-base font-semibold text-[#526B19] dark:text-emerald-400 pt-2">
                 {line.replace("## ", "")}
               </h3>
             );
@@ -168,73 +207,96 @@ Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 terci
           if (line.trim().startsWith("- ") || line.trim().startsWith("* ")) {
             const clean = line.trim().replace(/^[-*]\s+/, "");
             return (
-              <div key={idx} className="flex items-start gap-2 pl-2">
-                <span className="text-blue-600 font-bold">•</span>
+              <div key={idx} className="flex items-start gap-2 pl-1">
+                <span className="text-[#526B19] dark:text-emerald-400">•</span>
                 <span dangerouslySetInnerHTML={{ __html: formatInline(clean) }} />
               </div>
             );
           }
           if (/^\d+\.\s+/.test(line.trim())) {
-            return (
-              <div key={idx} className="pl-2" dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
-            );
+            return <div key={idx} className="pl-1" dangerouslySetInnerHTML={{ __html: formatInline(line) }} />;
           }
-          if (!line.trim()) {
-            return <div key={idx} className="h-1" />;
-          }
-          return (
-            <p key={idx} dangerouslySetInnerHTML={{ __html: formatInline(line) }} />
-          );
+          if (!line.trim()) return <div key={idx} className="h-1" />;
+          return <p key={idx} dangerouslySetInnerHTML={{ __html: formatInline(line) }} />;
         })}
       </div>
     );
   };
 
-  const formatInline = (text: string) => {
-    let res = text.replace(
-      /\*\*(.*?)\*\*/g,
-      '<strong class="text-slate-900 font-bold">$1</strong>'
-    );
-    res = res.replace(
-      /`([^`]+)`/g,
-      '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-mono text-[11px]">$1</code>'
-    );
-    return res;
-  };
-
-  const isShortlisted = (code: string) => {
-    return shortlist.some((s) => s.program_code === code);
-  };
+  const isShortlisted = (code: string) => shortlist.some((s) => s.program_code === code);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-9rem)] max-w-4xl mx-auto w-full bg-white border border-slate-200/90 rounded-2xl shadow-sm overflow-hidden">
-      {/* Header */}
-      <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3 bg-white">
+    <div className="flex flex-col h-[calc(100vh-6.5rem)] max-w-4xl mx-auto w-full">
+      <div className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-2xl px-4 py-3 mb-3 flex items-center justify-between gap-3 shadow-[0_2px_10px_rgba(23,26,18,0.04)] dark:shadow-none">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-            <MessageSquare className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-lg bg-[#E5EDC8] dark:bg-emerald-500/15 text-[#526B19] dark:text-emerald-400 border border-[#C5D496] dark:border-emerald-500/25 flex items-center justify-center">
+            <Bot className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
-              Rehberlik Danışmanı
-            </h2>
-            <p className="text-xs text-slate-500">
-              {studentRank ? `${scoreType} • ${formatRank(studentRank)}. Sıra` : "Üniversite Tercih Danışmanı"}
-            </p>
+            <h2 className="text-sm font-semibold text-[#171A12] dark:text-zinc-100">YKS Tercih Danışmanı</h2>
+            <p className="text-[11px] text-[#6B7065]">Sıralamana ve hedeflerine göre birebir rehberlik</p>
           </div>
         </div>
 
-        <button
-          onClick={clearChat}
-          title="Sohbeti Temizle"
-          className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition cursor-pointer"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setProfileExpanded(!profileExpanded)}
+            className="px-3 py-1.5 rounded-lg bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 hover:border-[#B6BEA9] dark:hover:border-zinc-700 text-xs font-medium text-[#171A12] dark:text-zinc-300 flex items-center gap-1.5 transition cursor-pointer"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-[#526B19] dark:text-emerald-400" />
+            <span>{studentRank ? `${scoreType} • ${formatRank(studentRank)}` : "Profil Ayarla"}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={clearChat}
+            title="Yeni Sohbet"
+            className="p-2 rounded-lg bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100 transition cursor-pointer"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+      {profileExpanded && (
+        <div className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-2xl p-4 mb-3 text-xs space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[#6B7065] dark:text-zinc-400 mb-1.5 text-[11px]">Puan Türü</label>
+              <div className="flex gap-1.5">
+                {["SAY", "EA", "SÖZ", "DİL"].map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setScoreType(st)}
+                    className={`flex-1 py-1.5 rounded-lg font-medium text-xs transition cursor-pointer ${
+                      scoreType === st
+                        ? "bg-[#C6F432] text-[#171A12] font-semibold"
+                        : "bg-[#E8EBE0] dark:bg-[#09090b] text-[#6B7065] dark:text-zinc-400 border border-[#D0D5C6] dark:border-zinc-800"
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[#6B7065] dark:text-zinc-400 mb-1.5 text-[11px]">Başarı Sıran</label>
+              <input
+                type="number"
+                value={studentRank || ""}
+                onChange={(e) => setStudentRank(e.target.value ? parseInt(e.target.value) : null)}
+                placeholder="Örn: 45000"
+                className="w-full px-3 py-1.5 rounded-lg bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-100 placeholder-[#6B7065]/75 font-mono text-xs focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto space-y-4 pr-1">
         {messages.map((msg) => {
           const isUser = msg.role === "user";
           return (
@@ -243,191 +305,210 @@ Aklınızdaki bölümleri, sıralamanıza göre yerleşme durumunu veya 24 terci
               className={`flex items-start gap-2.5 ${isUser ? "flex-row-reverse" : "flex-row"}`}
             >
               <div
-                className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 mt-0.5 ${
-                  isUser ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 font-bold"
+                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                  isUser
+                    ? "bg-[#D0D5C6] dark:bg-zinc-800 text-[#171A12] dark:text-zinc-200"
+                    : "bg-[#E5EDC8] dark:bg-emerald-500/15 text-[#526B19] dark:text-emerald-400 border border-[#C5D496] dark:border-emerald-500/25"
                 }`}
               >
-                {isUser ? <User className="w-3.5 h-3.5" /> : "R"}
+                {isUser ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
               </div>
 
               <div
-                className={`max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 text-xs sm:text-sm ${
+                className={`max-w-[85%] sm:max-w-[78%] rounded-2xl p-4 ${
                   isUser
-                    ? "bg-blue-600 text-white rounded-tr-none"
-                    : "bg-slate-50 border border-slate-200/80 text-slate-800 rounded-tl-none space-y-3"
+                    ? "bg-[#DFE4D5] dark:bg-zinc-800/80 border border-[#D0D5C6] dark:border-zinc-700/60 text-[#171A12] dark:text-zinc-100"
+                    : "bg-[#F0F1E9] dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 text-[#171A12] dark:text-zinc-300 space-y-3 shadow-[0_2px_10px_rgba(23,26,18,0.04)] dark:shadow-none"
                 }`}
               >
                 {renderFormattedContent(msg.content)}
 
-                {/* Referenced Program Cards */}
                 {msg.referenced_programs && msg.referenced_programs.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-slate-200 space-y-2.5">
-                    <span className="text-[11px] font-semibold text-slate-500 uppercase block">
-                      Bahsedilen Bölümler ({msg.referenced_programs.length})
+                  <div className="mt-3 pt-3 border-t border-[#D0D5C6] dark:border-zinc-800/80 space-y-2.5">
+                    <span className="text-[11px] font-medium text-[#6B7065] dark:text-zinc-400 block">
+                      İlgili Programlar ({msg.referenced_programs.length})
                     </span>
 
-                    <div className="grid grid-cols-1 gap-2">
+                    <div className="space-y-2.5">
                       {msg.referenced_programs.map((p) => {
                         const inShortlist = isShortlisted(p.program_code);
-                        const isReasonOpen = expandedReasonCode === p.program_code;
-
-                        const badgeClass =
-                          p.category === "reach"
-                            ? "bg-amber-50 text-amber-800 border-amber-200"
-                            : p.category === "safe"
-                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                            : "bg-blue-50 text-blue-800 border-blue-200";
+                        const isXaiOpen = expandedXaiCode === p.program_code;
 
                         return (
                           <div
                             key={p.program_code}
-                            className="p-3 rounded-xl bg-white border border-slate-200 text-xs space-y-2 shadow-xs"
+                            className="p-3.5 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/80 space-y-2.5 text-xs"
                           >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                               <div>
-                                <h5 className="font-bold text-slate-900">{p.program_name}</h5>
-                                <p className="text-[11px] text-slate-500">
-                                  {p.university_name} {p.city ? `• ${p.city}` : ""}
+                                <h5 className="font-semibold text-[#171A12] dark:text-zinc-100 text-sm">{p.program_name}</h5>
+                                <p className="text-[11px] text-[#6B7065] dark:text-zinc-400 mt-0.5">
+                                  {p.university_name} • {p.city}
                                 </p>
                               </div>
+
                               <span
-                                className={`text-[10px] font-semibold px-2 py-0.5 rounded border self-start sm:self-auto ${badgeClass}`}
+                                className={`px-2 py-0.5 rounded text-[11px] font-medium self-start ${
+                                  p.category === "reach"
+                                    ? "bg-amber-500/12 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300"
+                                    : p.category === "safe"
+                                    ? "bg-teal-500/12 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300"
+                                    : "bg-[#E5EDC8] dark:bg-emerald-500/10 text-[#526B19] dark:text-emerald-300"
+                                }`}
                               >
                                 {p.category_label}
                               </span>
                             </div>
 
-                            <div className="flex items-center justify-between text-[11px] text-slate-600 pt-1 border-t border-slate-100">
-                              <span>
-                                2026 Tahmini Sıra: <strong>{formatRank(p.predicted_rank)}</strong>
-                              </span>
-                              <span>
-                                Son Taban Sıra: {formatRank(p.latest_rank)}
-                              </span>
+                            <div className="grid grid-cols-2 gap-2 text-[11px]">
+                              <div className="bg-[#F0F1E9] dark:bg-[#111114] p-2 rounded-lg border border-[#D0D5C6] dark:border-zinc-800/70">
+                                <span className="text-[#6B7065] block">2025 Taban</span>
+                                <span className="font-mono font-semibold text-[#171A12] dark:text-zinc-100">
+                                  {formatRank(p.latest_rank)}
+                                </span>
+                              </div>
+                              <div className="bg-[#F0F1E9] dark:bg-[#111114] p-2 rounded-lg border border-[#D0D5C6] dark:border-zinc-800/70">
+                                <span className="text-[#526B19] dark:text-emerald-400 block">2026 Beklenen</span>
+                                <span className="font-mono font-semibold text-[#526B19] dark:text-emerald-300">
+                                  {formatRank(p.predicted_rank)}
+                                </span>
+                              </div>
                             </div>
 
-                            <div className="flex items-center justify-between pt-1">
-                              {p.xai_explanation ? (
+                            {(p.interval_lower || p.dominant_factor_label) && (
+                              <div className="flex flex-wrap gap-2 text-[11px] text-[#6B7065] dark:text-zinc-400">
+                                {p.interval_lower && p.interval_upper && (
+                                  <span className="font-mono">
+                                    Aralık: {formatRank(p.interval_lower)} – {formatRank(p.interval_upper)}
+                                  </span>
+                                )}
+                                {p.dominant_factor_label && (
+                                  <span className="text-[#526B19] dark:text-emerald-400">• {p.dominant_factor_label}</span>
+                                )}
+                              </div>
+                            )}
+
+                            {p.xai_explanation && (
+                              <div>
                                 <button
                                   type="button"
-                                  onClick={() => setExpandedReasonCode(isReasonOpen ? null : p.program_code)}
-                                  className="text-[11px] text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 cursor-pointer"
+                                  onClick={() => setExpandedXaiCode(isXaiOpen ? null : p.program_code)}
+                                  className="text-[11px] text-[#526B19] dark:text-emerald-400 hover:underline font-medium flex items-center gap-1 transition cursor-pointer"
                                 >
-                                  <span>{isReasonOpen ? "Gerekçeyi Gizle" : "Gerekçeyi Gör"}</span>
-                                  {isReasonOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                                  <span>{isXaiOpen ? "Açıklamayı Gizle" : "Neden bu sıralama bekleniyor?"}</span>
+                                  {isXaiOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                                 </button>
-                              ) : <span />}
 
-                              <div className="flex items-center gap-2">
+                                {isXaiOpen && (
+                                  <p className="mt-2 p-2.5 rounded-lg bg-[#F0F1E9] dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 text-[11px] text-[#6B7065] dark:text-zinc-300 leading-relaxed">
+                                    {p.xai_explanation}
+                                  </p>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between pt-2 border-t border-[#D0D5C6] dark:border-zinc-800/60">
+                              <span className="text-[11px] font-mono text-[#6B7065] dark:text-zinc-500">{p.program_code}</span>
+
+                              <div className="flex items-center gap-1.5">
                                 <button
                                   type="button"
                                   onClick={() => onOpenDetailModal(p.program_code)}
-                                  className="text-[11px] text-slate-600 hover:text-slate-900 cursor-pointer font-medium"
+                                  className="px-2.5 py-1 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 text-[#171A12] dark:text-zinc-300 border border-[#D0D5C6] dark:border-zinc-800 flex items-center gap-1 text-[11px] transition cursor-pointer"
                                 >
-                                  Detay
+                                  <Eye className="w-3 h-3" />
+                                  <span>İncele</span>
                                 </button>
+
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    onAddToShortlist({
-                                      program_code: p.program_code,
-                                      university_name: p.university_name,
-                                      program_name: p.program_name,
-                                      score_type: scoreType,
-                                      category: p.category,
-                                      category_label: p.category_label,
-                                      category_description: "",
-                                      preference_fit_score: 80,
-                                      rank_fit_score: 80,
-                                      total_score: 80,
-                                      trade_offs: [],
-                                      explanation: p.xai_explanation || "",
-                                      history: [],
-                                    })
-                                  }
-                                  className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition cursor-pointer ${
+                                  onClick={() => onOpenSimulationModal(p.program_code)}
+                                  className="px-2.5 py-1 rounded-lg bg-[#F0F1E9] dark:bg-zinc-900 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 text-[#171A12] dark:text-zinc-300 border border-[#D0D5C6] dark:border-zinc-800 text-[11px] transition cursor-pointer"
+                                >
+                                  Simüle Et
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddReferencedToShortlist(p)}
+                                  disabled={inShortlist}
+                                  className={`px-2.5 py-1 rounded-lg font-medium flex items-center gap-1 text-[11px] transition cursor-pointer ${
                                     inShortlist
-                                      ? "bg-blue-600 border-blue-600 text-white"
-                                      : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                                      ? "bg-[#E5EDC8] dark:bg-zinc-900 text-[#526B19] dark:text-emerald-400 border border-[#C5D496] dark:border-emerald-500/30"
+                                      : "bg-[#C6F432] hover:bg-[#b5e422] text-[#171A12] font-semibold"
                                   }`}
                                 >
-                                  {inShortlist ? "Listede" : "Listeye Ekle"}
+                                  {inShortlist ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                                  <span>{inShortlist ? "Listede" : "Ekle"}</span>
                                 </button>
                               </div>
                             </div>
-
-                            {isReasonOpen && p.xai_explanation && (
-                              <div className="p-2.5 rounded-lg bg-slate-50 text-[11px] text-slate-700 leading-relaxed border border-slate-100">
-                                {p.xai_explanation}
-                              </div>
-                            )}
                           </div>
                         );
                       })}
                     </div>
                   </div>
                 )}
+
+                {!isUser && msg.suggestions && msg.suggestions.length > 0 && (
+                  <div className="pt-2 flex flex-wrap gap-1.5">
+                    {msg.suggestions.map((sug, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleSendMessage(sug)}
+                        disabled={loading}
+                        className="px-2.5 py-1 rounded-lg bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 hover:border-[#B6BEA9] dark:hover:border-zinc-700 text-[11px] text-[#171A12] dark:text-zinc-300 transition cursor-pointer"
+                      >
+                        {sug}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="text-[10px] text-[#6B7065] dark:text-zinc-500">{msg.timestamp}</div>
               </div>
             </div>
           );
         })}
 
         {loading && (
-          <div className="flex items-center gap-2 text-xs text-slate-500 pl-9">
-            <div className="w-2 h-2 rounded-full bg-blue-600 animate-bounce" />
-            <div className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.2s]" />
-            <div className="w-2 h-2 rounded-full bg-blue-600 animate-bounce [animation-delay:0.4s]" />
-            <span className="ml-1">Danışman yazıyor...</span>
+          <div className="flex items-start gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-[#E5EDC8] dark:bg-emerald-500/15 text-[#526B19] dark:text-emerald-400 border border-[#C5D496] dark:border-emerald-500/25 flex items-center justify-center shrink-0">
+              <Bot className="w-3.5 h-3.5" />
+            </div>
+            <div className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-2xl px-4 py-3 text-xs text-[#6B7065] dark:text-zinc-400 flex items-center gap-2">
+              <div className="w-3.5 h-3.5 border-2 border-[#D0D5C6] dark:border-zinc-600 border-t-emerald-500 rounded-full animate-spin" />
+              <span>Yanıt hazırlanıyor...</span>
+            </div>
           </div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggested Quick Questions */}
-      {messages.length > 0 && messages[messages.length - 1].suggestions && (
-        <div className="p-3 bg-slate-50 border-t border-slate-100 overflow-x-auto no-scrollbar flex items-center gap-1.5">
-          <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap pl-1">
-            Örnek Sorular:
-          </span>
-          {messages[messages.length - 1].suggestions?.map((sug, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleSendMessage(sug)}
-              className="text-xs px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition whitespace-nowrap cursor-pointer shadow-2xs"
-            >
-              {sug}
-            </button>
-          ))}
+      <div className="mt-3 pt-3 border-t border-[#D0D5C6] dark:border-zinc-800/80">
+        <div className="relative flex items-center">
+          <textarea
+            ref={inputRef}
+            rows={1}
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Sorunuzu yazın... (Örn: Sayısal 42.000 ile ODTÜ veya Hacettepe gelir mi?)"
+            className="w-full pl-4 pr-12 py-3 rounded-xl bg-[#F0F1E9] dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800 text-sm text-[#171A12] dark:text-zinc-100 placeholder-[#6B7065]/75 dark:placeholder-zinc-500 focus:outline-none focus:border-emerald-500 resize-none max-h-32"
+          />
+
+          <button
+            type="button"
+            onClick={() => handleSendMessage()}
+            disabled={!inputMessage.trim() || loading}
+            className="absolute right-2 p-2 rounded-lg bg-[#C6F432] hover:bg-[#b5e422] disabled:opacity-40 text-[#171A12] transition cursor-pointer"
+          >
+            <Send className="w-4 h-4" />
+          </button>
         </div>
-      )}
-
-      {/* Input Box */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSendMessage();
-        }}
-        className="p-3 sm:p-4 bg-white border-t border-slate-100 flex items-center gap-2"
-      >
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          placeholder="Rehberlik danışmanına sorunuzu yazınız..."
-          className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 focus:bg-white transition"
-        />
-
-        <button
-          type="submit"
-          disabled={!inputMessage.trim() || loading}
-          className="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40 transition cursor-pointer"
-          title="Gönder"
-        >
-          <Send className="w-4 h-4" />
-        </button>
-      </form>
+      </div>
     </div>
   );
 };

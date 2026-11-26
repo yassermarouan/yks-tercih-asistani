@@ -1,17 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import type { CitiesAnalyticsResponse, CitySummary } from "../types";
 import { getCityAnalytics, formatRank } from "../api";
-import {
-  MapPin,
-  Building2,
-  GraduationCap,
-  Search,
-  ArrowRight,
-  DollarSign,
-  Home,
-  X,
-  Compass,
-} from "lucide-react";
+import { MapPin, Search, ArrowRight, X, Compass } from "lucide-react";
 
 interface Props {
   onSelectCityForSearch?: (cityName: string) => void;
@@ -64,15 +54,8 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
     if (!data?.cities) return [];
 
     return data.cities.filter((c) => {
-      // Region filter
-      if (selectedRegion !== "Tümü" && c.region !== selectedRegion) {
-        return false;
-      }
-      // Cost tier filter
-      if (selectedCostTier !== "all" && c.cost_tier !== selectedCostTier) {
-        return false;
-      }
-      // Search query
+      if (selectedRegion !== "Tümü" && c.region !== selectedRegion) return false;
+      if (selectedCostTier !== "all" && c.cost_tier !== selectedCostTier) return false;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const inName = c.city_name.toLowerCase().includes(q);
@@ -83,13 +66,10 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
     });
   }, [data, selectedRegion, selectedCostTier, searchQuery]);
 
-  // Overall totals
   const totalUniversities = useMemo(() => {
     if (!data?.cities) return 0;
     const allUnis = new Set<string>();
-    data.cities.forEach((c) => {
-      c.top_universities.forEach((u) => allUnis.add(u.name));
-    });
+    data.cities.forEach((c) => c.top_universities.forEach((u) => allUnis.add(u.name)));
     return allUnis.size;
   }, [data]);
 
@@ -102,134 +82,109 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
     if (!activeCityModal) return [];
     if (!modalUniFilter.trim()) return activeCityModal.top_universities;
     const q = modalUniFilter.toLowerCase().trim();
-    return activeCityModal.top_universities.filter((u) =>
-      u.name.toLowerCase().includes(q)
-    );
+    return activeCityModal.top_universities.filter((u) => u.name.toLowerCase().includes(q));
   }, [activeCityModal, modalUniFilter]);
 
   const getTierBadge = (tier: string) => {
     switch (tier) {
       case "high":
         return (
-          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/20">
-            Metropol (Yüksek)
+          <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-rose-500/12 dark:bg-rose-500/10 text-rose-700 dark:text-rose-300 border border-rose-600/25 dark:border-rose-500/20">
+            Yüksek Maliyet
           </span>
         );
       case "medium":
         return (
-          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-            Öğrenci Kenti (Dengeli)
+          <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-amber-500/12 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-600/25 dark:border-amber-500/20">
+            Dengeli Maliyet
           </span>
         );
       default:
         return (
-          <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            Ekonomik (Öğrenci Dostu)
+          <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#E5EDC8] dark:bg-emerald-500/10 text-[#526B19] dark:text-emerald-300 border border-[#C5D496] dark:border-emerald-500/20">
+            Ekonomik
           </span>
         );
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner & Overview */}
-      <div className="bg-gradient-to-r from-zinc-950 via-zinc-900 to-black border border-zinc-800 rounded-2xl p-6 relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                🗺️ Bölgesel Tercih & Şehir Rehberi
-              </span>
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                81 İl & KKTC Kapsamı
-              </span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Türkiye Üniversite & Tercih Haritası
-            </h2>
-            <p className="text-sm text-zinc-300 max-w-2xl mt-1.5 leading-relaxed">
-              İllerin üniversite yoğunluğunu, taban sıralama seviyelerini ve ortalama barınma/yaşam maliyeti düzeylerini
-              inceleyin. Şehirlere tıklayarak o ildeki tüm lisans programlarını anında filtreleyin.
-            </p>
-          </div>
+    <div className="space-y-5 max-w-6xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-xl sm:text-2xl font-semibold text-[#171A12] dark:text-zinc-100 tracking-tight">
+            Şehir Haritası ve Yaşam Rehberi
+          </h2>
+          <p className="text-sm text-[#6B7065] dark:text-zinc-400 mt-0.5">
+            Şehirlere tıklayarak üniversiteleri, yurt imkanlarını ve yaşam maliyetini inceleyin.
+          </p>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-center">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 min-w-[110px]">
-              <span className="text-xs text-zinc-400 block font-medium">Toplam Şehir</span>
-              <span className="text-xl font-bold font-mono text-white mt-0.5 block">
-                {data?.total_cities || 81}
-              </span>
-            </div>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 min-w-[110px]">
-              <span className="text-xs text-zinc-400 block font-medium">Üniversiteler</span>
-              <span className="text-xl font-bold font-mono text-emerald-400 mt-0.5 block">
-                {totalUniversities > 0 ? `${totalUniversities}+` : "200+"}
-              </span>
-            </div>
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 min-w-[110px]">
-              <span className="text-xs text-zinc-400 block font-medium">Lisans Programı</span>
-              <span className="text-xl font-bold font-mono text-white mt-0.5 block">
-                {totalPrograms > 0 ? formatRank(totalPrograms) : "13.000+"}
-              </span>
-            </div>
+        <div className="flex items-center gap-2.5 text-xs">
+          <div className="bg-[#F0F1E9] dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-xl px-3.5 py-2">
+            <span className="text-[#6B7065] mr-1.5">Şehir:</span>
+            <strong className="font-mono text-[#171A12] dark:text-zinc-100">{data?.total_cities || 81}</strong>
+          </div>
+          <div className="bg-[#F0F1E9] dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-xl px-3.5 py-2">
+            <span className="text-[#6B7065] mr-1.5">Üniversite:</span>
+            <strong className="font-mono text-[#526B19] dark:text-emerald-400">
+              {totalUniversities > 0 ? `${totalUniversities}+` : "200+"}
+            </strong>
+          </div>
+          <div className="bg-[#F0F1E9] dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-xl px-3.5 py-2 hidden sm:block">
+            <span className="text-[#6B7065] mr-1.5">Program:</span>
+            <strong className="font-mono text-[#171A12] dark:text-zinc-100">
+              {totalPrograms > 0 ? formatRank(totalPrograms) : "13.000+"}
+            </strong>
           </div>
         </div>
       </div>
 
-      {/* Control Bar: Region tabs, Cost filter, City Search */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 shadow-lg space-y-3">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-          {/* Search bar */}
+      {/* Filters */}
+      <div className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-2xl p-4 space-y-3 shadow-[0_2px_10px_rgba(23,26,18,0.04)] dark:shadow-none">
+        <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#6B7065] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Şehir veya üniversite adı arayın (Örn: Eskişehir, Ege, ODTÜ)..."
+              placeholder="Şehir veya üniversite ara (Örn: Eskişehir, ODTÜ)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-black border border-zinc-800 text-white rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-emerald-500 placeholder-zinc-500 transition"
+              className="w-full bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-100 rounded-xl pl-10 pr-8 py-2 text-sm focus:outline-none focus:border-emerald-500 placeholder-[#6B7065]/75 dark:placeholder-zinc-500 transition"
             />
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B7065] hover:text-[#171A12] dark:hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Cost tier selector */}
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-zinc-400 font-medium flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5 text-emerald-400" /> Yaşam Maliyeti:
-            </span>
-            <select
-              value={selectedCostTier}
-              onChange={(e) => setSelectedCostTier(e.target.value)}
-              className="bg-black border border-zinc-800 text-zinc-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
-            >
-              <option value="all">Tüm Maliyet Seviyeleri</option>
-              <option value="high">Metropol (Yüksek Maliyet)</option>
-              <option value="medium">Gelişmiş Öğrenci Kenti (Dengeli)</option>
-              <option value="low">Ekonomik (Öğrenci Dostu)</option>
-            </select>
-          </div>
+          <select
+            value={selectedCostTier}
+            onChange={(e) => setSelectedCostTier(e.target.value)}
+            className="bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 text-[#171A12] dark:text-zinc-200 rounded-xl px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-500"
+          >
+            <option value="all">Tüm Maliyet Seviyeleri</option>
+            <option value="low">Ekonomik Şehirler</option>
+            <option value="medium">Dengeli Öğrenci Kentleri</option>
+            <option value="high">Yüksek Maliyetli Metropoller</option>
+          </select>
         </div>
 
-        {/* Region tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 no-scrollbar border-t border-zinc-800">
-          <span className="text-xs text-zinc-500 font-semibold uppercase tracking-wider mr-1 hidden sm:inline">
-            Bölge:
-          </span>
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-2 border-t border-[#D0D5C6] dark:border-zinc-800/60 no-scrollbar">
           {REGIONS.map((reg) => (
             <button
               key={reg}
+              type="button"
               onClick={() => setSelectedRegion(reg)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition cursor-pointer ${
                 selectedRegion === reg
-                  ? "bg-emerald-500 text-black font-extrabold shadow-md shadow-emerald-500/20"
-                  : "bg-zinc-900 border border-zinc-800 text-zinc-300 hover:border-zinc-700 hover:text-white"
+                  ? "bg-[#C6F432] text-[#171A12] font-semibold"
+                  : "bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 text-[#6B7065] dark:text-zinc-400 hover:text-[#171A12] dark:hover:text-zinc-100"
               }`}
             >
               {reg}
@@ -238,235 +193,169 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
         </div>
       </div>
 
-      {/* Main Grid: City Cards */}
+      {/* City Cards */}
       {loading ? (
-        <div className="py-20 text-center text-slate-400">
-          <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-500 mb-3"></div>
-          <p className="text-sm font-medium">81 ilin üniversite ve yaşam maliyeti verileri derleniyor...</p>
+        <div className="py-20 text-center text-[#6B7065] dark:text-zinc-400">
+          <div className="inline-block animate-spin rounded-full h-7 w-7 border-b-2 border-emerald-500 mb-3" />
+          <p className="text-sm">Şehir verileri yükleniyor...</p>
         </div>
       ) : error ? (
-        <div className="p-6 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-sm text-center">
+        <div className="p-6 rounded-2xl bg-rose-500/12 dark:bg-rose-500/10 border border-rose-600/25 dark:border-rose-500/20 text-rose-700 dark:text-rose-300 text-sm text-center">
           {error}
         </div>
       ) : filteredCities.length === 0 ? (
-        <div className="py-16 text-center text-slate-400 bg-slate-900 border border-slate-800 rounded-xl">
-          <Compass className="w-10 h-10 mx-auto text-slate-600 mb-3" />
-          <h4 className="text-base font-semibold text-white">Seçilen Kriterlere Uygun Şehir Bulunamadı</h4>
-          <p className="text-xs text-slate-400 mt-1">Filtreleri veya arama kelimesini temizleyerek tekrar deneyin.</p>
+        <div className="py-16 text-center text-[#6B7065] bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 rounded-2xl">
+          <Compass className="w-8 h-8 mx-auto text-[#6B7065] dark:text-zinc-600 mb-2" />
+          <p className="text-sm font-medium text-[#171A12] dark:text-zinc-200">Uygun şehir bulunamadı</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
           {filteredCities.map((city) => (
             <div
               key={city.city_name}
               onClick={() => setActiveCityModal(city)}
-              className="bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 rounded-xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/5 cursor-pointer flex flex-col justify-between group"
+              className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800/80 hover:border-[#B6BEA9] dark:hover:border-zinc-700 rounded-2xl p-4 transition cursor-pointer flex flex-col justify-between group shadow-[0_2px_10px_rgba(23,26,18,0.04)] dark:shadow-none"
             >
-              <div>
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-indigo-400 flex-shrink-0 group-hover:text-indigo-300 transition" />
-                    <h3 className="text-base font-bold text-white tracking-wide group-hover:text-indigo-200 transition">
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-semibold text-[#171A12] dark:text-zinc-100 group-hover:text-[#526B19] dark:group-hover:text-emerald-400 transition">
                       {city.city_name}
                     </h3>
+                    <span className="text-[11px] text-[#6B7065]">{city.region}</span>
                   </div>
-                  <span className="text-[10px] font-medium text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700/60">
-                    {city.region}
-                  </span>
+                  {getTierBadge(city.cost_tier)}
                 </div>
 
-                <div className="mb-3">{getTierBadge(city.cost_tier)}</div>
-
-                {/* Key Metrics */}
-                <div className="grid grid-cols-2 gap-2 text-xs py-2.5 border-y border-slate-800/80 mb-3">
+                <div className="grid grid-cols-2 gap-2 pt-3 border-t border-[#D0D5C6] dark:border-zinc-800/70 text-xs">
                   <div>
-                    <span className="text-slate-400 text-[11px] block">Üniversite Sayısı</span>
-                    <span className="font-bold font-mono text-white flex items-center gap-1 mt-0.5">
-                      <Building2 className="w-3.5 h-3.5 text-indigo-400" />
-                      {city.university_count} Üniversite
+                    <span className="text-[#6B7065] text-[11px] block">Üniversite</span>
+                    <span className="font-mono font-semibold text-[#171A12] dark:text-zinc-100">
+                      {city.university_count}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-400 text-[11px] block">Lisans Programı</span>
-                    <span className="font-bold font-mono text-white flex items-center gap-1 mt-0.5">
-                      <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
-                      {formatRank(city.program_count)} Program
+                    <span className="text-[#6B7065] text-[11px] block">Program</span>
+                    <span className="font-mono font-semibold text-[#171A12] dark:text-zinc-100">
+                      {formatRank(city.program_count)}
                     </span>
-                  </div>
-                </div>
-
-                {/* Universities Preview */}
-                <div className="space-y-1">
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
-                    Öne Çıkan Kurumlar
-                  </span>
-                  <div className="text-xs text-slate-300 line-clamp-2 leading-relaxed">
-                    {city.top_universities.slice(0, 3).map((u, i) => (
-                      <span key={u.name}>
-                        {u.name.replace(/ ÜNİVERSİTESİ/i, "")}
-                        {i < Math.min(2, city.top_universities.length - 1) ? ", " : ""}
-                      </span>
-                    ))}
-                    {city.university_count > 3 && (
-                      <span className="text-zinc-400 font-medium"> +{city.university_count - 3} daha</span>
-                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Card Footer */}
-              <div className="mt-4 pt-3 border-t border-zinc-800 flex items-center justify-between text-xs text-emerald-400 font-semibold group-hover:text-emerald-300 transition">
-                <span>Detayları & Üniversiteleri Gör ({city.university_count})</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+              <div className="mt-3 pt-2.5 border-t border-[#D0D5C6] dark:border-zinc-800/60 flex items-center justify-between text-xs text-[#526B19] dark:text-emerald-400 font-medium">
+                <span>Şehri İncele</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* City Detail Modal */}
+      {/* City Modal */}
       {activeCityModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between gap-4 pb-4 border-b border-zinc-800">
+        <div className="fixed inset-0 z-50 bg-[#171A12]/40 dark:bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-gradient-to-b from-[#F2F3EC] to-[#ECEEE3] dark:bg-none dark:bg-[#111114] border border-[#D0D5C6] dark:border-zinc-800 rounded-2xl max-w-2xl w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-5">
+            <div className="flex items-start justify-between gap-4 pb-4 border-b border-[#D0D5C6] dark:border-zinc-800">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    {activeCityModal.region} Bölgesi
-                  </span>
+                  <span className="text-xs text-[#6B7065] dark:text-zinc-400">{activeCityModal.region} Bölgesi</span>
                   {getTierBadge(activeCityModal.cost_tier)}
                 </div>
-                <h3 className="text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                  <MapPin className="w-6 h-6 text-emerald-400" />
-                  {activeCityModal.city_name} Şehir & Tercih Profili
+                <h3 className="text-xl font-semibold text-[#171A12] dark:text-zinc-100 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-[#526B19] dark:text-emerald-400" />
+                  {activeCityModal.city_name}
                 </h3>
               </div>
 
               <button
+                type="button"
                 onClick={() => {
                   setActiveCityModal(null);
                   setModalUniFilter("");
                 }}
-                className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition cursor-pointer"
+                className="p-1.5 rounded-lg text-[#6B7065] hover:text-[#171A12] dark:hover:text-zinc-100 hover:bg-[#E5EDC8]/70 dark:hover:bg-zinc-800 transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Living Cost & Student Life Guide */}
-            <div className="my-5 p-4 rounded-xl bg-zinc-800/60 border border-zinc-700/60 space-y-3">
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Home className="w-4 h-4 text-amber-400" />
-                  Öğrenci Yaşamı ve Barınma Analizi
-                </h4>
-                <div className="flex items-center gap-1 text-xs text-zinc-300">
-                  <span>Kira İndeksi:</span>
-                  <span className="font-bold text-amber-300">
-                    {"★".repeat(activeCityModal.rent_index_score)}
-                    {"☆".repeat(5 - activeCityModal.rent_index_score)}
-                  </span>
-                </div>
+            <div className="p-4 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/80 space-y-2.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-[#171A12] dark:text-zinc-200">Öğrenci Yaşamı ve Barınma</span>
+                <span className="text-amber-600 dark:text-amber-300">
+                  Kira Düzeyi: {"★".repeat(activeCityModal.rent_index_score)}
+                  {"☆".repeat(5 - activeCityModal.rent_index_score)}
+                </span>
               </div>
-              <p className="text-xs text-zinc-300 leading-relaxed">
+              <p className="text-xs text-[#6B7065] dark:text-zinc-400 leading-relaxed">
                 {activeCityModal.living_cost_description}
               </p>
-              <div className="flex flex-wrap gap-4 text-xs pt-2 border-t border-zinc-700/50">
-                <div>
-                  <span className="text-zinc-400">KYK Yurt Kapasitesi: </span>
-                  <span className="font-semibold text-white">{activeCityModal.dorm_availability}</span>
-                </div>
-                <div>
-                  <span className="text-zinc-400">Maliyet Statüsü: </span>
-                  <span className="font-semibold text-white">{activeCityModal.cost_label}</span>
-                </div>
+              <div className="flex flex-wrap gap-4 text-xs pt-2 border-t border-[#D0D5C6] dark:border-zinc-800/60 text-[#171A12] dark:text-zinc-300">
+                <span>KYK Yurt: <strong>{activeCityModal.dorm_availability}</strong></span>
+                <span>Maliyet: <strong>{activeCityModal.cost_label}</strong></span>
                 {activeCityModal.median_closing_rank && (
-                  <div>
-                    <span className="text-zinc-400">Medyan Başarı Sırası: </span>
-                    <span className="font-mono font-semibold text-emerald-400">
+                  <span>
+                    Ortalama Sıra:{" "}
+                    <strong className="font-mono text-[#526B19] dark:text-emerald-400">
                       {formatRank(activeCityModal.median_closing_rank)}
-                    </span>
-                  </div>
+                    </strong>
+                  </span>
                 )}
               </div>
             </div>
 
-            {/* University List */}
             <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Building2 className="w-4 h-4 text-emerald-400" />
-                  Şehirdeki Üniversiteler ({activeCityModal.top_universities.length})
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-medium text-[#171A12] dark:text-zinc-100">
+                  Üniversiteler ({activeCityModal.top_universities.length})
                 </h4>
-                <span className="text-xs text-zinc-400">
-                  Toplam {formatRank(activeCityModal.program_count)} Lisans Programı
+                <span className="text-xs text-[#6B7065]">
+                  {formatRank(activeCityModal.program_count)} program
                 </span>
               </div>
 
-              {/* Fast search filter inside modal if there are many universities */}
               {activeCityModal.top_universities.length > 5 && (
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7065]" />
                   <input
                     type="text"
                     value={modalUniFilter}
                     onChange={(e) => setModalUniFilter(e.target.value)}
-                    placeholder={`${activeCityModal.city_name} içindeki üniversitelerde ara (${activeCityModal.top_universities.length} üniversite)...`}
-                    className="w-full pl-9 pr-8 py-2 rounded-xl bg-zinc-950/80 border border-zinc-800 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+                    placeholder="Üniversite ara..."
+                    className="w-full pl-9 pr-8 py-2 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800 text-xs text-[#171A12] dark:text-zinc-100 placeholder-[#6B7065]/75 focus:outline-none focus:border-emerald-500"
                   />
-                  {modalUniFilter && (
-                    <button
-                      onClick={() => setModalUniFilter("")}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
                 </div>
               )}
 
-              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                {displayedModalUnis.length === 0 ? (
-                  <div className="text-center py-6 text-zinc-500 text-xs bg-zinc-950/40 rounded-xl border border-zinc-800">
-                    "{modalUniFilter}" aramasıyla eşleşen üniversite bulunamadı.
-                  </div>
-                ) : (
-                  displayedModalUnis.map((uni) => (
-                    <div
-                      key={uni.name}
-                      className="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800 flex items-center justify-between text-xs hover:border-zinc-700 transition"
-                    >
-                      <div>
-                        <h5 className="font-semibold text-white">{uni.name}</h5>
-                        <span className="text-[11px] text-zinc-400">
-                          {uni.type} Üniversitesi • {uni.program_count} lisans programı
-                        </span>
-                      </div>
-                      <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          uni.type === "Devlet"
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                        }`}
-                      >
-                        {uni.type}
-                      </span>
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                {displayedModalUnis.map((uni) => (
+                  <div
+                    key={uni.name}
+                    className="p-3 rounded-xl bg-[#E8EBE0] dark:bg-[#09090b] border border-[#D0D5C6] dark:border-zinc-800/70 flex items-center justify-between text-xs"
+                  >
+                    <div>
+                      <div className="font-medium text-[#171A12] dark:text-zinc-100">{uni.name}</div>
+                      <span className="text-[11px] text-[#6B7065]">{uni.program_count} program</span>
                     </div>
-                  ))
-                )}
+                    <span
+                      className={`px-2 py-0.5 rounded text-[11px] font-medium ${
+                        uni.type === "Devlet"
+                          ? "bg-[#E5EDC8] dark:bg-emerald-500/10 text-[#526B19] dark:text-emerald-400"
+                          : "bg-amber-500/12 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                      }`}
+                    >
+                      {uni.type}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Score Type Distribution Badges */}
-            <div className="mt-5 pt-4 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-zinc-400 font-medium">Puan Türleri:</span>
+            <div className="pt-4 border-t border-[#D0D5C6] dark:border-zinc-800 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-1.5 text-[11px] font-mono text-[#6B7065] dark:text-zinc-400">
                 {Object.entries(activeCityModal.score_types_count).map(([st, cnt]) => (
-                  <span
-                    key={st}
-                    className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700"
-                  >
+                  <span key={st} className="px-2 py-0.5 rounded bg-[#DFE4D5] dark:bg-zinc-900 border border-[#D0D5C6] dark:border-zinc-800">
                     {st}: {cnt}
                   </span>
                 ))}
@@ -474,14 +363,14 @@ export const TurkeyPreferenceMap: React.FC<Props> = ({ onSelectCityForSearch }) 
 
               {onSelectCityForSearch && (
                 <button
+                  type="button"
                   onClick={() => {
                     onSelectCityForSearch(activeCityModal.city_name);
                     setActiveCityModal(null);
                   }}
-                  className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs shadow-lg shadow-emerald-500/20 transition flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-[#C6F432] hover:bg-[#b5e422] text-[#171A12] font-semibold text-xs transition cursor-pointer"
                 >
-                  <Compass className="w-4 h-4 text-black" />
-                  <span>{activeCityModal.city_name} Programlarını Keşfet</span>
+                  {activeCityModal.city_name} Programlarını Gör
                 </button>
               )}
             </div>
